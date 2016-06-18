@@ -10,4 +10,3 @@
 +W w
 -smp enable
 +zdbbl 32768
--noinput

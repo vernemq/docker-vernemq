@@ -8,6 +8,7 @@ RUN dpkg -i /tmp/vernemq.deb
 
 ADD files/vm.args /etc/vernemq/vm.args
 ADD bin/vernemq.sh /usr/sbin/start_vernemq
+ADD bin/rand_cluster_node.escript /var/lib/vernemq/rand_cluster_node.escript
 
 EXPOSE \ 
     # MQTT
