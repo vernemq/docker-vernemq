@@ -13,6 +13,22 @@ if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
     echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${DOCKER_VERNEMQ_DISCOVERY_NODE}')\"" >> /etc/vernemq/vm.args
 fi
 
+if env | grep -q "DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on"; then
+    echo "allow_anonymous = on" >> /etc/vernemq/vernemq.conf
+fi
+
+if env | grep -q "DOCKER_VERNEMQ_TRADE_CONSISTENCY=on"; then
+    echo "trade_consistency = on" >> /etc/vernemq/vernemq.conf
+fi
+
+if env | grep -q "DOCKER_VERNEMQ_ALLOW_MULTIPLE_SESSIONS=on"; then
+    echo "allow_multiple_sessions = on" >> /etc/vernemq/vernemq.conf
+fi
+
+if env | grep -q "DOCKER_VERNEMQ_MAX_CLIENT_ID_SIZE"; then
+    echo "max_client_id_size = ${DOCKER_VERNEMQ_MAX_CLIENT_ID_SIZE}" >> /etc/vernemq/vernemq.conf
+fi
+
 echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
 echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
 echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /etc/vernemq/vernemq.conf
