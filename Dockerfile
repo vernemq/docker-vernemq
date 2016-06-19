@@ -20,7 +20,7 @@ EXPOSE \
     # EPMD - Erlang Port Mapper Daemon
     4349 \
     # Specific Distributed Erlang Port Range 
-    9100 9101 9102 9103 9104 9105 9105 9107 9108 9109
+    9100 9101 9102 9103 9104 9105 9106 9107 9108 9109
 
 VOLUME ["/var/log/vernemq", "/var/lib/vernemq"]
 
