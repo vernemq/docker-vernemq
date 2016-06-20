@@ -25,7 +25,9 @@ This starts a new node that listens on 1883 for MQTT connections and on 8080 for
 This allows a newly started container to automatically join a VerneMQ cluster. Assuming you started your first node like the example above you could autojoin the cluster (which currently consists of a single container 'vernemq1') like the following:
 
     docker run -e "DOCKER_VERNEMQ_DISCOVERY_NODE=<IP-OF-VERNEMQ1>" --name vernemq2 -d erlio/docker-vernemq
-    
+
+(Note, you can find the IP of a docker container using `docker inspect <containername/cid> | grep \"IPAddress\"`).
+
 ### Checking cluster status
 
 To check if the bove containers have successfully clustered you can issue the ```vmq-admin``` command:
