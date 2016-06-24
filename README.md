@@ -15,6 +15,10 @@ VerneMQ is an Apache2 licensed distributed MQTT broker, developed in Erlang.
 ### Start a VerneMQ cluster node
 
     docker run --name vernemq1 -d erlio/docker-vernemq
+   
+Somtimes you need to configure a forwarding for ports (on a Mac for example):
+
+    docker run -p 1883:1883 --name vernemq1 -d erlio/docker-vernemq
 
 This starts a new node that listens on 1883 for MQTT connections and on 8080 for MQTT over websocket connections. However, at this moment the broker won't be able to authenticate the connecting clients. To allow anonymous clients use the ```DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on``` environment variable.
 
