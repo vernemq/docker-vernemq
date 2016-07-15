@@ -8,7 +8,7 @@ RUN apt-get update && apt-get install -y \
     sudo \
 && rm -rf /var/lib/apt/lists/*
 
-ENV VERNEMQ_VERSION 0.12.5p5
+ENV VERNEMQ_VERSION 0.13.1
 
 ADD https://bintray.com/artifact/download/erlio/vernemq/deb/jessie/vernemq_$VERNEMQ_VERSION-1_amd64.deb /tmp/vernemq.deb
 
@@ -29,7 +29,9 @@ EXPOSE \
     # EPMD - Erlang Port Mapper Daemon
     4349 \
     # Specific Distributed Erlang Port Range 
-    9100 9101 9102 9103 9104 9105 9106 9107 9108 9109
+    9100 9101 9102 9103 9104 9105 9106 9107 9108 9109 \
+    # Prometheus Metrics
+    8888
 
 VOLUME ["/var/log/vernemq", "/var/lib/vernemq", "/etc/vernemq"]
 
