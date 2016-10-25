@@ -22,6 +22,8 @@ ADD bin/rand_cluster_node.escript /var/lib/vernemq/rand_cluster_node.escript
 EXPOSE \ 
     # MQTT
     1883 \
+    # MQTT/SSL
+    8883 \
     # MQTT WebSockets
     8080 \
     # VerneMQ Message Distribution
