@@ -29,6 +29,18 @@ if env | grep -q "DOCKER_VERNEMQ_MAX_CLIENT_ID_SIZE"; then
     echo "max_client_id_size = ${DOCKER_VERNEMQ_MAX_CLIENT_ID_SIZE}" >> /etc/vernemq/vernemq.conf
 fi
 
+if env | grep -q "DOCKER_VERNEMQ_MAX_ONLINE_MESSAGES"; then
+    echo "max_online_messages = ${DOCKER_VERNEMQ_MAX_ONLINE_MESSAGES}" >> /etc/vernemq/vernemq.conf
+fi
+
+if env | grep -q "DOCKER_VERNEMQ_MAX_OFFLINE_MESSAGES"; then
+    echo "max_offline_messages = ${DOCKER_VERNEMQ_MAX_OFFLINE_MESSAGES}" >> /etc/vernemq/vernemq.conf
+fi
+
+if env | grep -q "DOCKER_VERNEMQ_MAX_INFLIGHT_MESSAGES"; then
+    echo "max_inflight_messages = ${DOCKER_VERNEMQ_MAX_INFLIGHT_MESSAGES}" >> /etc/vernemq/vernemq.conf
+fi
+
 echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
 echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
 echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /etc/vernemq/vernemq.conf
