@@ -13,6 +13,10 @@ if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
     echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${DOCKER_VERNEMQ_DISCOVERY_NODE}')\"" >> /etc/vernemq/vm.args
 fi
 
+sed -i '/########## Start ##########/,/########## End ##########/d' /etc/vernemq/vernemq.conf
+
+echo "########## Start ##########" >> /etc/vernemq/vernemq.conf
+
 if env | grep -q "DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on"; then
     echo "allow_anonymous = on" >> /etc/vernemq/vernemq.conf
 fi
@@ -36,6 +40,7 @@ echo "listener.ws.default = ${IP_ADDRESS}:8080" >> /etc/vernemq/vernemq.conf
 echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /etc/vernemq/vernemq.conf
 echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> /etc/vernemq/vernemq.conf
 
+echo "########## End ##########" >> /etc/vernemq/vernemq.conf
 
 pid=0
 
