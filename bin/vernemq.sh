@@ -17,21 +17,7 @@ sed -i '/########## Start ##########/,/########## End ##########/d' /etc/vernemq
 
 echo "########## Start ##########" >> /etc/vernemq/vernemq.conf
 
-if env | grep -q "DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on"; then
-    echo "allow_anonymous = on" >> /etc/vernemq/vernemq.conf
-fi
-
-if env | grep -q "DOCKER_VERNEMQ_TRADE_CONSISTENCY=on"; then
-    echo "trade_consistency = on" >> /etc/vernemq/vernemq.conf
-fi
-
-if env | grep -q "DOCKER_VERNEMQ_ALLOW_MULTIPLE_SESSIONS=on"; then
-    echo "allow_multiple_sessions = on" >> /etc/vernemq/vernemq.conf
-fi
-
-if env | grep -q "DOCKER_VERNEMQ_MAX_CLIENT_ID_SIZE"; then
-    echo "max_client_id_size = ${DOCKER_VERNEMQ_MAX_CLIENT_ID_SIZE}" >> /etc/vernemq/vernemq.conf
-fi
+env | grep DOCKER_VERNEMQ | grep -v DISCOVERY_NODE | cut -c 16- | tr '[:upper:]' '[:lower:]' >> /etc/vernemq/vernemq.conf
 
 echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
 echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
@@ -41,6 +27,15 @@ echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /etc/vernemq/vernemq.con
 echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> /etc/vernemq/vernemq.conf
 
 echo "########## End ##########" >> /etc/vernemq/vernemq.conf
+
+# Check configuration file
+su - vernemq -c "/usr/sbin/vernemq config generate 2>&1 > /dev/null" | tee /tmp/config.out | grep error
+
+if [ $? -ne 1 ]; then
+    echo "configuration error, exit"
+    echo "$(cat /tmp/config.out)"
+    exit $?
+fi
 
 pid=0
 
