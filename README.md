@@ -46,5 +46,11 @@ To check if the bove containers have successfully clustered you can issue the ``
     
 All ```vmq-admin``` commands are available. See https://vernemq.com/docs/administration/ for more information.
 
+### VerneMQ Configuration
 
-
+All configuration parameters that are available in `vernemq.conf` can be defined
+using the `DOCKER_VERNEMQ` prefix followed by the confguration parameter name.
+E.g: `allow_anonymous=on` is `-e "DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on"` or
+`allow_register_during_netsplit=on` is
+`-e "DOCKER_VERNEMQ_ALLOW_REGISTER_DURING_NETSPLIT=on"`. All available configuration
+parameters can be found on https://vernemq.com/docs/configuration/.
