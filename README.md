@@ -46,6 +46,11 @@ To check if the bove containers have successfully clustered you can issue the ``
     
 All ```vmq-admin``` commands are available. See https://vernemq.com/docs/administration/ for more information.
 
+### Starting a cluster in a docker swarm
+see [an example docker-compose.yml](docker-compose.yml)
+
+    docker deploy --compose-file docker-compose.yml vernemq
+
 ### VerneMQ Configuration
 
 All configuration parameters that are available in `vernemq.conf` can be defined

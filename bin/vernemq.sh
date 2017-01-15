@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 
-IP_ADDRESS=$(ip -4 addr show eth0 | grep -oP "(?<=inet).*(?=/)"| sed -e "s/^[[:space:]]*//" | tail -n 1)
+IP_ADDRESS=$(ip -4 addr show eth0 | grep -oP "(?<=inet).*(?=/)"| sed -e "s/^[[:space:]]*//"| tail -n 1)
+if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
+  IP_ADDRESS=$(getent hosts `hostname` | awk '{ print $1 }' | head -n 1)
+fi
 
 # Ensure correct ownership and permissions on volumes
 chown vernemq:vernemq /var/lib/vernemq /var/log/vernemq
@@ -8,10 +11,6 @@ chmod 755 /var/lib/vernemq /var/log/vernemq
 
 # Ensure the Erlang node name is set correctly
 sed -i.bak "s/VerneMQ@127.0.0.1/VerneMQ@${IP_ADDRESS}/" /etc/vernemq/vm.args
-
-if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
-    echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${DOCKER_VERNEMQ_DISCOVERY_NODE}')\"" >> /etc/vernemq/vm.args
-fi
 
 sed -i '/########## Start ##########/,/########## End ##########/d' /etc/vernemq/vernemq.conf
 
@@ -21,10 +20,10 @@ env | grep DOCKER_VERNEMQ | grep -v DISCOVERY_NODE | cut -c 16- | tr '[:upper:]'
 
 echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
 echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
-echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /etc/vernemq/vernemq.conf
-echo "listener.ws.default = ${IP_ADDRESS}:8080" >> /etc/vernemq/vernemq.conf
-echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /etc/vernemq/vernemq.conf
-echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> /etc/vernemq/vernemq.conf
+echo "listener.tcp.default = 0.0.0.0:1883" >> /etc/vernemq/vernemq.conf
+echo "listener.ws.default = 0.0.0.0:8080" >> /etc/vernemq/vernemq.conf
+echo "listener.vmq.clustering = 0.0.0.0:44053" >> /etc/vernemq/vernemq.conf
+echo "listener.http.metrics = 0.0.0.0:8888" >> /etc/vernemq/vernemq.conf
 
 echo "########## End ##########" >> /etc/vernemq/vernemq.conf
 
@@ -62,6 +61,11 @@ trap 'kill ${!}; sigterm_handler' SIGTERM
 
 /usr/sbin/vernemq start
 pid=$(ps aux | grep '[b]eam.smp' | awk '{print $2}')
+
+if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
+    DOCKER_VERNEMQ_DISCOVERY_NODE=$(getent hosts ${DOCKER_VERNEMQ_DISCOVERY_NODE} | awk '{ print $1 }' | head -n 1)
+    wait-for-it.sh ${IP_ADDRESS}:44053 ${DOCKER_VERNEMQ_DISCOVERY_NODE}:44053 && vmq-admin cluster join discovery-node=VerneMQ@${DOCKER_VERNEMQ_DISCOVERY_NODE}
+fi
 
 while true
 do
