@@ -43,5 +43,7 @@ EXPOSE 8888
 
 VOLUME ["/var/log/vernemq", "/var/lib/vernemq", "/etc/vernemq"]
 
+HEALTHCHECK CMD vernemq ping || exit 1
+
 CMD ["start_vernemq"] 
 
