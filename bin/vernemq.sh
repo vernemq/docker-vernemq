@@ -1,9 +1,6 @@
 #!/usr/bin/env bash
 
-IP_ADDRESS=$(ip -4 addr show eth0 | grep -oP "(?<=inet).*(?=/)"| sed -e "s/^[[:space:]]*//"| tail -n 1)
-if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
-  IP_ADDRESS=$(getent hosts `hostname` | awk '{ print $1 }' | head -n 1)
-fi
+IP_ADDRESS=$(getent hosts $(hostname) | awk '{ print $1 }' | head -n 1)
 
 # Ensure correct ownership and permissions on volumes
 chown vernemq:vernemq /var/lib/vernemq /var/log/vernemq
@@ -22,8 +19,12 @@ echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.con
 echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
 echo "listener.tcp.default = 0.0.0.0:1883" >> /etc/vernemq/vernemq.conf
 echo "listener.ws.default = 0.0.0.0:8080" >> /etc/vernemq/vernemq.conf
-echo "listener.vmq.clustering = 0.0.0.0:44053" >> /etc/vernemq/vernemq.conf
-echo "listener.http.metrics = 0.0.0.0:8888" >> /etc/vernemq/vernemq.conf
+echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /etc/vernemq/vernemq.conf
+echo "listener.http.default = 0.0.0.0:8888" >> /etc/vernemq/vernemq.conf
+
+echo "listener.tcp.proxy_protocol = on" >> /etc/vernemq/vernemq.conf
+echo "listener.ws.proxy_protocol = on" >> /etc/vernemq/vernemq.conf
+echo "listener.http.proxy_protocol = on" >> /etc/vernemq/vernemq.conf
 
 echo "########## End ##########" >> /etc/vernemq/vernemq.conf
 
@@ -60,12 +61,17 @@ trap 'kill ${!}; siguser1_handler' SIGUSR1
 trap 'kill ${!}; sigterm_handler' SIGTERM
 
 /usr/sbin/vernemq start
-pid=$(ps aux | grep '[b]eam.smp' | awk '{print $2}')
+pid=$(vernemq getpid)
 
 if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
-    DOCKER_VERNEMQ_DISCOVERY_NODE=$(getent hosts ${DOCKER_VERNEMQ_DISCOVERY_NODE} | awk '{ print $1 }' | head -n 1)
     wait-for-it.sh ${IP_ADDRESS}:44053 ${DOCKER_VERNEMQ_DISCOVERY_NODE}:44053 && vmq-admin cluster join discovery-node=VerneMQ@${DOCKER_VERNEMQ_DISCOVERY_NODE}
 fi
+
+if env | grep -q "PEER_DISCOVERY_NAME"; then
+    FIRST_PEER=$(getent hosts tasks.${PEER_DISCOVERY_NAME} | awk '{ print $1 }' | sort | grep -v ${IP_ADDRESS} | head -n 1)
+    wait-for-it.sh ${IP_ADDRESS}:44053 ${FIRST_PEER}:44053 && vmq-admin cluster join discovery-node=VerneMQ@${FIRST_PEER}
+fi
+
 
 while true
 do

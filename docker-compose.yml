@@ -1,24 +1,15 @@
 version: "3"
 services:
-  mqtt_master:
-    image: chrisns/docker-vernemq:addwaitforit
-    environment:
-      - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
-      - DOCKER_VERNEMQ_ALLOW_MULTIPLE_SESSIONS=on
-
-  mqtt_slaves:
-    depends_on:
-      - mqtt_master
+  mqtt_slave:
     deploy:
       mode: replicated
-      replicas: 3
+      replicas: 4
     ports:
-      - 1883 # MQTT
-      - 8080 # MQTT WebSockets
-      - 8883 # MQTT/SSL
-      - 8888 # Prometheus Metrics
+      - 1883:1883 # MQTT
+      - 8080:8080 # MQTT WebSockets
+      - 8888:8888 # HTTP
     image: chrisns/docker-vernemq:addwaitforit
     environment:
+      - PEER_DISCOVERY_NAME=mqtt_slave
       - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
       - DOCKER_VERNEMQ_ALLOW_MULTIPLE_SESSIONS=on
-      - DOCKER_VERNEMQ_DISCOVERY_NODE=mqtt_master
