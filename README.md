@@ -54,3 +54,13 @@ E.g: `allow_anonymous=on` is `-e "DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on"` or
 `allow_register_during_netsplit=on` is
 `-e "DOCKER_VERNEMQ_ALLOW_REGISTER_DURING_NETSPLIT=on"`. All available configuration
 parameters can be found on https://vernemq.com/docs/configuration/.
+
+#### Remarks
+
+Some of our configuration variables contain dots `.`. For example if you want to
+adjust the log level of VerneMQ you'd use `-e
+"DOCKER_VERNEMQ_LOG.CONSOLE.LEVEL=debug"`. However, some container platforms
+such as Kubernetes don't support dots and other special characters in 
+environment variables. If you are on such a platform you could substitute the
+dots with two underscores `__`. The example above would look like `-e
+"DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL=debug"`.

@@ -17,7 +17,7 @@ sed -i '/########## Start ##########/,/########## End ##########/d' /etc/vernemq
 
 echo "########## Start ##########" >> /etc/vernemq/vernemq.conf
 
-env | grep DOCKER_VERNEMQ | grep -v DISCOVERY_NODE | cut -c 16- | tr '[:upper:]' '[:lower:]' >> /etc/vernemq/vernemq.conf
+env | grep DOCKER_VERNEMQ | grep -v DISCOVERY_NODE | cut -c 16- | tr '[:upper:]' '[:lower:]' | sed 's/__/./g' >> /etc/vernemq/vernemq.conf
 
 echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
 echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
