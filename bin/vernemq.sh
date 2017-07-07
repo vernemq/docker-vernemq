@@ -27,9 +27,9 @@ fi
 
 for vernemq_user in $(env | grep DOCKER_VERNE_USER);
     do
-        username=$(echo $vernemq_user | awk -F '=' '{ print $1 }' | sed 's/DOCKER_VERNE_USER_//g')
+        username=$(echo $vernemq_user | awk -F '=' '{ print $1 }' | sed 's/DOCKER_VERNE_USER_//g' | tr '[:upper:]' '[:lower:]')
         password=$(echo $vernemq_user | awk -F '=' '{ print $2 }')
-        vmq-passwd -c $DOCKER_VERNEMQ_PASSWORD_FILE $username <<EOF
+        vmq-passwd -c /etc/vernemq/vmq.passwd $username <<EOF
 $password
 $password
 EOF

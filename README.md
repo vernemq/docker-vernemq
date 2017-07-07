@@ -75,7 +75,7 @@ by adding users and passwords as environment variables as follows:
 `DOCKER_VERNE_USER_<USERNAME>='password'`
 
 where `<USERNAME>` is the username you want to use. This can be done as many times as necessary
-to create the users you want.
+to create the users you want. The usernames will always be created in lowercase
 
 *STUPID CAVEAT* - You cannot have a `=` character in your password. Sorry, it's whack, feel free to
 open a pull request.
