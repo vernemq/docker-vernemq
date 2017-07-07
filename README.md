@@ -72,9 +72,9 @@ dots with two underscores `__`. The example above would look like `-e
 You can set up [File Based Authentication](https://vernemq.com/docs/configuration/authentication.html)
 by adding users and passwords as environment variables as follows:
 
-DOCKER_VERNE_USER_<USERNAME>='password'
+`DOCKER_VERNE_USER_<USERNAME>='password'`
 
-where <USERNAME> is the username you want to use. This can be done as many times as necessary
+where `<USERNAME>` is the username you want to use. This can be done as many times as necessary
 to create the users you want.
 
 *STUPID CAVEAT* - You cannot have a `=` character in your password. Sorry, it's whack, feel free to
