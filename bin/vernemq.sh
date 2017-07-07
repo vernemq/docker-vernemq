@@ -17,17 +17,17 @@ sed -i '/########## Start ##########/,/########## End ##########/d' /etc/vernemq
 
 echo "########## Start ##########" >> /etc/vernemq/vernemq.conf
 
-env | grep DOCKER_VERNEMQ | grep -v DISCOVERY_NODE | cut -c 16- | tr '[:upper:]' '[:lower:]' | sed 's/__/./g' >> /etc/vernemq/vernemq.conf
+env | grep DOCKER_VERNEMQ | grep -v DISCOVERY_NODE|DOCKER_VERNEMQ_USER | cut -c 16- | tr '[:upper:]' '[:lower:]' | sed 's/__/./g' >> /etc/vernemq/vernemq.conf
 
-users_are_set=$(env | grep DOCKER_VERNE_USER)
+users_are_set=$(env | grep DOCKER_VERNEMQ_USER)
 if [ ! -z $users_are_set ]
     then
         echo "vmq_passwd.password_file = /etc/vernemq/vmq.passwd" >> /etc/vernemq/vernemq.conf
 fi
 
-for vernemq_user in $(env | grep DOCKER_VERNE_USER);
+for vernemq_user in $(env | grep DOCKER_VERNEMQ_USER);
     do
-        username=$(echo $vernemq_user | awk -F '=' '{ print $1 }' | sed 's/DOCKER_VERNE_USER_//g' | tr '[:upper:]' '[:lower:]')
+        username=$(echo $vernemq_user | awk -F '=' '{ print $1 }' | sed 's/DOCKER_VERNEMQ_USER_//g' | tr '[:upper:]' '[:lower:]')
         password=$(echo $vernemq_user | awk -F '=' '{ print $2 }')
         vmq-passwd -c /etc/vernemq/vmq.passwd $username <<EOF
 $password

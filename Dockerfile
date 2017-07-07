@@ -6,7 +6,6 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     logrotate \
     sudo \
-    vim \
 && rm -rf /var/lib/apt/lists/*
 
 ENV VERNEMQ_VERSION 1.1.0
