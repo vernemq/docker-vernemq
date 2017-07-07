@@ -1,7 +1,5 @@
 # docker-vernemq
 
-[TOC]
-
 ## What is VerneMQ?
 
 VerneMQ is a high-performance, distributed MQTT message broker. It scales
