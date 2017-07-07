@@ -19,15 +19,10 @@ echo "########## Start ##########" >> /etc/vernemq/vernemq.conf
 
 env | grep DOCKER_VERNEMQ | grep -v DISCOVERY_NODE | cut -c 16- | tr '[:upper:]' '[:lower:]' | sed 's/__/./g' >> /etc/vernemq/vernemq.conf
 
-if [ -z $DOCKER_VERNEMQ_PASSWORD_FILE ];
+users_are_set=$(env | grep DOCKER_VERNE_USER)
+if [ ! -z $users_are_set ]
     then
-        DOCKER_VERNEMQ_PASSWORD_FILE='/etc/vernemq/vmq.passwd'
-        # If users were specified, add the password file to the config
-        users_are_set=$(env | grep DOCKER_VERNE_USER)
-        if [ ! -z $users_are_set ]
-            then
-                echo "vmq_passwd.password_file = $DOCKER_VERNEMQ_PASSWORD_FILE" >> /etc/vernemq/vernemq.conf
-        fi
+        echo "vmq_passwd.password_file = /etc/vernemq/vmq.passwd" >> /etc/vernemq/vernemq.conf
 fi
 
 for vernemq_user in $(env | grep DOCKER_VERNE_USER);

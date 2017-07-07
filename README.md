@@ -1,5 +1,7 @@
 # docker-vernemq
 
+[TOC]
+
 ## What is VerneMQ?
 
 VerneMQ is a high-performance, distributed MQTT message broker. It scales
@@ -64,3 +66,16 @@ such as Kubernetes don't support dots and other special characters in
 environment variables. If you are on such a platform you could substitute the
 dots with two underscores `__`. The example above would look like `-e
 "DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL=debug"`.
+
+#### File Based Authentication
+
+You can set up [File Based Authentication](https://vernemq.com/docs/configuration/authentication.html)
+by adding users and passwords as environment variables as follows:
+
+DOCKER_VERNE_USER_<USERNAME>='password'
+
+where <USERNAME> is the username you want to use. This can be done as many times as necessary
+to create the users you want.
+
+*STUPID CAVEAT* - You cannot have a `=` character in your password. Sorry, it's whack, feel free to
+open a pull request.
