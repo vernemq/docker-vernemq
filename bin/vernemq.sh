@@ -19,6 +19,27 @@ echo "########## Start ##########" >> /etc/vernemq/vernemq.conf
 
 env | grep DOCKER_VERNEMQ | grep -v DISCOVERY_NODE | cut -c 16- | tr '[:upper:]' '[:lower:]' | sed 's/__/./g' >> /etc/vernemq/vernemq.conf
 
+if [ -z $DOCKER_VERNEMQ_PASSWORD_FILE ];
+    then
+        DOCKER_VERNEMQ_PASSWORD_FILE='/etc/vernemq/vmq.passwd'
+        # If users were specified, add the password file to the config
+        users_are_set=$(env | grep DOCKER_VERNE_USER)
+        if [ ! -z $users_are_set ]
+            then
+                echo "vmq_passwd.password_file = $DOCKER_VERNEMQ_PASSWORD_FILE" >> /etc/vernemq/vernemq.conf
+        fi
+fi
+
+for vernemq_user in $(env | grep DOCKER_VERNE_USER);
+    do
+        username=$(echo $vernemq_user | awk -F '=' '{ print $1 }' | sed 's/DOCKER_VERNE_USER_//g')
+        password=$(echo $vernemq_user | awk -F '=' '{ print $2 }')
+        vmq-passwd -c $DOCKER_VERNEMQ_PASSWORD_FILE $username <<EOF
+$password
+$password
+EOF
+    done
+
 echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
 echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
 echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /etc/vernemq/vernemq.conf
