@@ -1,0 +1,15 @@
+version: "3"
+services:
+  mqtt_slave:
+    deploy:
+      mode: replicated
+      replicas: 4
+    ports:
+      - 1883:1883 # MQTT
+      - 8080:8080 # MQTT WebSockets
+      - 8888:8888 # HTTP
+    image: chrisns/docker-vernemq:addwaitforit
+    environment:
+      - PEER_DISCOVERY_NAME=mqtt_slave
+      - DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on
+      - DOCKER_VERNEMQ_ALLOW_MULTIPLE_SESSIONS=on
