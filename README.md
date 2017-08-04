@@ -36,7 +36,7 @@ This allows a newly started container to automatically join a VerneMQ cluster. A
 
 To check if the bove containers have successfully clustered you can issue the ```vmq-admin``` command:
 
-    docker exec vernemq1 vmq-admin cluster status
+    docker exec vernemq1 vmq-admin cluster show
     +--------------------+-------+
     |        Node        |Running|
     +--------------------+-------+
