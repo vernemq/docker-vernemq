@@ -7,7 +7,11 @@ chown vernemq:vernemq /var/lib/vernemq /var/log/vernemq
 chmod 755 /var/lib/vernemq /var/log/vernemq
 
 # Ensure the Erlang node name is set correctly
-sed -i.bak "s/VerneMQ@127.0.0.1/VerneMQ@${IP_ADDRESS}/" /etc/vernemq/vm.args
+if env | grep -q "DOCKER_VERNEMQ_NODENAME"; then
+    sed -i.bak "s/VerneMQ@127.0.0.1/VerneMQ@${DOCKER_VERNEMQ_NODENAME}/" /etc/vernemq/vm.args
+else
+    sed -i.bak "s/VerneMQ@127.0.0.1/VerneMQ@${IP_ADDRESS}/" /etc/vernemq/vm.args
+fi
 
 if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
     echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${DOCKER_VERNEMQ_DISCOVERY_NODE}')\"" >> /etc/vernemq/vm.args
