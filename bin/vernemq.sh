@@ -2,6 +2,10 @@
 
 IP_ADDRESS=$(ip -4 addr show eth0 | grep -oP "(?<=inet).*(?=/)"| sed -e "s/^[[:space:]]*//" | tail -n 1)
 
+if [ -n ${DOCKER_CUSTOM_VERNEMQ_BIND_ADDRESS} ]; then
+    IP_ADDRESS=${DOCKER_CUSTOM_VERNEMQ_BIND_ADDRESS}
+fi
+
 # Ensure correct ownership and permissions on volumes
 chown vernemq:vernemq /var/lib/vernemq /var/log/vernemq
 chmod 755 /var/lib/vernemq /var/log/vernemq
