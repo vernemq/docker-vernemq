@@ -8,9 +8,9 @@ chmod 755 /var/lib/vernemq /var/log/vernemq
 
 # Ensure the Erlang node name is set correctly
 if env | grep -q "DOCKER_VERNEMQ_NODENAME"; then
-    sed -i.bak "s/VerneMQ@127.0.0.1/VerneMQ@${DOCKER_VERNEMQ_NODENAME}/" /etc/vernemq/vm.args
+    sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${DOCKER_VERNEMQ_NODENAME}/" /etc/vernemq/vm.args
 else
-    sed -i.bak "s/VerneMQ@127.0.0.1/VerneMQ@${IP_ADDRESS}/" /etc/vernemq/vm.args
+    sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${IP_ADDRESS}/" /etc/vernemq/vm.args
 fi
 
 if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
