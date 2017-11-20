@@ -27,13 +27,14 @@ users_are_set=$(env | grep DOCKER_VERNEMQ_USER)
 if [ ! -z $users_are_set ]
     then
         echo "vmq_passwd.password_file = /etc/vernemq/vmq.passwd" >> /etc/vernemq/vernemq.conf
+        touch /etc/vernemq/vmq.passwd
 fi
 
 for vernemq_user in $(env | grep DOCKER_VERNEMQ_USER);
     do
         username=$(echo $vernemq_user | awk -F '=' '{ print $1 }' | sed 's/DOCKER_VERNEMQ_USER_//g' | tr '[:upper:]' '[:lower:]')
         password=$(echo $vernemq_user | awk -F '=' '{ print $2 }')
-        vmq-passwd -c /etc/vernemq/vmq.passwd $username <<EOF
+        vmq-passwd /etc/vernemq/vmq.passwd $username <<EOF
 $password
 $password
 EOF
