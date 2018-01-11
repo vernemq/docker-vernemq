@@ -6,14 +6,14 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     logrotate \
     sudo \
-&& rm -rf /var/lib/apt/lists/*
+    && rm -rf /var/lib/apt/lists/*
 
 ENV VERNEMQ_VERSION 1.2.3
 
 ADD https://bintray.com/artifact/download/erlio/vernemq/deb/jessie/vernemq_$VERNEMQ_VERSION-1_amd64.deb /tmp/vernemq.deb
+ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /usr/sbin/wait-for-it.sh
 
-RUN dpkg -i /tmp/vernemq.deb
-RUN rm /tmp/vernemq.deb
+RUN chmod +x /usr/sbin/wait-for-it.sh && dpkg -i /tmp/vernemq.deb && rm /tmp/vernemq.deb
 
 ADD files/vm.args /etc/vernemq/vm.args
 ADD bin/vernemq.sh /usr/sbin/start_vernemq
