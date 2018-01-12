@@ -6,9 +6,15 @@ RUN apt-get update && apt-get install -y \
     libssl-dev \
     logrotate \
     sudo \
+    curl \
+    jq
 && rm -rf /var/lib/apt/lists/*
 
 ENV VERNEMQ_VERSION 1.2.3
+
+# Defaults
+ENV DOCKER_VERNEMQ_KUBERNETES_NAMESPACE default
+ENV DOCKER_VERNEMQ_KUBERNETES_APP_LABEL vernemq
 
 ADD https://bintray.com/artifact/download/erlio/vernemq/deb/jessie/vernemq_$VERNEMQ_VERSION-1_amd64.deb /tmp/vernemq.deb
 

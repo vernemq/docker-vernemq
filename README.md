@@ -32,6 +32,29 @@ This allows a newly started container to automatically join a VerneMQ cluster. A
 
 (Note, you can find the IP of a docker container using `docker inspect <containername/cid> | grep \"IPAddress\"`).
 
+### Automated clustering on Kubernetes
+
+When running VerneMQ inside Kubernetes, it is possible to cause pods matching a specific label to cluster altogether automatically.
+This feature uses Kubernetes' API to discover other peers, and relies on the [default pod service account](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/) which has to be enabled.
+
+Simply set ```DOCKER_VERNEMQ_DISCOVERY_KUBERNETES=1``` in your pod's environment, and expose your own pod IP through ```MY_POD_IP``` . By default, this setting will cause all pods in the ```default``` namespace with the ```app=vernemq``` label to join the same cluster. Namespace and label settings can be overridden with ```DOCKER_VERNEMQ_KUBERNETES_NAMESPACE``` and ```DOCKER_VERNEMQ_KUBERNETES_APP_LABEL```.
+
+An example configuration of your pod's environment looks like this:
+
+    env:
+      - name: DOCKER_VERNEMQ_DISCOVERY_KUBERNETES
+        value: "1"
+      - name: MY_POD_IP
+        valueFrom:
+          fieldRef:
+            fieldPath: status.podIP
+      - name: DOCKER_VERNEMQ_KUBERNETES_NAMESPACE
+        value: "mynamespace"
+      - name: DOCKER_VERNEMQ_KUBERNETES_APP_LABEL
+        value: "myverneinstance"
+
+When enabling Kubernetes autoclustering, don't set ```DOCKER_VERNEMQ_DISCOVERY_NODE```.
+
 ### Checking cluster status
 
 To check if the bove containers have successfully clustered you can issue the ```vmq-admin``` command:
