@@ -7,8 +7,8 @@ RUN apt-get update && apt-get install -y \
     logrotate \
     sudo \
     curl \
-    jq
-&& rm -rf /var/lib/apt/lists/*
+    jq \
+    && rm -rf /var/lib/apt/lists/*
 
 ENV VERNEMQ_VERSION 1.2.3
 
