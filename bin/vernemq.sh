@@ -41,7 +41,7 @@ sed -i '/########## Start ##########/,/########## End ##########/d' /etc/vernemq
 
 echo "########## Start ##########" >> /etc/vernemq/vernemq.conf
 
-env | grep DOCKER_VERNEMQ | grep -v 'DISCOVERY_NODE\|KUBERNETES\|DOCKER_VERNEMQ_USER' | cut -c 16- | tr '[:upper:]' '[:lower:]' | sed 's/__/./g' >> /etc/vernemq/vernemq.conf
+env | grep DOCKER_VERNEMQ | grep -v 'DISCOVERY_NODE\|KUBERNETES\|DOCKER_VERNEMQ_USER' | cut -c 16- | awk '{match($0,/^[A-Z0-9_]*/)}{print tolower(substr($0,RSTART,RLENGTH)) substr($0,RLENGTH+1)}' | sed 's/__/./g' >> /etc/vernemq/vernemq.conf
 
 users_are_set=$(env | grep DOCKER_VERNEMQ_USER)
 if [ ! -z "$users_are_set" ]
