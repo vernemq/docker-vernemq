@@ -18,20 +18,25 @@ if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
 fi
 
 if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES"; then
-    # Let's retrieve our IP
-    kube_ips=$(curl -X GET --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt https://kubernetes.default.svc.cluster.local/api/v1/namespaces/$DOCKER_VERNEMQ_KUBERNETES_NAMESPACE/pods?labelSelector=app=$DOCKER_VERNEMQ_KUBERNETES_APP_LABEL -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" | jq '.items[].status.podIP' | sed 's/"//g' | tr '\n' ' ')
-    for kube_ip in $kube_ips;
+    # Let's set our nodename correctly
+    VERNEMQ_KUBERNETES_SUBDOMAIN=$(curl -X GET --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt https://kubernetes.default.svc.cluster.local/api/v1/namespaces/$DOCKER_VERNEMQ_KUBERNETES_NAMESPACE/pods?labelSelector=app=$DOCKER_VERNEMQ_KUBERNETES_APP_LABEL -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" | jq '.items[0].spec.subdomain' | sed 's/"//g' | tr '\n' '\0')
+    VERNEMQ_KUBERNETES_HOSTNAME=${MY_POD_NAME}.${VERNEMQ_KUBERNETES_SUBDOMAIN}.${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}.svc.cluster.local
+
+    sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${VERNEMQ_KUBERNETES_HOSTNAME}/" /etc/vernemq/vm.args
+    # Hack into K8S DNS resolution (temporarily)
+    kube_pod_names=$(curl -X GET --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt https://kubernetes.default.svc.cluster.local/api/v1/namespaces/$DOCKER_VERNEMQ_KUBERNETES_NAMESPACE/pods?labelSelector=app=$DOCKER_VERNEMQ_KUBERNETES_APP_LABEL -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ')
+    for kube_pod_name in $kube_pod_names;
     do
-        if [ $kube_ip == "null" ]
+        if [ $kube_pod_name == "null" ]
             then
                 echo "Kubernetes discovery selected, but no pods found. Maybe we're the first?"
                 echo "Anyway, we won't attempt to join any cluster."
                 break
         fi
-        if [ $kube_ip != $MY_POD_IP ]
+        if [ $kube_pod_name != $MY_POD_NAME ]
             then
-                echo "Will join an existing Kubernetes cluster with discovery node at $kube_ip"
-                echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${kube_ip}')\"" >> /etc/vernemq/vm.args
+                echo "Will join an existing Kubernetes cluster with discovery node at ${kube_pod_name}.${VERNEMQ_KUBERNETES_SUBDOMAIN}.${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}.svc.cluster.local"
+                echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${kube_pod_name}.${VERNEMQ_KUBERNETES_SUBDOMAIN}.${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}.svc.cluster.local')\"" >> /etc/vernemq/vm.args
                 break
         fi
     done
