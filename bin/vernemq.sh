@@ -42,21 +42,22 @@ if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES"; then
     done
 fi
 
-sed -i '/########## Start ##########/,/########## End ##########/d' /etc/vernemq/vernemq.conf
+if [ -f /etc/vernemq/vernemq.conf.local ]; then
+    cp /etc/vernemq/vernemq.conf.local /etc/vernemq/vernemq.conf
+else
+    sed -i '/########## Start ##########/,/########## End ##########/d' /etc/vernemq/vernemq.conf
 
-echo "########## Start ##########" >> /etc/vernemq/vernemq.conf
+    echo "########## Start ##########" >> /etc/vernemq/vernemq.conf
 
-env | grep DOCKER_VERNEMQ | grep -v 'DISCOVERY_NODE\|KUBERNETES\|DOCKER_VERNEMQ_USER' | cut -c 16- | awk '{match($0,/^[A-Z0-9_]*/)}{print tolower(substr($0,RSTART,RLENGTH)) substr($0,RLENGTH+1)}' | sed 's/__/./g' >> /etc/vernemq/vernemq.conf
+    env | grep DOCKER_VERNEMQ | grep -v 'DISCOVERY_NODE\|KUBERNETES\|DOCKER_VERNEMQ_USER' | cut -c 16- | awk '{match($0,/^[A-Z0-9_]*/)}{print tolower(substr($0,RSTART,RLENGTH)) substr($0,RLENGTH+1)}' | sed 's/__/./g' >> /etc/vernemq/vernemq.conf
 
-users_are_set=$(env | grep DOCKER_VERNEMQ_USER)
-if [ ! -z "$users_are_set" ]
-    then
+    users_are_set=$(env | grep DOCKER_VERNEMQ_USER)
+    if [ ! -z "$users_are_set" ]; then
         echo "vmq_passwd.password_file = /etc/vernemq/vmq.passwd" >> /etc/vernemq/vernemq.conf
         touch /etc/vernemq/vmq.passwd
-fi
+    fi
 
-for vernemq_user in $(env | grep DOCKER_VERNEMQ_USER);
-    do
+    for vernemq_user in $(env | grep DOCKER_VERNEMQ_USER); do
         username=$(echo $vernemq_user | awk -F '=' '{ print $1 }' | sed 's/DOCKER_VERNEMQ_USER_//g' | tr '[:upper:]' '[:lower:]')
         password=$(echo $vernemq_user | awk -F '=' '{ print $2 }')
         vmq-passwd /etc/vernemq/vmq.passwd $username <<EOF
@@ -65,14 +66,15 @@ $password
 EOF
     done
 
-echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
-echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
-echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /etc/vernemq/vernemq.conf
-echo "listener.ws.default = ${IP_ADDRESS}:8080" >> /etc/vernemq/vernemq.conf
-echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /etc/vernemq/vernemq.conf
-echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> /etc/vernemq/vernemq.conf
+    echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
+    echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
+    echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /etc/vernemq/vernemq.conf
+    echo "listener.ws.default = ${IP_ADDRESS}:8080" >> /etc/vernemq/vernemq.conf
+    echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /etc/vernemq/vernemq.conf
+    echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> /etc/vernemq/vernemq.conf
 
-echo "########## End ##########" >> /etc/vernemq/vernemq.conf
+    echo "########## End ##########" >> /etc/vernemq/vernemq.conf
+fi
 
 # Check configuration file
 su - vernemq -c "/usr/sbin/vernemq config generate 2>&1 > /dev/null" | tee /tmp/config.out | grep error
