@@ -13,6 +13,10 @@ else
     sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${IP_ADDRESS}/" /etc/vernemq/vm.args
 fi
 
+if env | grep -q "DOCKER_VERNEMQ_API_KEY"; then
+    echo "-eval \"vmq_server_cmd:set_api_key('${DOCKER_VERNEMQ_API_KEY}')\"" >> /etc/vernemq/vm.args
+fi
+
 if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
     echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${DOCKER_VERNEMQ_DISCOVERY_NODE}')\"" >> /etc/vernemq/vm.args
 fi
