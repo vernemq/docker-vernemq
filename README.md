@@ -55,6 +55,23 @@ An example configuration of your pod's environment looks like this:
 
 When enabling Kubernetes autoclustering, don't set ```DOCKER_VERNEMQ_DISCOVERY_NODE```.
 
+> If you encounter "SSL certification error (subject name does not match the host name)" like below, Please try to set ```DOCKER_VERNEMQ_KUBERNETES_INSECURE``` as "1".
+>
+> ```text
+> kubectl logs vernemq-0
+>   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+>                                  Dload  Upload   Total   Spent    Left  Speed
+>   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0curl: (51) SSL: certificate subject name 'client' does not match target host name 'kubernetes.default.svc.cluster.local'
+>   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+>                                  Dload  Upload   Total   Spent    Left  Speed
+>   0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0curl: (51) SSL: certificate subject name 'client' does not match target host name 'kubernetes.default.svc.cluster.local'
+> vernemq failed to start within 15 seconds,
+> see the output of 'vernemq console' for more information.
+> If you want to wait longer, set the environment variable
+> WAIT_FOR_ERLANG to the number of seconds to wait.
+> ...
+> ```
+
 ### Checking cluster status
 
 To check if the bove containers have successfully clustered you can issue the ```vmq-admin``` command:
