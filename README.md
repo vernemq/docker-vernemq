@@ -55,7 +55,7 @@ An example configuration of your pod's environment looks like this:
 
 When enabling Kubernetes autoclustering, don't set ```DOCKER_VERNEMQ_DISCOVERY_NODE```.
 
-> If you encounter "SSL certification error (subject name does not match the host name)" like below, you may try to set DOCKER_VERNEMQ_KUBERNETES_INSECURE to "1".
+> If you encounter "SSL certification error (subject name does not match the host name)" like below, you may try to set ```DOCKER_VERNEMQ_KUBERNETES_INSECURE``` to "1".
 >
 > ```text
 > kubectl logs vernemq-0
