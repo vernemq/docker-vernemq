@@ -17,7 +17,7 @@ if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
     echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${DOCKER_VERNEMQ_DISCOVERY_NODE}')\"" >> /etc/vernemq/vm.args
 fi
 
-# If you encounter "SSL certification error (subject name does not match the host name)", Please try to set DOCKER_VERNEMQ_KUBERNETES_INSECURE as "1".
+# If you encounter "SSL certification error (subject name does not match the host name)", you may try to set DOCKER_VERNEMQ_KUBERNETES_INSECURE to "1".
 insecure=""
 if env | grep -q "DOCKER_VERNEMQ_KUBERNETES_INSECURE"; then
     insecure="--insecure"
