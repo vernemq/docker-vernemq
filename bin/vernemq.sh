@@ -108,16 +108,12 @@ sigterm_handler() {
     exit 143; # 128 + 15 -- SIGTERM
 }
 
-# setup handlers
-# on callback, kill the last background process, which is `tail -f /dev/null`
-# and execute the specified handler
-trap 'kill ${!}; siguser1_handler' SIGUSR1
-trap 'kill ${!}; sigterm_handler' SIGTERM
+# Setup OS signal handlers
+trap 'siguser1_handler' SIGUSR1
+trap 'sigterm_handler' SIGTERM
 
-/usr/sbin/vernemq start
+# Start VerneMQ
+/usr/sbin/vernemq console -noshell -noinput $@
 pid=$(ps aux | grep '[b]eam.smp' | awk '{print $2}')
+wait $pid
 
-while true
-do
-    tail -f /var/log/vernemq/console.log & wait ${!}
-done
