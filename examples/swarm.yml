@@ -1,0 +1,13 @@
+version: '3.6'
+
+services:
+  mqtt:
+    image: vernemq
+    deploy:
+      mode: replicated
+      replicas: 3
+    environment:
+      DOCKER_VERNEMQ_ALLOW_ANONYMOUS: "on"
+      SERVICE_NAME: "{{.Service.Name}}"
+      SERVICE_LABELS: "{{.Service.Labels}}"
+      DOCKER_VERNEMQ_DISCOVERY_SWARM: 1
