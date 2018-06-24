@@ -51,34 +51,7 @@ fi
 if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_SWARM"; then
     # Let's set our nodename correctly
     IP_ADDRESS=$(hostname -i)
-    STACK_NAME=$(echo -n $SERVICE_LABELS | awk '{match($0,"com.docker.stack.namespace:[a-zA-Z0-9-_]+")}END{print substr($0,RSTART+27,RLENGTH-27)}')
-    echo Stack name: $STACK_NAME
-    SERVICE_BASE_NAME="${SERVICE_NAME#${STACK_NAME}_}"
-    echo Service base name: $SERVICE_BASE_NAME
-
     sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${IP_ADDRESS}/" /etc/vernemq/vm.args
-    
-    echo "Swarm: Swarm discovery selected"
-    for try in `seq 9 -1 0`
-    do
-        sibling_ip_address=$(comm -23 <(getent hosts tasks.$SERVICE_BASE_NAME | awk '{print $1}' | sort) <(echo $IP_ADDRESS) | head -n 1)
-        if [ -z "$sibling_ip_address" ]
-        then
-            echo "Couldn't find any siblings. Maybe we're just getting started. I'll give it $try more tries."
-            sleep 0.1
-        else
-            break
-        fi
-    done
-
-    if [ -z "$sibling_ip_address" ];
-    then
-        echo "Looks like we'll be going at it alone for starters."
-        echo "Maybe more siblings will join later."
-    else
-        echo "Found a lovely sibling who will introduce me to the swarm: $sibling_ip_address"
-        echo "-eval \"vmq_server_cmd:node_join('VerneMQ@$sibling_ip_address')\"" >> /etc/vernemq/vm.args
-    fi
 fi
 
 if [ -f /etc/vernemq/vernemq.conf.local ]; then
@@ -145,8 +118,46 @@ sigterm_handler() {
 trap 'siguser1_handler' SIGUSR1
 trap 'sigterm_handler' SIGTERM
 
+if [ -n "$DOCKER_VERNEMQ_DISCOVERY_SWARM" ]
+then
+    stack_name() {
+        echo -n $SERVICE_LABELS | awk '{match($0,"com.docker.stack.namespace:[a-zA-Z0-9-_]+")}END{print substr($0,RSTART+27,RLENGTH-27)}'
+    }
+
+    service_base_name() {
+        echo -n "${SERVICE_NAME#$(stack_name)_}"
+    }
+
+    cluster_members() {
+        vmq-admin cluster show | awk '{for (i=1; i<=NF; i++){tmp=match($i, "VerneMQ\@[0-9\.]+"); if (tmp) {print substr($0,RSTART+8,RLENGTH-8)}}}'
+    }
+
+    service_replicas() {
+        getent hosts tasks.$(service_base_name) | awk '{print $1}'
+    }
+
+    stranded_replicas() {
+        comm -23 <(service_replicas | sort) <(cluster_members | sort)
+    }
+
+    heal() {
+        new_acquaintance=$(stranded_replicas | shuf | head -n 1)
+        if [ -n "$new_acquaintance" ]
+        then
+            vmq-admin cluster join discovery-node="VerneMQ@$new_acquaintance"
+        fi
+    }
+
+    export -f stack_name
+    export -f service_base_name
+    export -f cluster_members
+    export -f service_replicas
+    export -f stranded_replicas
+    export -f heal
+    (while true; do heal; sleep 2; done &)
+fi
+
 # Start VerneMQ
 /usr/sbin/vernemq console -noshell -noinput $@
 pid=$(ps aux | grep '[b]eam.smp' | awk '{print $2}')
 wait $pid
-
