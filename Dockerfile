@@ -10,7 +10,7 @@ RUN apt-get update && apt-get install -y \
     jq \
     && rm -rf /var/lib/apt/lists/*
 
-ENV VERNEMQ_VERSION 1.3.1
+ENV VERNEMQ_VERSION 1.4.1
 
 # Defaults
 ENV DOCKER_VERNEMQ_KUBERNETES_NAMESPACE default
