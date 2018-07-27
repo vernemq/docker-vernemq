@@ -124,10 +124,12 @@ dots with two underscores `__`. The example above would look like `-e
 "DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL=debug"`.
 
 There some some exceptions on configuration names contains dots. You can see follow examples:
-|format in vernemq.conf | format in environment variable name|
-| ----------------------|------------------------------------|
-| `vmq_webhooks.pool_timeout = 60000` | `DOCKER_VERNEMQ_VMQ_WEBHOOKS__POOL_timeout=6000`|
-| `vmq_webhooks.pool_timeout = 60000` | `DOCKER_VERNEMQ_VMQ_WEBHOOKS.pool_timeout=60000`|
+
+format in vernemq.conf | format in environment variable name
+---------------------- | ------------------------------------
+ `vmq_webhooks.pool_timeout = 60000` | `DOCKER_VERNEMQ_VMQ_WEBHOOKS__POOL_timeout=6000`
+ `vmq_webhooks.pool_timeout = 60000` | `DOCKER_VERNEMQ_VMQ_WEBHOOKS.pool_timeout=60000`
+
 
 
 
