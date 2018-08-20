@@ -78,13 +78,14 @@ EOF
 
     echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
     echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
-    echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /etc/vernemq/vernemq.conf
-    echo "listener.ws.default = ${IP_ADDRESS}:8080" >> /etc/vernemq/vernemq.conf
-    echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /etc/vernemq/vernemq.conf
-    echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> /etc/vernemq/vernemq.conf
 
     echo "########## End ##########" >> /etc/vernemq/vernemq.conf
 fi
+
+# Avoid to list on any address. The ip address of the listerns it'll be always updated, preserving the port and the listener name. Even on customized ones.
+# In k8s the ip address of a pod is not static.
+# On every pod recreation even if the ip address changes it'll be updated for every listerner
+sed -i.bak "s/\(^listener.* = \)\([0-9]\{1,3\}\.\)\{1,3\}[0-9]\{1,3\}\(:[0-9]\)/\1${IP_ADDRESS}\3/g" /etc/vernemq/vernemq.conf
 
 # Check configuration file
 su - vernemq -c "/usr/sbin/vernemq config generate 2>&1 > /dev/null" | tee /tmp/config.out | grep error
