@@ -49,7 +49,9 @@ An example configuration of your pod's environment looks like this:
           fieldRef:
             fieldPath: metadata.name
       - name: DOCKER_VERNEMQ_KUBERNETES_NAMESPACE
-        value: "mynamespace"
+        valueFrom:
+          fieldRef:
+            fieldPath: metadata.namespace
       - name: DOCKER_VERNEMQ_KUBERNETES_APP_LABEL
         value: "myverneinstance"
 
