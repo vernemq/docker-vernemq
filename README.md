@@ -37,7 +37,7 @@ This allows a newly started container to automatically join a VerneMQ cluster. A
 When running VerneMQ inside Kubernetes, it is possible to cause pods matching a specific label to cluster altogether automatically.
 This feature uses Kubernetes' API to discover other peers, and relies on the [default pod service account](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/) which has to be enabled.
 
-Simply set ```DOCKER_VERNEMQ_DISCOVERY_KUBERNETES=1``` in your pod's environment, and expose your own pod name through ```MY_POD_NAME``` . By default, this setting will cause all pods in the ```default``` namespace with the ```app=vernemq``` label to join the same cluster. Namespace and label settings can be overridden with ```DOCKER_VERNEMQ_KUBERNETES_NAMESPACE``` and ```DOCKER_VERNEMQ_KUBERNETES_APP_LABEL```.
+Simply set ```DOCKER_VERNEMQ_DISCOVERY_KUBERNETES=1``` in your pod's environment, and expose your own pod name through ```MY_POD_NAME``` . By default, this setting will cause all pods in the same namespace with the ```app=vernemq``` label to join the same cluster. Namespace and label settings can be overridden with ```DOCKER_VERNEMQ_KUBERNETES_NAMESPACE``` and ```DOCKER_VERNEMQ_KUBERNETES_APP_LABEL```.
 
 An example configuration of your pod's environment looks like this:
 
@@ -48,8 +48,6 @@ An example configuration of your pod's environment looks like this:
         valueFrom:
           fieldRef:
             fieldPath: metadata.name
-      - name: DOCKER_VERNEMQ_KUBERNETES_NAMESPACE
-        value: "mynamespace"
       - name: DOCKER_VERNEMQ_KUBERNETES_APP_LABEL
         value: "myverneinstance"
 

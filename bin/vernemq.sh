@@ -24,6 +24,8 @@ if env | grep -q "DOCKER_VERNEMQ_KUBERNETES_INSECURE"; then
 fi
 
 if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES"; then
+    # Let's get the namespace if it isn't set
+    DOCKER_VERNEMQ_KUBERNETES_NAMESPACE=${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE:-`cat /var/run/secrets/kubernetes.io/serviceaccount/namespace`}
     # Let's set our nodename correctly
     VERNEMQ_KUBERNETES_SUBDOMAIN=$(curl -X GET $insecure --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt https://kubernetes.default.svc.cluster.local/api/v1/namespaces/$DOCKER_VERNEMQ_KUBERNETES_NAMESPACE/pods?labelSelector=app=$DOCKER_VERNEMQ_KUBERNETES_APP_LABEL -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" | jq '.items[0].spec.subdomain' | sed 's/"//g' | tr '\n' '\0')
     if [ $VERNEMQ_KUBERNETES_SUBDOMAIN == "null" ]; then
