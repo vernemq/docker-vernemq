@@ -108,7 +108,7 @@ parameters can be found on https://vernemq.com/docs/configuration/.
 VerneMQ store crash and error log files in `/var/log/vernemq/`, and, by default, 
 doesn't write console log to the disk to avoid filling the container disk space.
 However this behaviour can be changed by setting the environment variable `DOCKER_VERNEMQ_LOG__CONSOLE` to `both` 
-which tells VerneMQ to send logs to stdout ad `/var/log/vernemq/console.log`.
+which tells VerneMQ to send logs to stdout and `/var/log/vernemq/console.log`.
 For more information please see VerneMQ logging documentation: https://docs.vernemq.com/configuring-vernemq/logging
 
 #### Remarks
