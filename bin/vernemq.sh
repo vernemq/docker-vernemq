@@ -1,29 +1,25 @@
 #!/usr/bin/env bash
 
-IP_ADDRESS=$(ip -4 addr show eth0 | grep -oP "(?<=inet).*(?=/)"| sed -e "s/^[[:space:]]*//" | tail -n 1)
-
-# Ensure correct ownership and permissions on volumes
-chown vernemq:vernemq /var/lib/vernemq /var/log/vernemq
-chmod 755 /var/lib/vernemq /var/log/vernemq
+IP_ADDRESS=$(ip -4 addr show eth0 | grep -oE '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' | sed -e "s/^[[:space:]]*//" | head -n 1)
 
 # Ensure the Erlang node name is set correctly
-if env | grep -q "DOCKER_VERNEMQ_NODENAME"; then
-    sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${DOCKER_VERNEMQ_NODENAME}/" /etc/vernemq/vm.args
+if env | grep "DOCKER_VERNEMQ_NODENAME" -q; then
+    sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${DOCKER_VERNEMQ_NODENAME}/" /vernemq/etc/vm.args
 else
-    sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${IP_ADDRESS}/" /etc/vernemq/vm.args
+    sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${IP_ADDRESS}/" /vernemq/etc/vm.args
 fi
 
-if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_NODE"; then
-    echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${DOCKER_VERNEMQ_DISCOVERY_NODE}')\"" >> /etc/vernemq/vm.args
+if env | grep "DOCKER_VERNEMQ_DISCOVERY_NODE" -q; then
+    echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${DOCKER_VERNEMQ_DISCOVERY_NODE}')\"" >> /vernemq/etc/vm.args
 fi
 
 # If you encounter "SSL certification error (subject name does not match the host name)", you may try to set DOCKER_VERNEMQ_KUBERNETES_INSECURE to "1".
 insecure=""
-if env | grep -q "DOCKER_VERNEMQ_KUBERNETES_INSECURE"; then
+if env | grep "DOCKER_VERNEMQ_KUBERNETES_INSECURE" -q; then
     insecure="--insecure"
 fi
 
-if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES"; then
+if env | grep "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES" -q; then
     DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME=${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME:-cluster.local}
     # Let's get the namespace if it isn't set
     DOCKER_VERNEMQ_KUBERNETES_NAMESPACE=${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE:-`cat /var/run/secrets/kubernetes.io/serviceaccount/namespace`}
@@ -35,7 +31,7 @@ if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES"; then
         VERNEMQ_KUBERNETES_HOSTNAME=${MY_POD_NAME}.${VERNEMQ_KUBERNETES_SUBDOMAIN}.${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}
     fi
 
-    sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${VERNEMQ_KUBERNETES_HOSTNAME}/" /etc/vernemq/vm.args
+    sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${VERNEMQ_KUBERNETES_HOSTNAME}/" /vernemq/etc/vm.args
     # Hack into K8S DNS resolution (temporarily)
     kube_pod_names=$(curl -X GET $insecure --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt https://kubernetes.default.svc.$DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME/api/v1/namespaces/$DOCKER_VERNEMQ_KUBERNETES_NAMESPACE/pods?labelSelector=app=$DOCKER_VERNEMQ_KUBERNETES_APP_LABEL -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ')
     for kube_pod_name in $kube_pod_names;
@@ -49,48 +45,48 @@ if env | grep -q "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES"; then
         if [ $kube_pod_name != $MY_POD_NAME ]
             then
                 echo "Will join an existing Kubernetes cluster with discovery node at ${kube_pod_name}.${VERNEMQ_KUBERNETES_SUBDOMAIN}.${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}"
-                echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${kube_pod_name}.${VERNEMQ_KUBERNETES_SUBDOMAIN}.${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}')\"" >> /etc/vernemq/vm.args
+                echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${kube_pod_name}.${VERNEMQ_KUBERNETES_SUBDOMAIN}.${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}')\"" >> /vernemq/etc/vm.args
                 break
         fi
     done
 fi
 
-if [ -f /etc/vernemq/vernemq.conf.local ]; then
-    cp /etc/vernemq/vernemq.conf.local /etc/vernemq/vernemq.conf
+if [ -f /vernemq/etc/vernemq.conf.local ]; then
+    cp /vernemq/etc/vernemq.conf.local /vernemq/etc/vernemq.conf
 else
-    sed -i '/########## Start ##########/,/########## End ##########/d' /etc/vernemq/vernemq.conf
+    sed -i '/########## Start ##########/,/########## End ##########/d' /vernemq/etc/vernemq.conf
 
-    echo "########## Start ##########" >> /etc/vernemq/vernemq.conf
+    echo "########## Start ##########" >> /vernemq/etc/vernemq.conf
 
-    env | grep DOCKER_VERNEMQ | grep -v 'DISCOVERY_NODE\|KUBERNETES\|DOCKER_VERNEMQ_USER' | cut -c 16- | awk '{match($0,/^[A-Z0-9_]*/)}{print tolower(substr($0,RSTART,RLENGTH)) substr($0,RLENGTH+1)}' | sed 's/__/./g' >> /etc/vernemq/vernemq.conf
+    env | grep DOCKER_VERNEMQ | grep -v 'DISCOVERY_NODE\|KUBERNETES\|DOCKER_VERNEMQ_USER' | cut -c 16- | awk '{match($0,/^[A-Z0-9_]*/)}{print tolower(substr($0,RSTART,RLENGTH)) substr($0,RLENGTH+1)}' | sed 's/__/./g' >> /vernemq/etc/vernemq.conf
 
     users_are_set=$(env | grep DOCKER_VERNEMQ_USER)
     if [ ! -z "$users_are_set" ]; then
-        echo "vmq_passwd.password_file = /etc/vernemq/vmq.passwd" >> /etc/vernemq/vernemq.conf
-        touch /etc/vernemq/vmq.passwd
+        echo "vmq_passwd.password_file = /vernemq/etc/vmq.passwd" >> /vernemq/etc/vernemq.conf
+        touch /vernemq/etc/vmq.passwd
     fi
 
     for vernemq_user in $(env | grep DOCKER_VERNEMQ_USER); do
         username=$(echo $vernemq_user | awk -F '=' '{ print $1 }' | sed 's/DOCKER_VERNEMQ_USER_//g' | tr '[:upper:]' '[:lower:]')
         password=$(echo $vernemq_user | awk -F '=' '{ print $2 }')
-        vmq-passwd /etc/vernemq/vmq.passwd $username <<EOF
+        /vernemq/bin/vmq-passwd /vernemq/etc/vmq.passwd $username <<EOF
 $password
 $password
 EOF
     done
 
-    echo "erlang.distribution.port_range.minimum = 9100" >> /etc/vernemq/vernemq.conf
-    echo "erlang.distribution.port_range.maximum = 9109" >> /etc/vernemq/vernemq.conf
-    echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /etc/vernemq/vernemq.conf
-    echo "listener.ws.default = ${IP_ADDRESS}:8080" >> /etc/vernemq/vernemq.conf
-    echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /etc/vernemq/vernemq.conf
-    echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> /etc/vernemq/vernemq.conf
+    echo "erlang.distribution.port_range.minimum = 9100" >> /vernemq/etc/vernemq.conf
+    echo "erlang.distribution.port_range.maximum = 9109" >> /vernemq/etc/vernemq.conf
+    echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /vernemq/etc/vernemq.conf
+    echo "listener.ws.default = ${IP_ADDRESS}:8080" >> /vernemq/etc/vernemq.conf
+    echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /vernemq/etc/vernemq.conf
+    echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> /vernemq/etc/vernemq.conf
 
-    echo "########## End ##########" >> /etc/vernemq/vernemq.conf
+    echo "########## End ##########" >> /vernemq/etc/vernemq.conf
 fi
 
 # Check configuration file
-su - vernemq -c "/usr/sbin/vernemq config generate 2>&1 > /dev/null" | tee /tmp/config.out | grep error
+/vernemq/bin/vernemq config generate 2>&1 > /dev/null | tee /tmp/config.out | grep error
 
 if [ $? -ne 1 ]; then
     echo "configuration error, exit"
@@ -109,7 +105,7 @@ siguser1_handler() {
 sigterm_handler() {
     if [ $pid -ne 0 ]; then
         # this will stop the VerneMQ process
-        vmq-admin cluster leave node=VerneMQ@$IP_ADDRESS -k > /dev/null
+        /vernemq/bin/vmq-admin cluster leave node=VerneMQ@$IP_ADDRESS -k > /dev/null
         wait "$pid"
     fi
     exit 143; # 128 + 15 -- SIGTERM
@@ -120,7 +116,6 @@ trap 'siguser1_handler' SIGUSR1
 trap 'sigterm_handler' SIGTERM
 
 # Start VerneMQ
-/usr/sbin/vernemq console -noshell -noinput $@
+/vernemq/bin/vernemq console -noshell -noinput $@
 pid=$(ps aux | grep '[b]eam.smp' | awk '{print $2}')
 wait $pid
-
