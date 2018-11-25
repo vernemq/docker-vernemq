@@ -2,8 +2,9 @@ FROM erlang:20.3 AS build-env
 
 WORKDIR /tmp/vernemq-build
 
-ENV VERNEMQ_VERSION 1.6.0
-ENV TARGET rel
+ARG VERNEMQ_VERSION=1.6.0
+ARG TARGET rel
+ARG VERNEMQ_REPO=https://github.com/vernemq/vernemq.git
 
 # Defaults
 ENV DOCKER_VERNEMQ_KUBERNETES_APP_LABEL vernemq
@@ -13,7 +14,7 @@ RUN \
     apt-get update \
     && apt-get -y install build-essential git libssl-dev  \
 	&& rm -rf /var/lib/apt/lists/* \
-    && git clone -b $VERNEMQ_VERSION --single-branch --depth 1 https://github.com/vernemq/vernemq.git .
+    && git clone -b $VERNEMQ_VERSION --single-branch --depth 1 $VERNEMQ_REPO .
 
 ADD bin/build.sh build.sh
 

@@ -2,17 +2,18 @@ FROM erlang:20.3-alpine AS build-env
 
 WORKDIR /tmp/vernemq-build
 
-ENV VERNEMQ_VERSION 1.6.0
-ENV TARGET rel
+ARG VERNEMQ_VERSION=1.6.0
+ARG TARGET=rel
+ARG VERNEMQ_REPO=https://github.com/vernemq/vernemq.git
 
 # Defaults
 ENV DOCKER_VERNEMQ_KUBERNETES_APP_LABEL vernemq
 ENV DOCKER_VERNEMQ_LOG__CONSOLE console
 
 RUN \
-    apk --no-cache --update --available upgrade && \
-    apk add --no-cache git autoconf build-base bsd-compat-headers cmake openssl-dev bash && \
-    git clone -b $VERNEMQ_VERSION --single-branch --depth 1 https://github.com/vernemq/vernemq.git .
+    apk --no-cache --update --available upgrade \
+    && apk add --no-cache git autoconf build-base bsd-compat-headers cmake openssl-dev bash \
+    && git clone -b $VERNEMQ_VERSION --single-branch --depth 1 $VERNEMQ_REPO .
 
 ADD bin/build.sh build.sh
 
@@ -21,8 +22,8 @@ RUN ./build.sh $TARGET
 FROM alpine
 
 RUN \
-    apk --no-cache --update --available upgrade && \
-    apk add --no-cache ncurses-libs openssl libstdc++ jq curl bash
+    apk --no-cache --update --available upgrade \
+    && apk add --no-cache ncurses-libs openssl libstdc++ jq curl bash
 
 # Defaults
 ENV DOCKER_VERNEMQ_KUBERNETES_APP_LABEL vernemq
