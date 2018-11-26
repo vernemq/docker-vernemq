@@ -1,0 +1,35 @@
+sudo: 'required'
+services:
+  - 'docker'
+
+script:
+  - 'docker build -t erlio/docker-vernemq:latest .'
+  - 'docker build -t erlio/docker-vernemq:alpine -f Dockerfile.alpine .'
+  - 'docker build --build-arg TARGET=swc -t erlio/docker-vernemq:swc-latest .'
+  - 'docker build --build-arg TARGET=swc -t erlio/docker-vernemq:swc-alpine -f Dockerfile.alpine .'
+  - 'docker run erlio/docker-vernemq:latest vernemq version'
+  - 'docker run erlio/docker-vernemq:alpine vernemq version'
+  - 'docker run erlio/docker-vernemq:swc-latest vernemq version'
+  - 'docker run erlio/docker-vernemq:swc-alpine vernemq version'
+  - if [[ -v TRAVIS_TAG ]]; then
+      docker build -t erlio/docker-vernemq:$TRAVIS_TAG . ;
+      docker build -t erlio/docker-vernemq:$TRAVIS_TAG-alpine -f Dockerfile.alpine . ;
+      docker build --build-arg TARGET=swc -t erlio/docker-vernemq:$TRAVIS_TAG-swc-latest . ;
+      docker build --build-arg TARGET=swc -t erlio/docker-vernemq:$TRAVIS_TAG-swc-alpine -f Dockerfile.alpine . ;
+    fi
+
+after_success:
+  - if [[ "$TRAVIS_BRANCH" == "master" ]]; then
+      docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
+      docker push erlio/docker-vernemq:latest ;
+      docker push erlio/docker-vernemq:alpine ;
+      docker push erlio/docker-vernemq:swc-latest ;
+      docker push erlio/docker-vernemq:swc-alpine ;
+    fi
+  - if [[ -v TRAVIS_TAG ]]; then 
+      docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
+      docker push erlio/docker-vernemq:$TRAVIS_TAG ;
+      docker push erlio/docker-vernemq:$TRAVIS_TAG-alpine ;
+      docker push erlio/docker-vernemq:$TRAVIS_TAG-swc-latest ;
+      docker push erlio/docker-vernemq:$TRAVIS_TAG-swc-alpine ;
+    fi
