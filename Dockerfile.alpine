@@ -1,4 +1,4 @@
-FROM erlang:20.3 AS build-env
+FROM erlang:20.3-alpine AS build-env
 
 WORKDIR /vernemq-build
 
@@ -11,21 +11,19 @@ ENV DOCKER_VERNEMQ_KUBERNETES_APP_LABEL vernemq
 ENV DOCKER_VERNEMQ_LOG__CONSOLE console
 
 RUN \
-    apt-get update \
-    && apt-get -y install build-essential git libssl-dev  \
+    apk --no-cache --update --available upgrade \
+    && apk add --no-cache git autoconf build-base bsd-compat-headers cmake openssl-dev bash \
     && git clone -b $VERNEMQ_GIT_REF --single-branch --depth 1 $VERNEMQ_REPO .
 
 ADD bin/build.sh build.sh
 
 RUN ./build.sh $TARGET
 
-
-FROM debian:stretch-slim
+FROM alpine:3.8
 
 RUN \
-    apt-get update \
-    && apt-get -y install openssl iproute2 \
-	&& rm -rf /var/lib/apt/lists/*
+    apk --no-cache --update --available upgrade \
+    && apk add --no-cache ncurses-libs openssl libstdc++ jq curl bash
 
 # Defaults
 ENV DOCKER_VERNEMQ_KUBERNETES_APP_LABEL vernemq
@@ -37,7 +35,7 @@ COPY --from=build-env /vernemq-build/release /vernemq
 ADD files/vm.args /vernemq/etc/vm.args
 
 RUN addgroup vernemq && \
-    adduser --system --ingroup vernemq --home /vernemq --disabled-password vernemq && \
+    adduser -H -D -G vernemq -h /vernemq vernemq && \
     chown -R vernemq:vernemq /vernemq && \
     ln -s /vernemq/etc /etc/vernemq && \
     ln -s /vernemq/data /var/lib/vernemq && \
