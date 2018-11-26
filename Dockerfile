@@ -1,9 +1,9 @@
 FROM erlang:20.3 AS build-env
 
-WORKDIR /tmp/vernemq-build
+WORKDIR /vernemq-build
 
-ARG VERNEMQ_VERSION=1.6.0
-ARG TARGET rel
+ARG VERNEMQ_GIT_REF=1.6.1
+ARG TARGET=rel
 ARG VERNEMQ_REPO=https://github.com/vernemq/vernemq.git
 
 # Defaults
@@ -13,19 +13,18 @@ ENV DOCKER_VERNEMQ_LOG__CONSOLE console
 RUN \
     apt-get update \
     && apt-get -y install build-essential git libssl-dev  \
-	&& rm -rf /var/lib/apt/lists/* \
-    && git clone -b $VERNEMQ_VERSION --single-branch --depth 1 $VERNEMQ_REPO .
+    && git clone -b $VERNEMQ_GIT_REF --single-branch --depth 1 $VERNEMQ_REPO .
 
 ADD bin/build.sh build.sh
 
 RUN ./build.sh $TARGET
 
 
-FROM debian:stretch
+FROM debian:stretch-slim
 
 RUN \
     apt-get update \
-    && apt-get -y install openssl \
+    && apt-get -y install openssl iproute2 \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Defaults
@@ -34,7 +33,7 @@ ENV DOCKER_VERNEMQ_LOG__CONSOLE console
 ADD bin/vernemq.sh /usr/sbin/start_vernemq
 
 WORKDIR /vernemq
-COPY --from=build-env /tmp/vernemq-build/release /vernemq
+COPY --from=build-env /vernemq-build/release /vernemq
 ADD files/vm.args /vernemq/etc/vm.args
 
 RUN addgroup vernemq && \
