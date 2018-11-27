@@ -1,35 +1,29 @@
 sudo: 'required'
 services:
   - 'docker'
+stages:
+  - name: build-pr
+    if: type = pull_request
+  - name: build-master
+    if: (type != pull_request) AND (branch = master)
+  - name: push-latest
+    if: (type != pull_request) AND (branch = master)
+  - name: push-tag
+    if: (type != pull_request) AND (tag IS present) AND (branch = master)
 
-script:
-  - 'docker build -t erlio/docker-vernemq:latest .'
-  - 'docker build -t erlio/docker-vernemq:alpine -f Dockerfile.alpine .'
-  - 'docker build --build-arg TARGET=swc -t erlio/docker-vernemq:swc-latest .'
-  - 'docker build --build-arg TARGET=swc -t erlio/docker-vernemq:swc-alpine -f Dockerfile.alpine .'
-  - 'docker run erlio/docker-vernemq:latest vernemq version'
-  - 'docker run erlio/docker-vernemq:alpine vernemq version'
-  - 'docker run erlio/docker-vernemq:swc-latest vernemq version'
-  - 'docker run erlio/docker-vernemq:swc-alpine vernemq version'
-  - if [[ -v TRAVIS_TAG ]]; then
-      docker build -t erlio/docker-vernemq:$TRAVIS_TAG . ;
-      docker build -t erlio/docker-vernemq:$TRAVIS_TAG-alpine -f Dockerfile.alpine . ;
-      docker build --build-arg TARGET=swc -t erlio/docker-vernemq:$TRAVIS_TAG-swc-latest . ;
-      docker build --build-arg TARGET=swc -t erlio/docker-vernemq:$TRAVIS_TAG-swc-alpine -f Dockerfile.alpine . ;
-    fi
+env:
+  - DOCKERFILE=Dockerfile TARGET=rel TAG_SUFFIX=""
+  - DOCKERFILE=Dockerfile.alpine TARGET=rel TAG_SUFFIX="-alpine"
+  - DOCKERFILE=Dockerfile TARGET=swc TAG_SUFFIX="-swc"
+  - DOCKERFILE=Dockerfile.alpine TARGET=swc TAG_SUFFIX="-swc-alpine"
 
-after_success:
-  - if [[ "$TRAVIS_BRANCH" == "master" ]]; then
-      docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
-      docker push erlio/docker-vernemq:latest ;
-      docker push erlio/docker-vernemq:alpine ;
-      docker push erlio/docker-vernemq:swc-latest ;
-      docker push erlio/docker-vernemq:swc-alpine ;
-    fi
-  - if [[ -v TRAVIS_TAG ]]; then 
-      docker login -u $DOCKER_USERNAME -p $DOCKER_PASSWORD ;
-      docker push erlio/docker-vernemq:$TRAVIS_TAG ;
-      docker push erlio/docker-vernemq:$TRAVIS_TAG-alpine ;
-      docker push erlio/docker-vernemq:$TRAVIS_TAG-swc-latest ;
-      docker push erlio/docker-vernemq:$TRAVIS_TAG-swc-alpine ;
-    fi
+jobs:
+  include:
+    - stage: build-pr
+      script: docker build --build-arg TARGET=$TARGET --build-arg VERNEMQ_REPO=https://github.com/$TRAVIS_PULL_REQUEST_SLUG --build-arg VERNEMQ_GIT_REF=$TRAVIS_PULL_REQUEST_BRANCH -t $TRAVIS_JOB_ID -f $DOCKERFILE .
+    - stage: build-master
+      script: docker build --build-arg TARGET=$TARGET -t $TRAVIS_JOB_ID -f $DOCKERFILE .
+    - stage: push-latest
+      script: docker tag $TRAVIS_JOB_ID vernemq/vernemq:latest$TAG_SUFFIX && echo "Push latest master"
+    - stage: push-tag
+      script: docker tag $TRAVIS_JOB_ID vernemq/vernemq:$TRAVIS_TAG$TAG_SUFFIX && echo "Push latest tag"
