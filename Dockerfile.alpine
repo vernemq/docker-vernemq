@@ -28,6 +28,7 @@ RUN \
 # Defaults
 ENV DOCKER_VERNEMQ_KUBERNETES_APP_LABEL vernemq
 ENV DOCKER_VERNEMQ_LOG__CONSOLE console
+ENV PATH "/vernemq/bin:$PATH"
 ADD bin/vernemq.sh /usr/sbin/start_vernemq
 
 WORKDIR /vernemq
