@@ -4,12 +4,13 @@ IP_ADDRESS=$(ip -4 addr show eth0 | grep -oE '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[
 
 # Ensure the Erlang node name is set correctly
 if env | grep "DOCKER_VERNEMQ_NODENAME" -q; then
-    sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${DOCKER_VERNEMQ_NODENAME}/" /vernemq/etc/vm.args
+    sed -i.bak -r "s/-name VerneMQ@.+/-name VerneMQ@${DOCKER_VERNEMQ_NODENAME}/" /vernemq/etc/vm.args
 else
-    sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${IP_ADDRESS}/" /vernemq/etc/vm.args
+    sed -i.bak -r "s/-name VerneMQ@.+/-name VerneMQ@${IP_ADDRESS}/" /vernemq/etc/vm.args
 fi
 
 if env | grep "DOCKER_VERNEMQ_DISCOVERY_NODE" -q; then
+    sed -i.bak -r "/-eval.+/d" /vernemq/etc/vm.args 
     echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${DOCKER_VERNEMQ_DISCOVERY_NODE}')\"" >> /vernemq/etc/vm.args
 fi
 
