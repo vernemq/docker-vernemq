@@ -20,18 +20,22 @@ env:
 matrix:
   fast_finish: true
 
-before_install:
-  - docker build --build-arg TARGET=${TARGET}
-                 -t vmq-travis
-                 -f ${DOCKERFILE} .
-
 jobs:
   include:
-    - stage: test
+    - &buildimage
+      before_script: |
+        docker build --build-arg TARGET=${TARGET}
+                     -t vmq-travis
+                     -f ${DOCKERFILE} .
+
+    - <<: *buildimage
+      stage: test
       script: docker run vmq-travis vernemq
 
-    - stage: push-latest
+    - <<: *buildimage
+      stage: push-latest
       script: docker tag vmq-travis vernemq/vernemq:latest$TAG_SUFFIX
 
-    - stage: push-tag
+    - <<: *buildimage
+      stage: push-tag
       script: docker tag vmq-travis vernemq/vernemq:$TRAVIS_TAG$TAG_SUFFIX
