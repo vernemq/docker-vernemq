@@ -4,13 +4,6 @@ services:
 
 language: bash
 
-stages:
-  - name: test
-  - name: push-latest
-    if: (type != pull_request) AND (branch = master)
-  - name: push-tag
-    if: (type != pull_request) AND (tag IS present) AND (branch = master)
-
 env:
   - DOCKERFILE=Dockerfile TARGET=rel TAG_SUFFIX=""
   - DOCKERFILE=Dockerfile.alpine TARGET=rel TAG_SUFFIX="-alpine"
@@ -19,18 +12,16 @@ env:
 
 jobs:
   include:
-    - &buildimage
-      before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
+    - name: "Build docker image"
+      script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
+
+    - name: "Test docker image"
       script: docker run vmq-travis vernemq
-      after_success: null
 
-    - <<: *buildimage
-      stage: test
+    - name: "Tag latest"
+      if: (type != pull_request) AND (branch = master)
+      script: docker tag vmq-travis vernemq/vernemq:latest$TAG_SUFFIX
 
-    - <<: *buildimage
-      stage: push-latest
-      after_success: docker tag vmq-travis vernemq/vernemq:latest$TAG_SUFFIX
-
-    - <<: *buildimage
-      stage: push-tag
-      after_success: docker tag vmq-travis vernemq/vernemq:$TRAVIS_TAG$TAG_SUFFIX
+    - name: "Tag version"
+      if: (type != pull_request) AND (tag IS present) AND (branch = master)
+      script: docker tag vmq-travis vernemq/vernemq:$TRAVIS_TAG$TAG_SUFFIX
