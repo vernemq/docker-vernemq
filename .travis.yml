@@ -26,6 +26,7 @@ before_install:
        export GIT_SLUG=${TRAVIS_PULL_REQUEST_SLUG}
        export GIT_BRANCH=${TRAVIS_PULL_REQUEST_BRANCH}
     fi
+  - env
   - docker build --build-arg TARGET=${TARGET}
                  --build-arg VERNEMQ_REPO=https://github.com/${GIT_SLUG}
                  --build-arg VERNEMQ_GIT_REF=${GIT_BRANCH}
