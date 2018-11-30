@@ -3,11 +3,6 @@ services:
   - 'docker'
 stages:
   - name: test
-    if: branch = "a-branch-that-doesnt-exist"
-  - name: build-pr
-    if: type = pull_request
-  - name: build-master
-    if: (type != pull_request) AND (branch = master)
   - name: push-latest
     if: (type != pull_request) AND (branch = master)
   - name: push-tag
@@ -19,18 +14,31 @@ env:
 #  - DOCKERFILE=Dockerfile TARGET=swc TAG_SUFFIX="-swc"
 #  - DOCKERFILE=Dockerfile.alpine TARGET=swc TAG_SUFFIX="-swc-alpine"
 
+matrix:
+  fast_finish: true
+
+before_install:
+  - |
+    if [[ ${TRAVIS_PULL_REQUEST} == "false" ]]; then
+       export GIT_SLUG="vernemq/vernemq"
+       export GIT_BRANCH="master"
+    else
+       export GIT_SLUG=${TRAVIS_PULL_REQUEST_SLUG}
+       export GIT_BRANCH=${TRAVIS_PULL_REQUEST_BRANCH}
+    fi
+  - docker build --build-arg TARGET=${TARGET}
+                 --build-arg VERNEMQ_REPO=https://github.com/${GIT_SLUG}
+                 --build-arg VERNEMQ_GIT_REF=${GIT_BRANCH}
+                 -t vmq-travis
+                 -f ${DOCKERFILE} .
+
 jobs:
   include:
-    - stage: build-pr
-      script:
-        - |
-          set -e
-          echo "TARGET=$TARGET, VERNEMQ_REPO=$TRAVIS_PULL_REQUEST_SLUG, VERNEMQ_GIT_REF=$TRAVIS_PULL_REQUEST_BRANCH"
-          docker build --build-arg TARGET=$TARGET --build-arg VERNEMQ_REPO=https://github.com/$TRAVIS_PULL_REQUEST_SLUG --build-arg VERNEMQ_GIT_REF=$TRAVIS_PULL_REQUEST_BRANCH -t $TRAVIS_JOB_ID -f $DOCKERFILE .
+    - stage: test
+      script: docker run vmq-travis vernemq
 
-    - stage: build-master
-      script: docker build --build-arg TARGET=$TARGET -t $TRAVIS_JOB_ID -f $DOCKERFILE .
     - stage: push-latest
-      script: docker tag $TRAVIS_JOB_ID vernemq/vernemq:latest$TAG_SUFFIX && echo "Push latest master"
+      script: docker tag vmq-travis vernemq/vernemq:latest$TAG_SUFFIX
+
     - stage: push-tag
-      script: docker tag $TRAVIS_JOB_ID vernemq/vernemq:$TRAVIS_TAG$TAG_SUFFIX && echo "Push latest tag"
+      script: docker tag vmq-travis vernemq/vernemq:$TRAVIS_TAG$TAG_SUFFIX
