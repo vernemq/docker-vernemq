@@ -23,10 +23,7 @@ matrix:
 jobs:
   include:
     - &buildimage
-      before_script: |
-        docker build --build-arg TARGET=${TARGET}
-                     -t vmq-travis
-                     -f ${DOCKERFILE} .
+      before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
 
     - <<: *buildimage
       stage: test
