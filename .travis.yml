@@ -7,6 +7,7 @@ language: bash
 jobs:
   include:
     - &buildandtest
+      stage: test
       if: (type = pull_request)
       before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
       script: docker run vmq-travis vernemq
@@ -21,6 +22,7 @@ jobs:
         - DOCKERFILE=Dockerfile.alpine TARGET=rel TAG_SUFFIX="-alpine"
 
     - &buildlatest
+      stage: deploy
       if: (type != pull_request) AND (branch = master)
       before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
       script: docker tag vmq-travis vernemq/vernemq:latest$TAG_SUFFIX
@@ -35,6 +37,7 @@ jobs:
         - DOCKERFILE=Dockerfile.alpine TARGET=rel TAG_SUFFIX="-alpine"
 
     - &buildtag 
+      stage: deploy
       if: (type != pull_request) AND (tag IS present) AND (branch = master)
       before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
       script: docker tag vmq-travis vernemq/vernemq:$TRAVIS_TAG$TAG_SUFFIX
