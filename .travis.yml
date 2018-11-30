@@ -22,7 +22,12 @@ env:
 jobs:
   include:
     - stage: build-pr
-      script: docker build --build-arg TARGET=$TARGET --build-arg VERNEMQ_REPO=https://github.com/$TRAVIS_PULL_REQUEST_SLUG --build-arg VERNEMQ_GIT_REF=$TRAVIS_PULL_REQUEST_BRANCH -t $TRAVIS_JOB_ID -f $DOCKERFILE .
+      script:
+        - |
+          set -e
+          echo "TARGET=$TARGET, VERNEMQ_REPO=$TRAVIS_PULL_REQUEST_SLUG, VERNEMQ_GIT_REF=$TRAVIS_PULL_REQUEST_BRANCH"
+          docker build --build-arg TARGET=$TARGET --build-arg VERNEMQ_REPO=https://github.com/$TRAVIS_PULL_REQUEST_SLUG --build-arg VERNEMQ_GIT_REF=$TRAVIS_PULL_REQUEST_BRANCH -t $TRAVIS_JOB_ID -f $DOCKERFILE .
+
     - stage: build-master
       script: docker build --build-arg TARGET=$TARGET -t $TRAVIS_JOB_ID -f $DOCKERFILE .
     - stage: push-latest
