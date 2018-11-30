@@ -12,16 +12,17 @@ env:
 
 jobs:
   include:
-    - name: "Build docker image"
-      script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
-
-    - name: "Test docker image"
+    - name: "Build and test docker image"
+      if: (type = pull_request)
+      before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
       script: docker run vmq-travis vernemq
 
-    - name: "Tag latest"
+    - name: "Build latest docker image"
       if: (type != pull_request) AND (branch = master)
+      before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
       script: docker tag vmq-travis vernemq/vernemq:latest$TAG_SUFFIX
 
-    - name: "Tag version"
+    - name: "Build versioned docker image"
       if: (type != pull_request) AND (tag IS present) AND (branch = master)
+      before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
       script: docker tag vmq-travis vernemq/vernemq:$TRAVIS_TAG$TAG_SUFFIX
