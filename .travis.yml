@@ -1,6 +1,9 @@
 sudo: 'required'
 services:
   - 'docker'
+
+language: bash
+
 stages:
   - name: test
   - name: push-latest
