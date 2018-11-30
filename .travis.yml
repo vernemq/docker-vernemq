@@ -4,25 +4,46 @@ services:
 
 language: bash
 
-env:
-  - DOCKERFILE=Dockerfile TARGET=rel TAG_SUFFIX=""
-  - DOCKERFILE=Dockerfile.alpine TARGET=rel TAG_SUFFIX="-alpine"
-#  - DOCKERFILE=Dockerfile TARGET=swc TAG_SUFFIX="-swc"
-#  - DOCKERFILE=Dockerfile.alpine TARGET=swc TAG_SUFFIX="-swc-alpine"
-
 jobs:
   include:
-    - name: "Build and test docker image"
+    - &buildandtest
       if: (type = pull_request)
       before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
       script: docker run vmq-travis vernemq
+      env: null
+    
+    - <<: *buildandtest
+      env:
+        - DOCKERFILE=Dockerfile TARGET=rel TAG_SUFFIX=""
 
-    - name: "Build latest docker image"
+    - <<: *buildandtest
+      env:
+        - DOCKERFILE=Dockerfile.alpine TARGET=rel TAG_SUFFIX="-alpine"
+
+    - &buildlatest
       if: (type != pull_request) AND (branch = master)
       before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
       script: docker tag vmq-travis vernemq/vernemq:latest$TAG_SUFFIX
+      env: null
+    
+    - <<: *buildlatest
+      env:
+        - DOCKERFILE=Dockerfile TARGET=rel TAG_SUFFIX=""
 
-    - name: "Build versioned docker image"
+    - <<: *buildlatest
+      env:
+        - DOCKERFILE=Dockerfile.alpine TARGET=rel TAG_SUFFIX="-alpine"
+
+    - &buildtag 
       if: (type != pull_request) AND (tag IS present) AND (branch = master)
       before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
       script: docker tag vmq-travis vernemq/vernemq:$TRAVIS_TAG$TAG_SUFFIX
+      env: null
+    
+    - <<: *buildtag
+      env:
+        - DOCKERFILE=Dockerfile TARGET=rel TAG_SUFFIX=""
+
+    - <<: *buildtag
+      env:
+        - DOCKERFILE=Dockerfile.alpine TARGET=rel TAG_SUFFIX="-alpine"
