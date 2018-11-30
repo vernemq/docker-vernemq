@@ -17,22 +17,20 @@ env:
 #  - DOCKERFILE=Dockerfile TARGET=swc TAG_SUFFIX="-swc"
 #  - DOCKERFILE=Dockerfile.alpine TARGET=swc TAG_SUFFIX="-swc-alpine"
 
-matrix:
-  fast_finish: true
-
 jobs:
   include:
     - &buildimage
       before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
+      script: docker run vmq-travis vernemq
+      after_success: null
 
     - <<: *buildimage
       stage: test
-      script: docker run vmq-travis vernemq
 
     - <<: *buildimage
       stage: push-latest
-      script: docker tag vmq-travis vernemq/vernemq:latest$TAG_SUFFIX
+      after_success: docker tag vmq-travis vernemq/vernemq:latest$TAG_SUFFIX
 
     - <<: *buildimage
       stage: push-tag
-      script: docker tag vmq-travis vernemq/vernemq:$TRAVIS_TAG$TAG_SUFFIX
+      after_success: docker tag vmq-travis vernemq/vernemq:$TRAVIS_TAG$TAG_SUFFIX
