@@ -14,8 +14,8 @@ stages:
 env:
   - DOCKERFILE=Dockerfile TARGET=rel TAG_SUFFIX=""
   - DOCKERFILE=Dockerfile.alpine TARGET=rel TAG_SUFFIX="-alpine"
-  - DOCKERFILE=Dockerfile TARGET=swc TAG_SUFFIX="-swc"
-  - DOCKERFILE=Dockerfile.alpine TARGET=swc TAG_SUFFIX="-swc-alpine"
+#  - DOCKERFILE=Dockerfile TARGET=swc TAG_SUFFIX="-swc"
+#  - DOCKERFILE=Dockerfile.alpine TARGET=swc TAG_SUFFIX="-swc-alpine"
 
 jobs:
   include:
