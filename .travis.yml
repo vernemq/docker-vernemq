@@ -2,6 +2,8 @@ sudo: 'required'
 services:
   - 'docker'
 stages:
+  - name: test
+    if: branch = "a-branch-that-doesnt-exist"
   - name: build-pr
     if: type = pull_request
   - name: build-master
