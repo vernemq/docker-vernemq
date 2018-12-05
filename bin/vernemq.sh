@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
-IP_ADDRESS=$(ip -4 addr show eth0 | grep -oE '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' | sed -e "s/^[[:space:]]*//" | head -n 1)
+IP_ADDRESS=$(ip -4 addr show ${DOCKER_NET_INTERFACE:-eth0} | grep -oE '[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}.[0-9]{1,3}' | sed -e "s/^[[:space:]]*//" | head -n 1)
+IP_ADDRESS=${DOCKER_IP_ADDRESS:-${IP_ADDRESS}}
 
 # Ensure the Erlang node name is set correctly
 if env | grep "DOCKER_VERNEMQ_NODENAME" -q; then
