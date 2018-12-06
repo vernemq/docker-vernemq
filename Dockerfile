@@ -24,7 +24,7 @@ FROM debian:stretch-slim
 
 RUN \
     apt-get update \
-    && apt-get -y install openssl iproute2 \
+    && apt-get -y install openssl iproute2 curl jq \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Defaults
