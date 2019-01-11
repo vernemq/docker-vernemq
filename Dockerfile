@@ -7,7 +7,7 @@ ARG TARGET=rel
 ARG VERNEMQ_REPO=https://github.com/vernemq/vernemq.git
 
 # Defaults
-ENV DOCKER_VERNEMQ_KUBERNETES_APP_LABEL vernemq
+ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR "app=vernemq"
 ENV DOCKER_VERNEMQ_LOG__CONSOLE console
 
 RUN \
@@ -28,7 +28,7 @@ RUN \
 	&& rm -rf /var/lib/apt/lists/*
 
 # Defaults
-ENV DOCKER_VERNEMQ_KUBERNETES_APP_LABEL vernemq
+ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR "app=vernemq"
 ENV DOCKER_VERNEMQ_LOG__CONSOLE console
 ENV PATH "/vernemq/bin:$PATH"
 ADD bin/vernemq.sh /usr/sbin/start_vernemq
