@@ -1,0 +1,17 @@
+1. Check your VerneMQ cluster status:
+  kubectl exec --namespace {{ .Release.Namespace }} {{ .Release.Name }}-{{ include "vernemq.name" . }}-0 /usr/sbin/vmq-admin cluster show
+
+2. Get VerneMQ MQTT port
+{{- if contains "NodePort" .Values.service.type }}
+  export NODE_PORT=$(kubectl get --namespace {{ .Release.Namespace }} -o jsonpath="{.spec.ports[0].nodePort}" services {{ include "vernemq.fullname" . }})
+  export NODE_IP=$(kubectl get nodes --namespace {{ .Release.Namespace }} -o jsonpath="{.items[0].status.addresses[0].address}")
+  echo $NODE_IP:$NODE_PORT
+{{- else if contains "LoadBalancer" .Values.service.type }}
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get svc -w {{ include "vernemq.fullname" . }}'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} {{ include "vernemq.fullname" . }} -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+  echo $SERVICE_IP:1883
+{{- else if contains "ClusterIP" .Values.service.type }}
+  echo "Subscribe/publish MQTT messages there: 127.0.0.1:1883"
+  kubectl port-forward svc/{{ .Release.Name }}-{{ include "vernemq.name" . }} 1883:1883
+{{- end }}
