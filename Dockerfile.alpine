@@ -7,8 +7,8 @@ ARG TARGET=rel
 ARG VERNEMQ_REPO=https://github.com/vernemq/vernemq.git
 
 # Defaults
-ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR "app=vernemq"
-ENV DOCKER_VERNEMQ_LOG__CONSOLE console
+ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
+    DOCKER_VERNEMQ_LOG__CONSOLE=console
 
 RUN \
     apk --no-cache --update --available upgrade \
@@ -26,17 +26,18 @@ RUN \
     && apk add --no-cache ncurses-libs openssl libstdc++ jq curl bash
 
 # Defaults
-ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR "app=vernemq"
-ENV DOCKER_VERNEMQ_LOG__CONSOLE console
-ENV PATH "/vernemq/bin:$PATH"
-ADD bin/vernemq.sh /usr/sbin/start_vernemq
+ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
+    DOCKER_VERNEMQ_LOG__CONSOLE=console \
+    PATH "/vernemq/bin:$PATH"
 
 WORKDIR /vernemq
-COPY --from=build-env /vernemq-build/release /vernemq
-ADD files/vm.args /vernemq/etc/vm.args
 
-RUN addgroup vernemq && \
-    adduser -H -D -G vernemq -h /vernemq vernemq && \
+COPY bin/vernemq.sh /usr/sbin/start_vernemq
+COPY --from=build-env /vernemq-build/release /vernemq
+CIPY files/vm.args /vernemq/etc/vm.args
+
+RUN addgroup --gid 10000 vernemq && \
+    adduser --uid 10000 -H -D -G vernemq -h /vernemq vernemq && \
     chown -R vernemq:vernemq /vernemq && \
     ln -s /vernemq/etc /etc/vernemq && \
     ln -s /vernemq/data /var/lib/vernemq && \
@@ -56,6 +57,8 @@ EXPOSE 1883 8883 8080 44053 4369 8888 \
 
 
 VOLUME ["/vernemq/log", "/vernemq/data", "/vernemq/etc"]
+
+HEALTHCHECK CMD vernemq ping | grep -q pong
 
 USER vernemq
 CMD ["start_vernemq"]
