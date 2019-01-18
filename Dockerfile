@@ -59,5 +59,8 @@ EXPOSE 1883 8883 8080 44053 4369 8888 \
 
 VOLUME ["/vernemq/log", "/vernemq/data", "/vernemq/etc"]
 
+HEALTHCHECK CMD vernemq ping || exit 1
+
 USER vernemq
+
 CMD ["start_vernemq"]
