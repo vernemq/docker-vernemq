@@ -23,9 +23,9 @@ FROM debian:stretch-slim
 
 RUN apt-get update && \
     apt-get -y install openssl iproute2 curl jq && \
-	  rm -rf /var/lib/apt/lists/* && \
-	  addgroup --gid 10000 vernemq && \
-	  adduser --uid 10000 --system --ingroup vernemq --home /vernemq --disabled-password vernemq
+    rm -rf /var/lib/apt/lists/* && \
+    addgroup --gid 10000 vernemq && \
+    adduser --uid 10000 --system --ingroup vernemq --home /vernemq --disabled-password vernemq
 
 WORKDIR /vernemq
 
