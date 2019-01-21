@@ -6,7 +6,7 @@ replicaCount: 3
 
 image:
   repository: erlio/docker-vernemq
-  tag: 1.6.2-2-gbea60e3
+  tag: latest
   pullPolicy: IfNotPresent
 
 nameOverride: ""
