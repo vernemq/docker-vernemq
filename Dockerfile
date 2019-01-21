@@ -1,4 +1,4 @@
-FROM erlang:20.3 AS build-env
+FROM erlang:21 AS build-env
 
 WORKDIR /vernemq-build
 
