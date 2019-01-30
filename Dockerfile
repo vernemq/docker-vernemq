@@ -2,7 +2,7 @@ FROM erlang:21 AS build-env
 
 WORKDIR /vernemq-build
 
-ARG VERNEMQ_GIT_REF=1.6.2
+ARG VERNEMQ_GIT_REF=1.7.0
 ARG TARGET=rel
 ARG VERNEMQ_REPO=https://github.com/vernemq/vernemq.git
 
