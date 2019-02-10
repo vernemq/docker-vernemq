@@ -1,0 +1,127 @@
+# Default values for vernemq.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 3
+
+image:
+  repository: erlio/docker-vernemq
+  tag: latest
+  pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  type: ClusterIP
+
+## VerneMQ resources requests and limits
+## Ref: http://kubernetes.io/docs/user-guide/compute-resources
+resources: {}
+  ## We usually recommend not to specify default resources and to leave this as a conscious
+  ## choice for the user. This also increases chances charts run on environments with little
+  ## resources, such as Minikube. If you do want to specify resources, uncomment the following
+  ## lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+#  limits:
+#    cpu: 1
+#    memory: 256Mi
+#  requests:
+#    cpu: 1
+#    memory: 256Mi
+
+## Node labels for pod assignment
+## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+nodeSelector: {}
+
+## Node tolerations for pod assignment
+## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#taints-and-tolerations-beta-feature
+tolerations: []
+
+## Pod affinity
+## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+podAntiAffinity: soft
+
+securityContext: {}
+#  runAsUser: 1000
+#  runAsGroup: 1000
+#  fsGroup: 1000
+
+## If RBAC is enabled on the cluster,VerneMQ needs a service account
+## with permissisions sufficient to list pods
+rbac:
+  create: true
+  serviceAccount:
+    create: true
+    ## Service account name to be used.
+    ## If not set and serviceAccount.create is true a name is generated using the fullname template.
+#    name:
+
+persistentVolume:
+  ## If true, VerneMQ will create/use a Persistent Volume Claim
+  ## If false, use local directory
+  enabled: false
+
+  ## VerneMQ data Persistent Volume access modes
+  ## Must match those of existing PV or dynamic provisioner
+  ## Ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+  accessModes:
+    - ReadWriteOnce
+
+  ## VerneMQ data Persistent Volume size
+  size: 5Gi
+
+  ## VerneMQ data Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+#  storageClass: ""
+
+  ## VerneMQ data Persistent Volume annotations
+  annotations: {}
+
+statefulset:
+  ## Start and stop pods in Parallel or OrderedReady (one-by-one.)  Note - Can not change after first release.
+  ## Ref: https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#pod-management-policy
+  podManagementPolicy: OrderedReady
+  ## Statefulsets rolling update update strategy
+  ## Ref: https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#rolling-update
+  updateStrategy: RollingUpdate
+  ## Matches how much time VerneMQ takes to move offline queues to other nodes
+  ## Ref: https://vernemq.com/docs/clustering/#detailed-cluster-leave-case-a-make-a-live-node-leave
+  terminationGracePeriodSeconds: 60
+  ## Liveness and Readiness probe values
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes
+  livenessProbe:
+    initialDelaySeconds: 90
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 3
+  readinessProbe:
+    initialDelaySeconds: 90
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 3
+
+## VerneMQ settings
+
+additionalEnv:
+  - name: DOCKER_VERNEMQ_ALLOW_REGISTER_DURING_NETSPLIT
+    value: "on"
+  - name: DOCKER_VERNEMQ_ALLOW_PUBLISH_DURING_NETSPLIT
+    value: "on"
+  - name: DOCKER_VERNEMQ_ALLOW_SUBSCRIBE_DURING_NETSPLIT
+    value: "on"
+  - name: DOCKER_VERNEMQ_ALLOW_UNSUBSCRIBE_DURING_NETSPLIT
+    value: "on"
+#  - name: DOCKER_VERNEMQ_ALLOW_ANONYMOUS
+#    value: "on"
+#  - name: DOCKER_VERNEMQ_MAX_CLIENT_ID_SIZE
+#    value: "100"
+#  - name: DOCKER_VERNEMQ_MAX_ONLINE_MESSAGES
+#    value: "10000"
+#  - name: DOCKER_VERNEMQ_MAX_OFFLINE_MESSAGES
+#    value: "-1"

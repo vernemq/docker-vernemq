@@ -37,7 +37,7 @@ This allows a newly started container to automatically join a VerneMQ cluster. A
 When running VerneMQ inside Kubernetes, it is possible to cause pods matching a specific label to cluster altogether automatically.
 This feature uses Kubernetes' API to discover other peers, and relies on the [default pod service account](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/) which has to be enabled.
 
-Simply set ```DOCKER_VERNEMQ_DISCOVERY_KUBERNETES=1``` in your pod's environment, and expose your own pod name through ```MY_POD_NAME``` . By default, this setting will cause all pods in the ```default``` namespace with the ```app=vernemq``` label to join the same cluster. Namespace and label settings can be overridden with ```DOCKER_VERNEMQ_KUBERNETES_NAMESPACE``` and ```DOCKER_VERNEMQ_KUBERNETES_APP_LABEL```.
+Simply set ```DOCKER_VERNEMQ_DISCOVERY_KUBERNETES=1``` in your pod's environment, and expose your own pod name through ```MY_POD_NAME``` . By default, this setting will cause all pods in the same namespace with the ```app=vernemq``` label to join the same cluster. Cluster name (defaults to `cluster.local`), namespace and label settings can be overridden with ```DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME```, ```DOCKER_VERNEMQ_KUBERNETES_NAMESPACE``` and ```DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR``` respectively.
 
 An example configuration of your pod's environment looks like this:
 
@@ -48,10 +48,8 @@ An example configuration of your pod's environment looks like this:
         valueFrom:
           fieldRef:
             fieldPath: metadata.name
-      - name: DOCKER_VERNEMQ_KUBERNETES_NAMESPACE
-        value: "mynamespace"
-      - name: DOCKER_VERNEMQ_KUBERNETES_APP_LABEL
-        value: "myverneinstance"
+      - name: DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR
+        value: "app=vernemq,release=myinstance"
 
 When enabling Kubernetes autoclustering, don't set ```DOCKER_VERNEMQ_DISCOVERY_NODE```.
 
@@ -107,11 +105,11 @@ parameters can be found on https://vernemq.com/docs/configuration/.
 
 #### Logging
 
-VerneMQ sends logs to both stdout and to a log file (`/etc/vernemq/console.log`),
-in production systems using file based logging can lead to issues because logs can
-fill the available disk space and result in system outages. File based logging is
-disabled in the [Dockerfile](Dockerfile) by default, using the environment
-variable `DOCKER_VERNEMQ_LOG__CONSOLE console`.
+VerneMQ store crash and error log files in `/var/log/vernemq/`, and, by default, 
+doesn't write console log to the disk to avoid filling the container disk space.
+However this behaviour can be changed by setting the environment variable `DOCKER_VERNEMQ_LOG__CONSOLE` to `both` 
+which tells VerneMQ to send logs to stdout and `/var/log/vernemq/console.log`.
+For more information please see VerneMQ logging documentation: https://docs.vernemq.com/configuring-vernemq/logging
 
 #### Remarks
 
@@ -122,6 +120,16 @@ such as Kubernetes don't support dots and other special characters in
 environment variables. If you are on such a platform you could substitute the
 dots with two underscores `__`. The example above would look like `-e
 "DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL=debug"`.
+
+There some some exceptions on configuration names contains dots. You can see follow examples:
+
+format in vernemq.conf | format in environment variable name
+---------------------- | ------------------------------------
+ `vmq_webhooks.pool_timeout = 60000` | `DOCKER_VERNEMQ_VMQ_WEBHOOKS__POOL_timeout=6000`
+ `vmq_webhooks.pool_timeout = 60000` | `DOCKER_VERNEMQ_VMQ_WEBHOOKS.pool_timeout=60000`
+
+
+
 
 #### File Based Authentication
 

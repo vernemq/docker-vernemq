@@ -1,0 +1,53 @@
+sudo: 'required'
+services:
+  - 'docker'
+
+language: bash
+
+stages:
+  - name: test
+    if: (type = pull_request)
+  - name: deploy
+    if: (type != pull_request) AND (branch = master)
+
+jobs:
+  include:
+    - &buildandtest
+      stage: test
+      before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
+      script: docker run vmq-travis vernemq
+      env:
+        - DOCKERFILE=Dockerfile TARGET=rel
+
+    - <<: *buildandtest
+      env:
+        - DOCKERFILE=Dockerfile.alpine TARGET=rel
+
+    - &buildlatest
+      stage: deploy
+      before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
+      env:
+        - DOCKERFILE=Dockerfile TARGET=rel TAG_SUFFIX=""
+      script:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+        - docker tag vmq-travis vernemq/vernemq:latest$TAG_SUFFIX
+        - docker push vernemq/vernemq:latest$TAG_SUFFIX
+
+    - <<: *buildlatest
+      env:
+        - DOCKERFILE=Dockerfile.alpine TARGET=rel TAG_SUFFIX="-alpine"
+
+    - &buildtag 
+      stage: deploy
+      if: (tag IS present)
+      before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
+      env:
+        - DOCKERFILE=Dockerfile TARGET=rel TAG_SUFFIX=""
+      script:
+        - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_USER" --password-stdin
+        - docker tag vmq-travis vernemq/vernemq:$TRAVIS_TAG$TAG_SUFFIX
+        - docker push vernemq/vernemq:$TRAVIS_TAG$TAG_SUFFIX
+
+    - <<: *buildtag
+      env:
+        - DOCKERFILE=Dockerfile.alpine TARGET=rel TAG_SUFFIX="-alpine"

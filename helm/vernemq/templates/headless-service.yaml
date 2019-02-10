@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "vernemq.fullname" . }}-headless
+  labels:
+    app.kubernetes.io/name: {{ include "vernemq.name" . }}
+    helm.sh/chart: {{ include "vernemq.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  clusterIP: None
+  ports:
+    - port: 4369
+      name: empd
+  selector:
+    app.kubernetes.io/name: {{ include "vernemq.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}

@@ -1,4 +1,4 @@
-FROM erlang:21 AS build-env
+FROM erlang:21-alpine AS build-env
 
 WORKDIR /vernemq-build
 
@@ -10,29 +10,27 @@ ARG VERNEMQ_REPO=https://github.com/vernemq/vernemq.git
 ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
     DOCKER_VERNEMQ_LOG__CONSOLE=console
 
-RUN apt-get update && \
-    apt-get -y install build-essential git libssl-dev && \
+RUN apk --no-cache --update --available upgrade && \
+    apk add --no-cache git autoconf build-base bsd-compat-headers cmake openssl-dev bash && \
     git clone -b $VERNEMQ_GIT_REF --single-branch --depth 1 $VERNEMQ_REPO .
 
 COPY bin/build.sh build.sh
 
 RUN ./build.sh $TARGET
 
+FROM alpine:3.8
 
-FROM debian:stretch-slim
-
-RUN apt-get update && \
-    apt-get -y install openssl iproute2 curl jq && \
-    rm -rf /var/lib/apt/lists/* && \
+RUN apk --no-cache --update --available upgrade && \
+    apk add --no-cache ncurses-libs openssl libstdc++ jq curl bash && \
     addgroup --gid 10000 vernemq && \
-    adduser --uid 10000 --system --ingroup vernemq --home /vernemq --disabled-password vernemq
-
-WORKDIR /vernemq
+    adduser --uid 10000 -H -D -G vernemq -h /vernemq vernemq
 
 # Defaults
 ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
     DOCKER_VERNEMQ_LOG__CONSOLE=console \
     PATH="/vernemq/bin:$PATH"
+
+WORKDIR /vernemq
 
 COPY --chown=10000:10000 bin/vernemq.sh /usr/sbin/start_vernemq
 COPY --chown=10000:10000 files/vm.args /vernemq/etc/vm.args
@@ -60,5 +58,4 @@ VOLUME ["/vernemq/log", "/vernemq/data", "/vernemq/etc"]
 HEALTHCHECK CMD vernemq ping | grep -q pong
 
 USER vernemq
-
 CMD ["start_vernemq"]
