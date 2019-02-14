@@ -9,6 +9,8 @@ stages:
     if: (type = pull_request)
   - name: deploy
     if: (type != pull_request) AND ((branch = master) OR (tag IS present))
+  - name: deploy-helm-chart
+    if: (branch = helm-travis)
 
 jobs:
   include:
@@ -70,11 +72,20 @@ jobs:
       script:
         - helm lint helm/vernemq
         - helm template -f helm/vernemq/values.yaml helm/vernemq
+        - helm package --save=false helm/vernemq
 
     - <<: *helmlint
-      name: Helm package
-      stage: test
-      script:
-        - helm lint helm/vernemq
-        - helm template -f helm/vernemq/values.yaml helm/vernemq
-        - helm package --save=false helm/vernemq
+      name: Helm deploy
+      stage: deploy-helm-chart
+      after_script:
+        - git config user.name "travis"
+        - git config user.email "deploy@travis-ci.org"
+        - git stash push -u -- vernemq-*.tgz
+        - git config --replace-all remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
+        - git fetch origin helm-charts
+        - git checkout helm-charts
+        - git stash pop
+        - helm repo index .
+        - git add vernemq-*.tgz index.yaml
+        - git commit -m 'Add helm chart release $TRAVIS_BRANCH'
+        - git push origin helm-charts
