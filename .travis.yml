@@ -52,7 +52,8 @@ jobs:
       env:
         - DOCKERFILE=Dockerfile.alpine TARGET=rel TAG_SUFFIX="-alpine"
 
-    - name: Helm lint
+    - &helmlint
+      name: Helm lint
       stage: test
       env:
         - KUBECTL_VERSION=v1.11.3
@@ -66,6 +67,14 @@ jobs:
         - export PATH=$PATH:/tmp
       before_script:
         - helm init --client-only
-        - helm template -f helm/vernemq/values.yaml helm/vernemq
       script:
         - helm lint helm/vernemq
+        - helm template -f helm/vernemq/values.yaml helm/vernemq
+
+    - <<: *helmlint
+      name: Helm package
+      stage: test
+      script:
+        - helm lint helm/vernemq
+        - helm template -f helm/vernemq/values.yaml helm/vernemq
+        - helm package --save=false helm/vernemq
