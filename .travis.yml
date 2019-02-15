@@ -87,5 +87,5 @@ jobs:
         - git stash pop
         - helm repo index .
         - git add vernemq-*.tgz index.yaml
-        - git commit -m 'Add helm chart release $TRAVIS_BRANCH'
+        - git commit -m "Add helm chart release $TRAVIS_BRANCH"
         - git push -q https://$GITHUB_USER:$GITHUB_TOKEN@github.com/vernemq/docker-vernemq helm-charts &>/dev/null
