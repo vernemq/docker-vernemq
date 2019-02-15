@@ -6,11 +6,9 @@ language: bash
 
 stages:
   - name: test
-    if: (type = pull_request)
+    if: type = pull_request
   - name: deploy
-    if: (type != pull_request) AND ((branch = master) OR (tag IS present))
-  - name: deploy-helm-chart
-    if: (branch = helm-travis)
+    if: type != pull_request AND (branch = master OR tag IS present)
 
 jobs:
   include:
@@ -41,7 +39,7 @@ jobs:
 
     - &buildtag 
       stage: deploy
-      if: (tag IS present)
+      if: tag IS present AND NOT env(TRAVIS_TAG) =~ ^helm-
       before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
       env:
         - DOCKERFILE=Dockerfile TARGET=rel TAG_SUFFIX=""
@@ -76,7 +74,8 @@ jobs:
 
     - <<: *helmlint
       name: Helm deploy
-      stage: deploy-helm-chart
+      if: tag IS present AND env(TRAVIS_TAG) =~ ^helm-
+      stage: deploy
       after_script:
         - git config user.name "travis"
         - git config user.email "deploy@travis-ci.org"
