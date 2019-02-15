@@ -4,7 +4,6 @@
 -env ERL_FULLSWEEP_AFTER 0
 -env ERL_MAX_PORTS 65536
 +A 64
--setcookie vmq
 -name VerneMQ@127.0.0.1
 +K true
 +W w

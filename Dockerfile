@@ -32,6 +32,7 @@ WORKDIR /vernemq
 # Defaults
 ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
     DOCKER_VERNEMQ_LOG__CONSOLE=console \
+    DOCKER_VERNEMQ_DISTRIBUTED_COOKIE=vmq \
     PATH="/vernemq/bin:$PATH"
 
 COPY --chown=10000:10000 bin/vernemq.sh /usr/sbin/start_vernemq
