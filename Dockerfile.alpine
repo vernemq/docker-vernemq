@@ -18,7 +18,7 @@ COPY bin/build.sh build.sh
 
 RUN ./build.sh $TARGET
 
-FROM alpine:3.8
+FROM alpine:3.9
 
 RUN apk --no-cache --update --available upgrade && \
     apk add --no-cache ncurses-libs openssl libstdc++ jq curl bash && \
