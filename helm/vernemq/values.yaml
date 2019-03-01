@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 3
+replicaCount: 1
 
 image:
   repository: erlio/docker-vernemq
@@ -78,7 +78,7 @@ persistentVolume:
   ##   GKE, AWS & OpenStack)
 #  storageClass: ""
 
-  ## VerneMQ data Persistent Volume annotations
+  ## Annotations for Persistent Volume Claim
   annotations: {}
 
 statefulset:
@@ -88,7 +88,7 @@ statefulset:
   ## Statefulsets rolling update update strategy
   ## Ref: https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#rolling-update
   updateStrategy: RollingUpdate
-  ## Matches how much time VerneMQ takes to move offline queues to other nodes
+  ## Configure how much time VerneMQ takes to move offline queues to other nodes
   ## Ref: https://vernemq.com/docs/clustering/#detailed-cluster-leave-case-a-make-a-live-node-leave
   terminationGracePeriodSeconds: 60
   ## Liveness and Readiness probe values
