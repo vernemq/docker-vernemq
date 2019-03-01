@@ -12,7 +12,19 @@ VerneMQ is an Apache2 licensed distributed MQTT broker, developed in Erlang.
 
 ## How to use this image
 
-### Start a VerneMQ cluster node
+### 1. Using [Helm](https://helm.sh/) to deploy on [Kubernetes](https://kubernetes.io/)
+
+First install and configure Helm according to the [documentation](https://helm.sh/docs/using_helm/#quickstart-guide). Then add VerneMQ Helm charts repository:
+
+    helm repo add vernemq https://vernemq.github.io/docker-vernemq
+
+You can now deploy VerneMQ on your Kubernetes cluster:
+
+    helm install vernemq/vernemq
+
+For more information, check out the Helm chart [README](helm/vernemq/README.md).
+
+### 2. Using pure Docker commands
 
     docker run --name vernemq1 -d erlio/docker-vernemq
 
@@ -24,7 +36,7 @@ This starts a new node that listens on 1883 for MQTT connections and on 8080 for
 
     docker run -e "DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on" --name vernemq1 -d erlio/docker-vernemq
 
-### Autojoining a VerneMQ cluster
+#### Autojoining a VerneMQ cluster
 
 This allows a newly started container to automatically join a VerneMQ cluster. Assuming you started your first node like the example above you could autojoin the cluster (which currently consists of a single container 'vernemq1') like the following:
 
@@ -32,7 +44,7 @@ This allows a newly started container to automatically join a VerneMQ cluster. A
 
 (Note, you can find the IP of a docker container using `docker inspect <containername/cid> | grep \"IPAddress\"`).
 
-### Automated clustering on Kubernetes
+### 3. Automated clustering on Kubernetes without helm
 
 When running VerneMQ inside Kubernetes, it is possible to cause pods matching a specific label to cluster altogether automatically.
 This feature uses Kubernetes' API to discover other peers, and relies on the [default pod service account](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/) which has to be enabled.
@@ -127,8 +139,6 @@ format in vernemq.conf | format in environment variable name
 ---------------------- | ------------------------------------
  `vmq_webhooks.pool_timeout = 60000` | `DOCKER_VERNEMQ_VMQ_WEBHOOKS__POOL_timeout=6000`
  `vmq_webhooks.pool_timeout = 60000` | `DOCKER_VERNEMQ_VMQ_WEBHOOKS.pool_timeout=60000`
-
-
 
 
 #### File Based Authentication
