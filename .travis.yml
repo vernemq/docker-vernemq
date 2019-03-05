@@ -81,10 +81,10 @@ jobs:
         - git config user.email "deploy@travis-ci.org"
         - git stash push -u -- vernemq-*.tgz
         - git config --replace-all remote.origin.fetch +refs/heads/*:refs/remotes/origin/*
-        - git fetch origin helm-charts
-        - git checkout helm-charts
+        - git fetch origin gh-pages
+        - git checkout gh-pages
         - git stash pop
         - helm repo index .
         - git add vernemq-*.tgz index.yaml
         - git commit -m "Add helm chart release $TRAVIS_BRANCH"
-        - git push -q https://$GITHUB_USER:$GITHUB_TOKEN@github.com/vernemq/docker-vernemq helm-charts &>/dev/null
+        - git push -q https://$GITHUB_USER:$GITHUB_TOKEN@github.com/vernemq/docker-vernemq gh-pages &>/dev/null
