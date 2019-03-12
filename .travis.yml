@@ -39,7 +39,7 @@ jobs:
 
     - &buildtag 
       stage: deploy
-      if: tag IS present AND NOT env(TRAVIS_TAG) =~ ^helm-.+$
+      if: tag IS present AND NOT tag =~ ^helm-.+$
       before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
       env:
         - DOCKERFILE=Dockerfile TARGET=rel TAG_SUFFIX=""
@@ -74,7 +74,7 @@ jobs:
 
     - <<: *helmlint
       name: Helm deploy
-      if: tag IS present AND env(TRAVIS_TAG) =~ ^helm-.+$
+      if: tag IS present AND tag =~ ^helm-.+$
       stage: deploy
       after_script:
         - git config user.name "travis"
