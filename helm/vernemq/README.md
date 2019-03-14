@@ -50,7 +50,7 @@ The following table lists the configurable parameters of the VerneMQ chart and t
 
 Parameter | Description | Default
 --------- | ----------- | -------
-`additionalEnv` | Additional environment variables | see [values.yaml](values.yaml)
+`additionalEnv` | additional environment variables | see [values.yaml](values.yaml)
 `image.pullPolicy` | container image pull policy | `IfNotPresent`
 `image.repository` | container image repository | `erlio/docker-vernemq`
 `image.tag` | container image tag | the current versions (e.g. `1.7.1`)
@@ -67,7 +67,22 @@ Parameter | Description | Default
 `replicaCount` | desired number of nodes | `1`
 `resources` | resource requests and limits (YAML) | `{}`
 `securityContext` | securityContext for containers in pod | `{}`
+`service.annotations` | service annotations | `{}`
+`service.clusterIP` | custom cluster IP when `service.type` is `ClusterIP` | `none`
+`service.externalIPs` | optional service external IPs | `none`
+`service.labels` | additional service labels | `{}`
+`service.loadBalancerIP` | optional load balancer IP when `service.type` is `LoadBalancer` | `none`
+`service.loadBalancerSourceRanges` | optional load balancer source ranges when `service.type` is `LoadBalancer` | `none`
+`service.mqtt.enabled` | whether to expose MQTT port | `true`
+`service.mqtt.nodePort` | the MQTT port exposed by the node when `service.type` is `NodePort` | `1883`
+`service.mqtt.port` | the MQTT port exposed by the service | `1883`
+`service.mqtts.enabled` | whether to expose MQTTS port | `false`
+`service.mqtts.nodePort` | the MQTTS port exposed by the node when `service.type` is `NodePort` | `8883`
+`service.mqtts.port` | the MQTTS port exposed by the service | `8883`
 `service.type` | type of service to create | `ClusterIP`
+`service.ws.enabled` | whether to expose WebSocket port | `false`
+`service.ws.nodePort` | the WebSocket port exposed by the node when `service.type` is `NodePort` | `8080`
+`service.ws.port` | the WebSocket port exposed by the service | `8080`
 `statefulset.podManagementPolicy` | start and stop pods in Parallel or OrderedReady (one-by-one.)  **Note** - Cannot change after first release. | `OrderedReady`
 `statefulset.terminationGracePeriodSeconds` | configure how much time VerneMQ takes to move offline queues to other nodes | `60`
 `statefulset.updateStrategy` | Statefulset updateStrategy | `RollingUpdate`
