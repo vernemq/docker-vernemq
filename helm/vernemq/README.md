@@ -83,6 +83,9 @@ Parameter | Description | Default
 `service.ws.enabled` | whether to expose WebSocket port | `false`
 `service.ws.nodePort` | the WebSocket port exposed by the node when `service.type` is `NodePort` | `8080`
 `service.ws.port` | the WebSocket port exposed by the service | `8080`
+`statefulset.annotations` | additional annotations to the StatefulSet | `{}`
+`statefulset.labels` | additional labels on the StatefulSet | `{}`
+`statefulset.podAnnotations` | additional pod annotations | `{}`
 `statefulset.podManagementPolicy` | start and stop pods in Parallel or OrderedReady (one-by-one.)  **Note** - Cannot change after first release. | `OrderedReady`
 `statefulset.terminationGracePeriodSeconds` | configure how much time VerneMQ takes to move offline queues to other nodes | `60`
 `statefulset.updateStrategy` | Statefulset updateStrategy | `RollingUpdate`
