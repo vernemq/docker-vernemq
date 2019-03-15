@@ -7,6 +7,13 @@ metadata:
     helm.sh/chart: {{ include "vernemq.chart" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
+  {{- if .Values.statefulset.labels }}
+    {{ toYaml .Values.statefulset.labels | nindent 4 }}
+  {{- end }}
+  {{- with .Values.statefulset.annotations }}
+  annotations:
+    {{ toYaml . | nindent 4 }}
+  {{- end }}
 spec:
   serviceName: {{ include "vernemq.fullname" . }}-headless
   replicas: {{ .Values.replicaCount }}
@@ -22,6 +29,10 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "vernemq.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- with .Values.statefulset.podAnnotations }}
+      annotations:
+        {{ toYaml . | nindent 8 }}
+      {{- end }}
     spec:
       serviceAccountName: {{ include "vernemq.serviceAccountName" . }}
       terminationGracePeriodSeconds: {{ .Values.statefulset.terminationGracePeriodSeconds }}

@@ -129,6 +129,11 @@ statefulset:
     timeoutSeconds: 5
     successThreshold: 1
     failureThreshold: 3
+  podAnnotations: {}
+#    prometheus.io/scrape: "true"
+#    prometheus/io/port: "8888"
+  annotations: {}
+  labels: {}
 
 ## VerneMQ settings
 
