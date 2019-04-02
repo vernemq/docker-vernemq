@@ -60,6 +60,7 @@ Parameter | Description | Default
 `persistentVolume.enabled` | if true, create a Persistent Volume Claim | `true`
 `persistentVolume.size` | data Persistent Volume size | `5Gi`
 `persistentVolume.storageClass` | data Persistent Volume Storage Class | `unset`
+`secretMounts` | mounts a secret as a file inside the statefulset. Useful for mounting certificates and other secrets.| `[]`
 `podAntiAffinity` | pod anti affinity, `soft` for trying not to run pods on the same nodes, `hard` to force kubernetes not to run 2 pods on the same node | `soft`
 `rbac.create` | if true, create & use RBAC resources | `true`
 `rbac.serviceAccount.create` | if true, create a serviceAccount | `true`

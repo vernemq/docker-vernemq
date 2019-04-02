@@ -105,6 +105,13 @@ persistentVolume:
   ## Annotations for Persistent Volume Claim
   annotations: {}
 
+# A list of secrets and their paths to mount inside the pod
+# This is useful for mounting certificates for security (tls)
+secretMounts: []
+#  - name: vernemq-certificates
+#    secretName: vernemq-certificates-secret
+#    path: /etc/ssl/vernemq
+
 statefulset:
   ## Start and stop pods in Parallel or OrderedReady (one-by-one.)  Note - Can not change after first release.
   ## Ref: https://kubernetes.io/docs/tutorials/stateful-application/basic-stateful-set/#pod-management-policy
@@ -154,3 +161,9 @@ additionalEnv:
 #    value: "10000"
 #  - name: DOCKER_VERNEMQ_MAX_OFFLINE_MESSAGES
 #    value: "-1"
+#  - name: DOCKER_VERNEMQ_LISTENER__SSL__CAFILE
+#    value: "/etc/ssl/vernemq/tls.crt"
+#  - name: DOCKER_VERNEMQ_LISTENER__SSL__CERTFILE
+#    value: "/etc/ssl/vernemq/tls.crt"
+#  - name: DOCKER_VERNEMQ_LISTENER__SSL__KEYFILE
+#    value: "/etc/ssl/vernemq/tls.key"

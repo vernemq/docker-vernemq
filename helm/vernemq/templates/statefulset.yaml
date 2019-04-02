@@ -61,6 +61,10 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.name
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
             - name: DOCKER_VERNEMQ_DISCOVERY_KUBERNETES
               value: "1"
             - name: DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR
@@ -68,6 +72,10 @@ spec:
             {{- /* Add this localhost listener in order to get the port forwarding working */}}
             - name: DOCKER_VERNEMQ_LISTENER__TCP__LOCALHOST
               value: "127.0.0.1:1883"
+            {{- if .Values.service.mqtts.enabled }}
+            - name: DOCKER_VERNEMQ_LISTENER__SSL__DEFAULT
+              value: "$(MY_POD_IP):{{ .Values.service.mqtts.port }}"
+            {{- end }}
             {{ toYaml .Values.additionalEnv | nindent 12 }}
           resources:
             {{ toYaml .Values.resources | nindent 12 }}
@@ -98,6 +106,11 @@ spec:
               mountPath: /vernemq/log
             - name: data
               mountPath: /vernemq/data
+            {{- range .Values.secretMounts }}
+            - name: {{ .name }}
+              mountPath: {{ .path }}
+              readOnly: true
+            {{- end }}
     {{- with .Values.nodeSelector }}
       nodeSelector:
         {{ toYaml . | nindent 8 }}
@@ -144,6 +157,11 @@ spec:
       volumes:
         - name: logs
           emptyDir: {}
+        {{- range .Values.secretMounts }}
+        - name: {{ .name }}
+          secret:
+            secretName: {{ .secretName }}
+        {{- end }}
 {{- if .Values.persistentVolume.enabled }}
   volumeClaimTemplates:
     - metadata:
