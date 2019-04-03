@@ -110,3 +110,110 @@ $ helm install vernemq/vernemq --name my-release -f values.yaml
 Roles and RoleBindings resources will be created automatically.
 
 To manually setup RBAC you need to set the parameter `rbac.create=false` and specify the service account to be used for each service by setting the parameters: `serviceAccounts.create` to `false` and `serviceAccounts.name` to the name of a pre-existing service account.
+
+### Enable MQTTS
+
+If you would like to enable MQTTS, follow these steps:
+
+1. (a) Issue a certificate using Cert-Manager **OR** (b) Create secret resource using existing certificates.
+2. Set the parameter `service.mqtts.enabled=true`.
+3. Mount the certificate secret inside the statefulset.
+4. Set the environment variables for the SSL listener.
+
+#### (a) Issue a certificate using Cert-Manager
+[Cert-Manager](https://github.com/jetstack/cert-manager) is a Kubernetes add-on. It can issue, renew and revoke a certificate from various issuing sources automatically. Cert-Manager obtains certificates from an ACME server (e.g., Let’s Encrypt) using ACME protocol.
+
+You need to issue a new certificate. The issued certificate will be stored as secret `vernemq-certificates-secret` under the `default` namespace. The secret will be available to be mounted to the statefulset. See the example below:
+
+```bash
+cat <<EOF > vernemq-certificates.yaml
+---
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: vernemq-certificates
+  namespace: default
+spec:
+  secretName: vernemq-certificates-secret
+  issuerRef:
+    kind: ClusterIssuer
+    name: letsencrypt-staging
+  commonName: mqtt.vernemq.com
+  dnsNames:
+  - mqtt.vernemq.com
+  acme:
+    config:
+    - dns01:
+        provider: digitalocean-dns
+      domains:
+      - mqtt.vernemq.com
+EOF
+
+kubectl apply -f vernemq-certificates.yaml
+# output: certificate.certmanager.k8s.io/vernemq-certificates created
+```
+
+#### (b) Create secret resource using existing certificates
+
+Using the key and crt files, you can create a secret. Kubernetes stores these files as a base64 string, so the first step is to encode them.
+
+```bash
+$ cat ca.crt| base64
+LS0tLS1CRUdJTiBDRVJUSUZJQ...CBDRVJUSUZJQ0FURS0tLS0t
+$ cat tls.crt | base64
+LS0tLS1CRUdJTiBDRVJUSUZJQ...gQ0VSVElGSUNBVEUtLS0tLQo=
+$ cat tls.key | base64
+LS0tLS1CRUdJTiBSU0EgUFJJV...gUFJJVkFURSBLRVktLS0tLQo=
+```
+
+Now you can create a kubernetes resource definition (YAML) that will create the secret resource.
+
+```bash
+cat <<EOF > vernemq-certificates-secret.yaml
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: vernemq-certificates-secret
+  namespace: default
+type: kubernetes.io/tls
+data:
+  ca.crt:LS0tLS1CRUdJTiBDRVJUSUZJQ...CBDRVJUSUZJQ0FURS0tLS0t
+  tls.crt:LS0tLS1CRUdJTiBDRVJUSUZJQ...gQ0VSVElGSUNBVEUtLS0tLQo=
+  tls.key:LS0tLS1CRUdJTiBSU0EgUFJJV...gUFJJVkFURSBLRVktLS0tLQo=
+EOF
+
+kubectl apply -f vernemq-certificates-secret.yaml
+# output: secret "vernemq-certificates-secret" created
+```
+
+#### Mount the certificate secret inside the statefulset
+
+Inside `values.yaml` you can declared the mount path and the secret using the `secretMounts` parameter. For example:
+
+```yaml
+...
+secretMounts:
+  - name: vernemq-certificates
+    secretName: vernemq-certificates-secret
+    path: /etc/ssl/vernemq
+...
+```
+
+#### Set the environment variables for the SSL listener
+
+The exact path of the certificates can be declared inside `values.yaml` under `additionalEnv` parameter. For example:
+
+```yaml
+additionalEnv:
+...
+  - name: DOCKER_VERNEMQ_LISTENER__SSL__CAFILE
+    value: "/etc/ssl/vernemq/tls.crt"
+  - name: DOCKER_VERNEMQ_LISTENER__SSL__CERTFILE
+    value: "/etc/ssl/vernemq/tls.crt"
+  - name: DOCKER_VERNEMQ_LISTENER__SSL__KEYFILE
+    value: "/etc/ssl/vernemq/tls.key"
+...
+```
+
+> **Tip**: Cert-Manager includes both CA and TLS certificate in the `tls.crt` file.
