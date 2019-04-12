@@ -55,10 +55,22 @@ EXPOSE 1883 8883 8080 44053 4369 8888 \
        9100 9101 9102 9103 9104 9105 9106 9107 9108 9109
 
 
-VOLUME ["/vernemq/log", "/vernemq/data", "/vernemq/etc"]
+VOLUME ["/vernemq/log", "/vernemq/data"]
 
 HEALTHCHECK CMD vernemq ping | grep -q pong
 
-USER vernemq
+# Openshift Compatibility
+COPY --chown=10000:10000 bin/uid_entrypoint /usr/sbin/uid_entrypoint
 
+USER root
+
+RUN chgrp -R 0 /vernemq && \
+    chmod -R g=u /vernemq && \
+    chgrp -R 0 /usr/sbin/uid_entrypoint && \
+    chmod -R g=u /usr/sbin/uid_entrypoint
+
+RUN chmod g=u /etc/passwd
+USER vernemq
+ENTRYPOINT [ "uid_entrypoint" ]
 CMD ["start_vernemq"]
+

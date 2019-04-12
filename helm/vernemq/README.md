@@ -109,3 +109,21 @@ $ helm install vernemq/vernemq --name my-release -f values.yaml
 Roles and RoleBindings resources will be created automatically.
 
 To manually setup RBAC you need to set the parameter `rbac.create=false` and specify the service account to be used for each service by setting the parameters: `serviceAccounts.create` to `false` and `serviceAccounts.name` to the name of a pre-existing service account.
+
+### Openshift Configuration
+
+To deploy chart on Openshift admin permissions inside a project are required to
+create the required service account, role and rolebinding.
+
+You can either use `helm template` and `oc apply` to deploy with admin
+permissions or grant Tiller admin access within a selected project.
+
+Security context configuration must be disabled in values file because Openshift
+will use random user to run the container.
+
+```yaml
+securityContext: {}
+  #runAsUser: 10000
+  #runAsGroup: 10000
+  #fsGroup: 10000
+```
