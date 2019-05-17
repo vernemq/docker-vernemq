@@ -1,5 +1,5 @@
 1. Check your VerneMQ cluster status:
-  kubectl exec --namespace {{ .Release.Namespace }} {{ .Release.Name }}-{{ include "vernemq.name" . }}-0 /usr/sbin/vmq-admin cluster show
+  kubectl exec --namespace {{ .Release.Namespace }} {{ .Release.Name }}-{{ include "vernemq.name" . }}-0 /vernemq/bin/vmq-admin cluster show
 
 2. Get VerneMQ MQTT port
 {{- if contains "NodePort" .Values.service.type }}
