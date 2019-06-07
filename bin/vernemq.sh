@@ -55,6 +55,7 @@ fi
 
 if [ -f /vernemq/etc/vernemq.conf.local ]; then
     cp /vernemq/etc/vernemq.conf.local /vernemq/etc/vernemq.conf
+    sed -i -r "s/###IPADDRESS###/${IP_ADDRESS}/" /vernemq/etc/vernemq.conf
 else
     sed -i '/########## Start ##########/,/########## End ##########/d' /vernemq/etc/vernemq.conf
 
