@@ -81,6 +81,7 @@ When enabling Kubernetes autoclustering, don't set ```DOCKER_VERNEMQ_DISCOVERY_N
 > WAIT_FOR_ERLANG to the number of seconds to wait.
 > ...
 > ```
+If using an vernemq.conf.local file, you can insert a placeholder (`###IPADDRESS###`) in your config to be replaced (at POD creation time) with the actual IP address of the POD vernemq is running on, making VMQ clustering possible.
 
 ### Checking cluster status
 
