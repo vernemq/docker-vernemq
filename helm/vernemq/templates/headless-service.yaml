@@ -10,8 +10,11 @@ metadata:
 spec:
   clusterIP: None
   ports:
-    - port: 4369
-      name: empd
+  - name: empd
+    port: 4369
+  - name: metrics
+    port: 8888
+    targetPort: prometheus
   selector:
     app.kubernetes.io/name: {{ include "vernemq.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
