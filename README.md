@@ -84,7 +84,7 @@ When enabling Kubernetes autoclustering, don't set ```DOCKER_VERNEMQ_DISCOVERY_N
 
 ### Checking cluster status
 
-To check if the bove containers have successfully clustered you can issue the ```vmq-admin``` command:
+To check if the above containers have successfully clustered you can issue the ```vmq-admin``` command:
 
     docker exec vernemq1 vmq-admin cluster show
     +--------------------+-------+
