@@ -13,5 +13,5 @@
   echo $SERVICE_IP:1883
 {{- else if contains "ClusterIP" .Values.service.type }}
   echo "Subscribe/publish MQTT messages there: 127.0.0.1:1883"
-  kubectl port-forward svc/{{ .Release.Name }}-{{ include "vernemq.name" . }} 1883:1883
+  kubectl port-forward svc/{{ include "vernemq.fullname" . }} 1883:1883
 {{- end }}
