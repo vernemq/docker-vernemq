@@ -12,7 +12,7 @@ ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
 
 RUN apt-get update && \
     apt-get -y install build-essential git libssl-dev && \
-    git clone -b $VERNEMQ_GIT_REF --single-branch --depth 1 $VERNEMQ_REPO .
+    git clone -b $VERNEMQ_GIT_REF $VERNEMQ_REPO .
 
 COPY bin/build.sh build.sh
 
