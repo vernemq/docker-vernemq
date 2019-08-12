@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: erlio/docker-vernemq
-  tag: 1.9.0-alpine
+  tag: 1.9.1-alpine
   pullPolicy: IfNotPresent
 
 nameOverride: ""
