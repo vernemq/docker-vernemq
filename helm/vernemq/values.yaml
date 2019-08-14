@@ -65,6 +65,7 @@ tolerations: []
 ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
 podAntiAffinity: soft
 
+# If deployed on Openshift disable securityContext by setting it to {}
 securityContext:
   runAsUser: 10000
   runAsGroup: 10000
