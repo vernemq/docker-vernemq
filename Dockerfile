@@ -2,7 +2,7 @@ FROM erlang:21 AS build-env
 
 WORKDIR /vernemq-build
 
-ARG VERNEMQ_GIT_REF=1.7.1
+ARG VERNEMQ_GIT_REF=1.9.1
 ARG TARGET=rel
 ARG VERNEMQ_REPO=https://github.com/vernemq/vernemq.git
 
@@ -12,7 +12,7 @@ ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
 
 RUN apt-get update && \
     apt-get -y install build-essential git libssl-dev && \
-    git clone -b $VERNEMQ_GIT_REF --single-branch --depth 1 $VERNEMQ_REPO .
+    git clone -b $VERNEMQ_GIT_REF $VERNEMQ_REPO .
 
 COPY bin/build.sh build.sh
 
@@ -22,7 +22,7 @@ RUN ./build.sh $TARGET
 FROM debian:stretch-slim
 
 RUN apt-get update && \
-    apt-get -y install openssl iproute2 curl jq && \
+    apt-get -y install procps openssl iproute2 curl jq && \
     rm -rf /var/lib/apt/lists/* && \
     addgroup --gid 10000 vernemq && \
     adduser --uid 10000 --system --ingroup vernemq --home /vernemq --disabled-password vernemq

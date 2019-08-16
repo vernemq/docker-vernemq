@@ -2,7 +2,7 @@ FROM erlang:21-alpine AS build-env
 
 WORKDIR /vernemq-build
 
-ARG VERNEMQ_GIT_REF=1.7.1
+ARG VERNEMQ_GIT_REF=1.9.1
 ARG TARGET=rel
 ARG VERNEMQ_REPO=https://github.com/vernemq/vernemq.git
 
@@ -12,7 +12,7 @@ ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
 
 RUN apk --no-cache --update --available upgrade && \
     apk add --no-cache git autoconf build-base bsd-compat-headers cmake openssl-dev bash && \
-    git clone -b $VERNEMQ_GIT_REF --single-branch --depth 1 $VERNEMQ_REPO .
+    git clone -b $VERNEMQ_GIT_REF $VERNEMQ_REPO .
 
 COPY bin/build.sh build.sh
 

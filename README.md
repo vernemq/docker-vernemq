@@ -81,10 +81,37 @@ When enabling Kubernetes autoclustering, don't set ```DOCKER_VERNEMQ_DISCOVERY_N
 > WAIT_FOR_ERLANG to the number of seconds to wait.
 > ...
 > ```
+If using an vernemq.conf.local file, you can insert a placeholder (`###IPADDRESS###`) in your config to be replaced (at POD creation time) with the actual IP address of the POD vernemq is running on, making VMQ clustering possible.
+
+### 4. Using [Docker Swarm](https://docs.docker.com/engine/swarm/)
+
+Please follow the official Docker guide to properly setup Swarm cluster with one or more nodes.
+
+Once Swarm is setup you can deploy a VerneMQ stack. The following snippet describes the stack using a `docker-compose.yml` file:
+
+    version: "3.7"
+    services:
+      vmq0:
+        image: erlio/docker-vernemq
+        environment:
+          DOCKER_VERNEMQ_SWARM: 1
+      vmq:
+        image: erlio/docker-vernemq
+        depends_on:
+          - vmq0
+        environment:
+          DOCKER_VERNEMQ_SWARM: 1
+          DOCKER_VERNEMQ_DISCOVERY_NODE: vmq0
+        deploy:
+          replicas: 2
+
+Run `docker stack deploy -c docker-compose.yml my-vernemq-stack` to deploy a 3 node VerneMQ cluster.
+
+Note: Docker Swarm currently lacks the functionality similar to what is called a statefulset in Kubernetes. As a consequence VerneMQ must rely on a specific discovery service (the `vmq0` service above) that is started before the other replicas.
 
 ### Checking cluster status
 
-To check if the bove containers have successfully clustered you can issue the ```vmq-admin``` command:
+To check if the above containers have successfully clustered you can issue the ```vmq-admin``` command:
 
     docker exec vernemq1 vmq-admin cluster show
     +--------------------+-------+
