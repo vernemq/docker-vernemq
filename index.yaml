@@ -3,7 +3,17 @@ entries:
   vernemq:
   - apiVersion: v1
     appVersion: 1.9.1
-    created: 2019-08-12T13:25:43.879048069Z
+    created: 2019-08-28T14:46:06.779603976Z
+    description: VerneMQ is a high-performance, distributed MQTT message broker
+    digest: 44103d7d8548d32f0cfc7eb38388352816b84a599a6fd0b58b7b0402a1f05b48
+    icon: http://www.stickpng.com/assets/thumbs/58482b21cef1014c0b5e4a24.png
+    name: vernemq
+    urls:
+    - https://vernemq.github.io/docker-vernemq/vernemq-1.4.2.tgz
+    version: 1.4.2
+  - apiVersion: v1
+    appVersion: 1.9.1
+    created: 2019-08-28T14:46:06.778765549Z
     description: VerneMQ is a high-performance, distributed MQTT message broker
     digest: 0b6c671d34359b6e5af9d8f4ac5cb1fd9de1e7893334602eef7370ce77ee17b4
     icon: http://www.stickpng.com/assets/thumbs/58482b21cef1014c0b5e4a24.png
@@ -13,7 +23,7 @@ entries:
     version: 1.4.1
   - apiVersion: v1
     appVersion: 1.9.0
-    created: 2019-08-12T13:25:43.878156152Z
+    created: 2019-08-28T14:46:06.777784303Z
     description: VerneMQ is a high-performance, distributed MQTT message broker
     digest: f1d614300b4242a66b32a55d4819140459bd4d98c2fccc74747578265e79bff8
     icon: http://www.stickpng.com/assets/thumbs/58482b21cef1014c0b5e4a24.png
@@ -23,7 +33,7 @@ entries:
     version: 1.4.0
   - apiVersion: v1
     appVersion: 1.8.0
-    created: 2019-08-12T13:25:43.877348571Z
+    created: 2019-08-28T14:46:06.776967253Z
     description: VerneMQ is a high-performance, distributed MQTT message broker
     digest: 5f93ad7441c847ec8e15d6c114c80bd6e5a6c03621b0bad71ab1abef3ffce71d
     icon: http://www.stickpng.com/assets/thumbs/58482b21cef1014c0b5e4a24.png
@@ -33,7 +43,7 @@ entries:
     version: 1.3.0
   - apiVersion: v1
     appVersion: 1.7.1-1
-    created: 2019-08-12T13:25:43.87651501Z
+    created: 2019-08-28T14:46:06.776119029Z
     description: VerneMQ is a high-performance, distributed MQTT message broker
     digest: e56088aeef89a272b12fd6e9308c7984a3ef7d9bec2ffc6e8c8dbb46fa11fd9a
     icon: http://www.stickpng.com/assets/thumbs/58482b21cef1014c0b5e4a24.png
@@ -43,7 +53,7 @@ entries:
     version: 1.2.0
   - apiVersion: v1
     appVersion: 1.7.1-1
-    created: 2019-08-12T13:25:43.875627548Z
+    created: 2019-08-28T14:46:06.775289259Z
     description: VerneMQ is a high-performance, distributed MQTT message broker
     digest: 2e7f01308b863701109ba09c6c7d59170b491102dfab0aa1d139646d5918306f
     icon: http://www.stickpng.com/assets/thumbs/58482b21cef1014c0b5e4a24.png
@@ -53,7 +63,7 @@ entries:
     version: 1.1.0
   - apiVersion: v1
     appVersion: 1.7.1-1
-    created: 2019-08-12T13:25:43.874636186Z
+    created: 2019-08-28T14:46:06.77427135Z
     description: VerneMQ is a high-performance, distributed MQTT message broker
     digest: 54eb3bf67c6a9d9035daadcf1583555d924d0ab921ce0a5e8c1aa239bcf2b061
     icon: http://www.stickpng.com/assets/thumbs/58482b21cef1014c0b5e4a24.png
@@ -61,4 +71,4 @@ entries:
     urls:
     - https://vernemq.github.io/docker-vernemq/vernemq-1.0.0.tgz
     version: 1.0.0
-generated: 2019-08-12T13:25:43.87335477Z
+generated: 2019-08-28T14:46:06.773167235Z
