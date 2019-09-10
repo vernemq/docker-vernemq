@@ -53,7 +53,7 @@ Parameter | Description | Default
 `additionalEnv` | additional environment variables | see [values.yaml](values.yaml)
 `image.pullPolicy` | container image pull policy | `IfNotPresent`
 `image.repository` | container image repository | `erlio/docker-vernemq`
-`image.tag` | container image tag | the current versions (e.g. `1.9.1`)
+`image.tag` | container image tag | the current versions (e.g. `1.9.2`)
 `nodeSelector` | node labels for pod assignment | `{}`
 `persistentVolume.accessModes` | data Persistent Volume access modes | `[ReadWriteOnce]`
 `persistentVolume.annotations` | annotations for Persistent Volume Claim | `{}`
