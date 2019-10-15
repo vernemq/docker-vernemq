@@ -12,7 +12,14 @@ VerneMQ is an Apache2 licensed distributed MQTT broker, developed in Erlang.
 
 ## How to use this image
 
-### 1. Using [Helm](https://helm.sh/) to deploy on [Kubernetes](https://kubernetes.io/)
+### 1. Accepting the VerneMQ EULA
+
+**NOTE:** To use the official Docker images you have to accept the [VerneMQ End
+User License Agreement](https://vernemq.com/end-user-license-agreement). You can
+read how to accept the VerneMQ EULA
+[here](https://docs.vernemq.com/installation/accepting-the-vernemq-eula).
+
+### 2. Using [Helm](https://helm.sh/) to deploy on [Kubernetes](https://kubernetes.io/)
 
 First install and configure Helm according to the [documentation](https://helm.sh/docs/using_helm/#quickstart-guide). Then add VerneMQ Helm charts repository:
 
@@ -24,7 +31,7 @@ You can now deploy VerneMQ on your Kubernetes cluster:
 
 For more information, check out the Helm chart [README](helm/vernemq/README.md).
 
-### 2. Using pure Docker commands
+### 3. Using pure Docker commands
 
     docker run --name vernemq1 -d vernemq/vernemq
 
@@ -44,7 +51,7 @@ This allows a newly started container to automatically join a VerneMQ cluster. A
 
 (Note, you can find the IP of a docker container using `docker inspect <containername/cid> | grep \"IPAddress\"`).
 
-### 3. Automated clustering on Kubernetes without helm
+### 4. Automated clustering on Kubernetes without helm
 
 When running VerneMQ inside Kubernetes, it is possible to cause pods matching a specific label to cluster altogether automatically.
 This feature uses Kubernetes' API to discover other peers, and relies on the [default pod service account](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/) which has to be enabled.
@@ -83,7 +90,7 @@ When enabling Kubernetes autoclustering, don't set ```DOCKER_VERNEMQ_DISCOVERY_N
 > ```
 If using an vernemq.conf.local file, you can insert a placeholder (`###IPADDRESS###`) in your config to be replaced (at POD creation time) with the actual IP address of the POD vernemq is running on, making VMQ clustering possible.
 
-### 4. Using [Docker Swarm](https://docs.docker.com/engine/swarm/)
+### 5. Using [Docker Swarm](https://docs.docker.com/engine/swarm/)
 
 Please follow the official Docker guide to properly setup Swarm cluster with one or more nodes.
 
