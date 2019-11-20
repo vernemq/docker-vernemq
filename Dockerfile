@@ -11,14 +11,15 @@ WORKDIR /vernemq
 # Defaults
 ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
     DOCKER_VERNEMQ_LOG__CONSOLE=console \
-    PATH="/vernemq/bin:$PATH"
+    PATH="/vernemq/bin:$PATH" \
+    VERNEMQ_VERSION="1.9.2"
 
 COPY --chown=10000:10000 bin/vernemq.sh /usr/sbin/start_vernemq
 COPY --chown=10000:10000 files/vm.args /vernemq/etc/vm.args
-ADD https://github.com/dergraf/downloads/raw/master/vernemq-1.9.2.stretch.tar.gz /tmp
+ADD https://github.com/vernemq/vernemq/releases/download/$VERNEMQ_VERSION/vernemq-$VERNEMQ_VERSION.stretch.tar.gz /tmp
 
-RUN tar -xzvf /tmp/vernemq-1.9.2.stretch.tar.gz && \
-    rm /tmp/vernemq-1.9.2.stretch.tar.gz && \
+RUN tar -xzvf /tmp/vernemq-$VERNEMQ_VERSION.stretch.tar.gz && \
+    rm /tmp/vernemq-$VERNEMQ_VERSION.stretch.tar.gz && \
     chown -R 10000:10000 /vernemq && \
     ln -s /vernemq/etc /etc/vernemq && \
     ln -s /vernemq/data /var/lib/vernemq && \
