@@ -33,21 +33,21 @@ For more information, check out the Helm chart [README](helm/vernemq/README.md).
 
 ### 3. Using pure Docker commands
 
-    docker run --name vernemq1 -d vernemq/vernemq
+    docker run -e "DOCKER_VERNEMQ_ACCEPT_EULA=yes" --name vernemq1 -d vernemq/vernemq
 
-Somtimes you need to configure a forwarding for ports (on a Mac for example):
+Sometimes you need to configure a forwarding for ports (on a Mac for example):
 
-    docker run -p 1883:1883 --name vernemq1 -d vernemq/vernemq
+    docker run -p 1883:1883 -e "DOCKER_VERNEMQ_ACCEPT_EULA=yes" --name vernemq1 -d vernemq/vernemq
 
 This starts a new node that listens on 1883 for MQTT connections and on 8080 for MQTT over websocket connections. However, at this moment the broker won't be able to authenticate the connecting clients. To allow anonymous clients use the ```DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on``` environment variable.
 
-    docker run -e "DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on" --name vernemq1 -d vernemq/vernemq
+    docker run -e "DOCKER_VERNEMQ_ACCEPT_EULA=yes" -e "DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on" --name vernemq1 -d vernemq/vernemq
 
 #### Autojoining a VerneMQ cluster
 
 This allows a newly started container to automatically join a VerneMQ cluster. Assuming you started your first node like the example above you could autojoin the cluster (which currently consists of a single container 'vernemq1') like the following:
 
-    docker run -e "DOCKER_VERNEMQ_DISCOVERY_NODE=<IP-OF-VERNEMQ1>" --name vernemq2 -d vernemq/vernemq
+    docker run -e "DOCKER_VERNEMQ_ACCEPT_EULA=yes" -e "DOCKER_VERNEMQ_DISCOVERY_NODE=<IP-OF-VERNEMQ1>" --name vernemq2 -d vernemq/vernemq
 
 (Note, you can find the IP of a docker container using `docker inspect <containername/cid> | grep \"IPAddress\"`).
 
