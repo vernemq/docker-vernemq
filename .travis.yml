@@ -16,7 +16,7 @@ jobs:
       stage: test
       before_script: docker build --build-arg TARGET=${TARGET} -t vmq-travis -f ${DOCKERFILE} .
       script:
-        - docker run -e "DOCKER_VERNEMQ_ACCEPT_EULA=yes" --name vmq-travis vmq-travis vernemq
+        - docker run -e "DOCKER_VERNEMQ_ACCEPT_EULA=yes" --name vmq-travis vmq-travis
         - docker run vmq-travis vernemq ping
         - docker stop vmq-travis
         - docker rm vmq-travis
