@@ -1,0 +1,20 @@
+{{- if .Values.serviceMonitor.create }}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ template "vernemq.fullname" . }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/name: {{ template "vernemq.name" . }}
+    helm.sh/chart: {{ template "vernemq.chart" . }}
+spec:
+  endpoints:
+  - interval: 30s
+    port: metrics
+    path: /metrics
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ template "vernemq.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
