@@ -74,7 +74,7 @@ spec:
               value: "127.0.0.1:1883"
             {{- if .Values.service.mqtts.enabled }}
             - name: DOCKER_VERNEMQ_LISTENER__SSL__DEFAULT
-              value: "$(MY_POD_IP):{{ .Values.service.mqtts.port }}"
+              value: "$(MY_POD_IP):8883"
             {{- end }}
             {{- if .Values.additionalEnv }}
             {{ toYaml .Values.additionalEnv | nindent 12 }}
