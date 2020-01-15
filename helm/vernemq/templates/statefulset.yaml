@@ -82,22 +82,20 @@ spec:
           resources:
             {{ toYaml .Values.resources | nindent 12 }}
           livenessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - "-c"
-                - "/vernemq/bin/vernemq ping | grep pong"
+            httpGet:
+              path: /health
+              port: prometheus
+              scheme: HTTP
             initialDelaySeconds: {{ .Values.statefulset.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.statefulset.livenessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.statefulset.livenessProbe.timeoutSeconds }}
             successThreshold: {{ .Values.statefulset.livenessProbe.successThreshold }}
             failureThreshold: {{ .Values.statefulset.livenessProbe.failureThreshold }}
           readinessProbe:
-            exec:
-              command:
-                - /bin/sh
-                - "-c"
-                - "/vernemq/bin/vernemq ping | grep pong"
+            httpGet:
+              path: /health
+              port: prometheus
+              scheme: HTTP
             initialDelaySeconds: {{ .Values.statefulset.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.statefulset.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.statefulset.readinessProbe.timeoutSeconds }}
