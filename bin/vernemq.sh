@@ -134,7 +134,7 @@ sigterm_handler() {
         if [ -n "$VERNEMQ_KUBERNETES_HOSTNAME" ]; then
             terminating_node_name=$VERNEMQ_KUBERNETES_HOSTNAME
         elif [ -n "$DOCKER_VERNEMQ_SWARM" ]; then
-            terminating_node_name=VerneMQ@$NODENAME
+            terminating_node_name=VerneMQ@$(hostname -i)
         else
             terminating_node_name=VerneMQ@$IP_ADDRESS
         fi
