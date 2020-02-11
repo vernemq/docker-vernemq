@@ -91,6 +91,9 @@ Parameter | Description | Default
 `statefulset.terminationGracePeriodSeconds` | configure how much time VerneMQ takes to move offline queues to other nodes | `60`
 `statefulset.updateStrategy` | Statefulset updateStrategy | `RollingUpdate`
 `serviceMonitor.enabled` | whether to create a ServiceMonitor for Prometheus Operator | `false`
+`pdb.enabled` | whether to create a Pod Disruption Budget | `false`
+`pdb.minAvailable` | PDB (min available) for the cluster | `1`
+`pdb.maxUnavailable` | PDB (max unavailable) for the cluster | `nil`
 
 Specify each parameter using the `--set key=value[,key=value]` argument to helm install. For example,
 
