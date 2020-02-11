@@ -147,6 +147,11 @@ statefulset:
   annotations: {}
   labels: {}
 
+pdb:
+  enabled: false
+  minAvailable: 1
+  # maxUnavailable: 1
+
 ## VerneMQ settings
 
 additionalEnv:
