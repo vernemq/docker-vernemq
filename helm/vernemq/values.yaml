@@ -24,6 +24,8 @@ service:
 #  externalIPs: []
 #  loadBalancerIP: 10.1.2.4
 #  loadBalancerSourceRanges: []
+#  sessionAffinity: None
+#  sessionAffinityConfig: {}
   mqtt:
     enabled: true
     port: 1883

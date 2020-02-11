@@ -74,6 +74,8 @@ Parameter | Description | Default
 `service.labels` | additional service labels | `{}`
 `service.loadBalancerIP` | optional load balancer IP when `service.type` is `LoadBalancer` | `none`
 `service.loadBalancerSourceRanges` | optional load balancer source ranges when `service.type` is `LoadBalancer` | `none`
+`service.sessionAffinity` | service session affinity | `none`
+`service.sessionAffinityConfig` | service session affinity config | `none`
 `service.mqtt.enabled` | whether to expose MQTT port | `true`
 `service.mqtt.nodePort` | the MQTT port exposed by the node when `service.type` is `NodePort` | `1883`
 `service.mqtt.port` | the MQTT port exposed by the service | `1883`
