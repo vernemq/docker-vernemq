@@ -131,7 +131,11 @@ siguser1_handler() {
 sigterm_handler() {
     if [ $pid -ne 0 ]; then
         # this will stop the VerneMQ process
-        /vernemq/bin/vmq-admin cluster leave node=VerneMQ@$IP_ADDRESS -k > /dev/null
+        if [ ! -z $VERNEMQ_KUBERNETES_HOSTNAME ]; then
+            /vernemq/bin/vmq-admin cluster leave node=$VERNEMQ_KUBERNETES_HOSTNAME-k > /dev/null
+        else
+            /vernemq/bin/vmq-admin cluster leave node=VerneMQ@$IP_ADDRESS -k > /dev/null
+        fi
         wait "$pid"
     fi
     exit 143; # 128 + 15 -- SIGTERM
