@@ -32,6 +32,13 @@ spec:
 {{- else }}
   type: {{ .Values.service.type }}
 {{- end }}
+{{- if .Values.service.sessionAffinity }}
+  sessionAffinity: {{ .Values.service.sessionAffinity }}
+  {{- if .Values.service.sessionAffinityConfig }}
+  sessionAffinityConfig:
+    {{ toYaml .Values.service.sessionAffinityConfig | nindent 4 }}
+  {{- end -}}
+{{- end }}
 {{- with .Values.service.externalIPs }}
   externalIPs:
     {{ toYaml . | nindent 4 }}
