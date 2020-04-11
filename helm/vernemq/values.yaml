@@ -61,7 +61,7 @@ ingress:
   hosts: []
     # - vernemq.domain.com
 
-  ## Paths to use for ingress rules - one path should match the ingress.routePrefix
+  ## Paths to use for ingress rules.
   ##
   paths:
     - /
