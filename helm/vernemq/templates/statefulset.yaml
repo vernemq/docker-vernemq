@@ -111,6 +111,10 @@ spec:
               mountPath: {{ .path }}
               readOnly: true
             {{- end }}
+          {{- with .Values.statefulset.lifecycle }}
+          lifecycle:
+            {{- toYaml . | nindent 12 }}
+          {{- end }}
     {{- with .Values.nodeSelector }}
       nodeSelector:
         {{ toYaml . | nindent 8 }}

@@ -146,6 +146,7 @@ statefulset:
 #    prometheus.io/port: "8888"
   annotations: {}
   labels: {}
+  lifecycle: {}
 
 pdb:
   enabled: false
