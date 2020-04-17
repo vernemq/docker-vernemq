@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: vernemq/vernemq
-  tag: 1.10.1-alpine
+  tag: 1.10.2-1-alpine
   pullPolicy: IfNotPresent
 
 nameOverride: ""
@@ -43,6 +43,36 @@ service:
     nodePort: 8080
   annotations: {}
   labels: {}
+
+## Ingress can optionally be applied when enabling the MQTT websocket service
+## This allows for an ingress controller to route web ports and arbitrary hostnames
+## and paths to the websocket service as well as allow the controller to handle TLS
+## termination for the websocket traffic. Ingress is only possible for traffic exchanged
+## over HTTP, so ONLY the websocket service take advantage of ingress.
+ingress:
+  enabled: false
+
+  labels: {}
+
+  annotations: {}
+
+  ## Hosts must be provided if ingress is enabled.
+  ##
+  hosts: []
+    # - vernemq.domain.com
+
+  ## Paths to use for ingress rules.
+  ##
+  paths:
+    - /
+
+  ## TLS configuration for ingress
+  ## Secret must be manually created in the namespace
+  ##
+  tls: []
+  # - secretName: vernemq-tls
+  #   hosts:
+  #   - vernemq.domain.com
 
 ## VerneMQ resources requests and limits
 ## Ref: http://kubernetes.io/docs/user-guide/compute-resources

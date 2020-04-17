@@ -52,8 +52,14 @@ Parameter | Description | Default
 --------- | ----------- | -------
 `additionalEnv` | additional environment variables | see [values.yaml](values.yaml)
 `image.pullPolicy` | container image pull policy | `IfNotPresent`
-`image.repository` | container image repository | `erlio/docker-vernemq`
-`image.tag` | container image tag | the current versions (e.g. `1.10.1`)
+`image.repository` | container image repository | `vernemq/vernemq`
+`image.tag` | container image tag | the current versions (e.g. `1.10.2`)
+`ingress.enabled` | whether to enable an ingress object to route to the WebSocket service. Requires an ingress controller and the WebSocket service to be enabled. | `false`
+`ingress.labels` | additional ingress labels | `{}`
+`ingress.annotations` | additional service annotations | `{}`
+`ingress.hosts` | a list of routable hostnames for host-based routing of traffic to the WebSocket service | `[]`
+`ingress.paths` | a list of paths for path-based routing of traffic to the WebSocket service | `/`
+`ingress.tls` | a list of TLS ingress configurations for securing the WebSocket ingress | `[]`
 `nodeSelector` | node labels for pod assignment | `{}`
 `persistentVolume.accessModes` | data Persistent Volume access modes | `[ReadWriteOnce]`
 `persistentVolume.annotations` | annotations for Persistent Volume Claim | `{}`
