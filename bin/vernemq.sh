@@ -132,7 +132,7 @@ sigterm_handler() {
     if [ $pid -ne 0 ]; then
         # this will stop the VerneMQ process, but first drain the node from all existing client sessions (-k)
         if [ -n "$VERNEMQ_KUBERNETES_HOSTNAME" ]; then
-            terminating_node_name=$VERNEMQ_KUBERNETES_HOSTNAME
+            terminating_node_name=VerneMQ@$VERNEMQ_KUBERNETES_HOSTNAME
         elif [ -n "$DOCKER_VERNEMQ_SWARM" ]; then
             terminating_node_name=VerneMQ@$(hostname -i)
         else
