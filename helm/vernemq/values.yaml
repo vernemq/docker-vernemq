@@ -140,6 +140,16 @@ persistentVolume:
   ## Annotations for Persistent Volume Claim
   annotations: {}
 
+extraVolumeMounts: []
+## Additional volumeMounts to the pod.
+#  - name: additional-volume-mount
+#    mountPath: /var/additional-volume-path
+
+extraVolumes: []
+## Additional volumes to the pod.
+#  - name: additional-volume
+#    emptyDir: {}
+
 # A list of secrets and their paths to mount inside the pod
 # This is useful for mounting certificates for security (tls)
 secretMounts: []
