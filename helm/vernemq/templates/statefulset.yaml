@@ -129,14 +129,10 @@ spec:
             - topologyKey: "kubernetes.io/hostname"
               labelSelector:
                 matchExpressions:
-                  - key: "app"
+                  - key: "app.kubernetes.io/name"
                     operator: In
                     values:
                       - {{ include "vernemq.name" . }}
-                  - key: "release"
-                    operator: In
-                    values:
-                      - {{ .Release.Name }}
     {{- else if eq .Values.podAntiAffinity "soft" }}
       affinity:
         podAntiAffinity:
@@ -146,14 +142,10 @@ spec:
                 topologyKey: "kubernetes.io/hostname"
                 labelSelector:
                   matchExpressions:
-                    - key: "app"
+                    - key: "app.kubernetes.io/name"
                       operator: In
                       values:
                         - {{ include "vernemq.name" . }}
-                    - key: "release"
-                      operator: In
-                      values:
-                        - {{ .Release.Name }}
     {{- end }}
     {{- with .Values.tolerations }}
       tolerations:
