@@ -101,12 +101,29 @@ $password
 EOF
     done
 
-    echo "erlang.distribution.port_range.minimum = 9100" >> /vernemq/etc/vernemq.conf
-    echo "erlang.distribution.port_range.maximum = 9109" >> /vernemq/etc/vernemq.conf
-    echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /vernemq/etc/vernemq.conf
-    echo "listener.ws.default = ${IP_ADDRESS}:8080" >> /vernemq/etc/vernemq.conf
-    echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /vernemq/etc/vernemq.conf
-    echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> /vernemq/etc/vernemq.conf
+    if [ -z "$DOCKER_VERNEMQ_ERLANG__DISTRIBUTION__PORT_RANGE__MINIMUM" ]; then
+        echo "erlang.distribution.port_range.minimum = 9100" >> /vernemq/etc/vernemq.conf
+    fi
+
+    if [ -z "$DOCKER_VERNEMQ_ERLANG__DISTRIBUTION__PORT_RANGE__MAXIMUM" ]; then
+        echo "erlang.distribution.port_range.maximum = 9109" >> /vernemq/etc/vernemq.conf
+    fi
+
+    if [ -z "$DOCKER_VERNEMQ_LISTENER__TCP__DEFAULT" ]; then
+        echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /vernemq/etc/vernemq.conf
+    fi
+
+    if [ -z "$DOCKER_VERNEMQ_LISTENER__WS__DEFAULT" ]; then
+        echo "listener.ws.default = ${IP_ADDRESS}:8080" >> /vernemq/etc/vernemq.conf
+    fi
+
+    if [ -z "$DOCKER_VERNEMQ_LISTENER__VMQ__CLUSTERING" ]; then
+        echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /vernemq/etc/vernemq.conf
+    fi
+
+    if [ -z "$DOCKER_VERNEMQ_LISTENER__HTTP__METRICS" ]; then
+        echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> /vernemq/etc/vernemq.conf
+    fi
 
     echo "########## End ##########" >> /vernemq/etc/vernemq.conf
 fi
