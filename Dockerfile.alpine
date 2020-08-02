@@ -10,7 +10,7 @@ RUN apk --no-cache --update --available upgrade && \
 ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
     DOCKER_VERNEMQ_LOG__CONSOLE=console \
     PATH="/vernemq/bin:$PATH" \
-    VERNEMQ_VERSION="1.10.3"
+    VERNEMQ_VERSION="1.10.4.1"
 
 WORKDIR /vernemq
 
