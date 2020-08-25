@@ -68,6 +68,14 @@ spec:
       nodePort: {{ .Values.service.ws.nodePort }}
       {{- end }}
     {{- end }}
+    {{- if .Values.service.wss.enabled }}
+    - port: {{ .Values.service.wss.port }}
+      targetPort: wss
+      name: wss
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.wss.nodePort }}
+      {{- end }}
+    {{- end }}
   selector:
     app.kubernetes.io/name: {{ include "vernemq.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}

@@ -94,6 +94,9 @@ Parameter | Description | Default
 `service.ws.enabled` | whether to expose WebSocket port | `false`
 `service.ws.nodePort` | the WebSocket port exposed by the node when `service.type` is `NodePort` | `8080`
 `service.ws.port` | the WebSocket port exposed by the service | `8080`
+`service.wss.enabled` | whether to expose secure WebSocket port | `false`
+`service.wss.nodePort` | the secure WebSocket port exposed by the node when `service.type` is `NodePort` | `8443`
+`service.wss.port` | the secure WebSocket port exposed by the service | `8443`
 `statefulset.annotations` | additional annotations to the StatefulSet | `{}`
 `statefulset.labels` | additional labels on the StatefulSet | `{}`
 `statefulset.podAnnotations` | additional pod annotations | `{}`
