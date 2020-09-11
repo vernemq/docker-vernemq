@@ -41,6 +41,11 @@ service:
     port: 8080
     # This is the port used by nodes to expose the service
     nodePort: 8080
+  wss:
+    enabled: false
+    port: 8443
+    # This is the port used by nodes to expose the service
+    nodePort: 8443
   annotations: {}
   labels: {}
 
