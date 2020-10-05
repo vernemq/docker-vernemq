@@ -103,7 +103,7 @@ Parameter | Description | Default
 `statefulset.podManagementPolicy` | start and stop pods in Parallel or OrderedReady (one-by-one.)  **Note** - Cannot change after first release. | `OrderedReady`
 `statefulset.terminationGracePeriodSeconds` | configure how much time VerneMQ takes to move offline queues to other nodes | `60`
 `statefulset.updateStrategy` | Statefulset updateStrategy | `RollingUpdate`
-`statefulset.lifecycle | Statefulset lifecycle hooks | `{}`
+`statefulset.lifecycle` | Statefulset lifecycle hooks | `{}`
 `serviceMonitor.enabled` | whether to create a ServiceMonitor for Prometheus Operator | `false`
 `pdb.enabled` | whether to create a Pod Disruption Budget | `false`
 `pdb.minAvailable` | PDB (min available) for the cluster | `1`
