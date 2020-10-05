@@ -123,7 +123,7 @@ rbac:
 persistentVolume:
   ## If true, VerneMQ will create/use a Persistent Volume Claim
   ## If false, use local directory
-  enabled: false
+  enabled: true
 
   ## VerneMQ data Persistent Volume access modes
   ## Must match those of existing PV or dynamic provisioner
