@@ -119,10 +119,6 @@ EOF
         echo "listener.ws.default = ${IP_ADDRESS}:8080" >> /vernemq/etc/vernemq.conf
     fi
 
-    if [ -z "$DOCKER_VERNEMQ_LISTENER__WSS__DEFAULT" ]; then
-        echo "listener.wss.default = ${IP_ADDRESS}:8443" >> /vernemq/etc/vernemq.conf
-    fi
-
     if [ -z "$DOCKER_VERNEMQ_LISTENER__VMQ__CLUSTERING" ]; then
         echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /vernemq/etc/vernemq.conf
     fi
