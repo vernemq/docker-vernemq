@@ -78,6 +78,10 @@ spec:
             - name: DOCKER_VERNEMQ_LISTENER__SSL__DEFAULT
               value: "$(MY_POD_IP):{{ .Values.service.mqtts.port }}"
             {{- end }}
+            {{- if .Values.service.wss.enabled }}
+            - name: DOCKER_VERNEMQ_LISTENER__WSS__DEFAULT
+              value: "$(MY_POD_IP):{{ .Values.service.wss.port }}"
+            {{- end }}
             {{- if .Values.additionalEnv }}
             {{ toYaml .Values.additionalEnv | nindent 12 }}
             {{- end }}
