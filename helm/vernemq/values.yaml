@@ -24,6 +24,7 @@ service:
 #  externalIPs: []
 #  loadBalancerIP: 10.1.2.4
 #  loadBalancerSourceRanges: []
+#  externalTrafficPolicy: Local
 #  sessionAffinity: None
 #  sessionAffinityConfig: {}
   mqtt:
