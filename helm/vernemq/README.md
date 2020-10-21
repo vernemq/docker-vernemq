@@ -82,6 +82,7 @@ Parameter | Description | Default
 `service.labels` | additional service labels | `{}`
 `service.loadBalancerIP` | optional load balancer IP when `service.type` is `LoadBalancer` | `none`
 `service.loadBalancerSourceRanges` | optional load balancer source ranges when `service.type` is `LoadBalancer` | `none`
+`service.externalTrafficPolicy` | set this to `Local` to preserve client source IPs and prevent additional hops between K8s nodes if the service type is `LoadBalancer` or `NodePort` | `unset`
 `service.sessionAffinity` | service session affinity | `none`
 `service.sessionAffinityConfig` | service session affinity config | `none`
 `service.mqtt.enabled` | whether to expose MQTT port | `true`
