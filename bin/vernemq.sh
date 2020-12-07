@@ -150,14 +150,32 @@ siguser1_handler() {
 sigterm_handler() {
     if [ $pid -ne 0 ]; then
         # this will stop the VerneMQ process, but first drain the node from all existing client sessions (-k)
-        if [ -n "$VERNEMQ_KUBERNETES_HOSTNAME" ]; then
-            terminating_node_name=VerneMQ@$VERNEMQ_KUBERNETES_HOSTNAME
-        elif [ -n "$DOCKER_VERNEMQ_SWARM" ]; then
-            terminating_node_name=VerneMQ@$(hostname -i)
-        else
-            terminating_node_name=VerneMQ@$IP_ADDRESS
-        fi
-        /vernemq/bin/vmq-admin cluster leave node=$terminating_node_name -k > /dev/null
+        # if [ -n "$VERNEMQ_KUBERNETES_HOSTNAME" ]; then
+        #     terminating_node_name=VerneMQ@$VERNEMQ_KUBERNETES_HOSTNAME
+        # elif [ -n "$DOCKER_VERNEMQ_SWARM" ]; then
+        #     terminating_node_name=VerneMQ@$(hostname -i)
+        # else
+        #     terminating_node_name=VerneMQ@$IP_ADDRESS
+        # fi
+        # /vernemq/bin/vmq-admin cluster leave node=$terminating_node_name -k > /dev/null
+
+        # Explanation on outcommenting L160 above:
+        #
+        # A VerneMQ node can be stopped and started any time, keeping its state on disk.
+        # Stopping a node will create a network partition in the cluster, but this can be handled by the
+        # VerneMQ availability configurations.
+        # Stopping a node and restarting it with the same state is the preferred approach to 
+        # Kubernetes Pod Rescheduling.
+        # Changed behaviour: Therefore we do not make the node leave the cluster when it gets a SIGTERM from K8s.
+        #
+        # As K8s does not make a difference between re-scheduling and scaling down cluster size,
+        # it can't tell VerneMQ whether a Pod termination is an administrative scale down procedure, or
+        # a Pod rescheduling.
+        # For the case of scaling down (where we want to make the nodes leave the cluster), the change above leaves us with only stopped nodes.
+        # A human administrator (or Kubernetes Software Operator) will have to make those nodes leave the cluster and possibly supervise
+        # queue migration.
+        # Further experimentation and suggestions on this are welcome!
+    
         /vernemq/bin/vmq-admin node stop > /dev/null
         kill -s TERM ${pid}
         exit 0
