@@ -164,8 +164,20 @@ sigterm_handler() {
             echo "I'm the only pod remaining, not performing leave and state purge."
             /vernemq/bin/vmq-admin node stop >/dev/null
         else
-            /vernemq/bin/vmq-admin cluster leave node=$terminating_node_name -k && rm -rf /vernemq/data/*
-            /vernemq/bin/vmq-admin node stop >/dev/null
+
+            statefulset=$(curl -X GET --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
+                https://kubernetes.default.svc.$DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME/api/v1/namespaces/$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)/pods/$(hostname) | jq -r '.metadata.ownerReferences[0].name')
+
+            reschedule=$(curl -X GET --cacert /var/run/secrets/kubernetes.io/serviceaccount/ca.crt -H "Authorization: Bearer $(cat /var/run/secrets/kubernetes.io/serviceaccount/token)" \
+                https://kubernetes.default.svc.$DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME/apis/apps/v1/namespaces/$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace)/statefulsets/${statefulset} | jq '.status.replicas == .status.currentReplicas')
+
+            if [[ $reschedule == "true" ]]; then
+                echo "Reschedule is true, not leaving the cluster"
+                /vernemq/bin/vmq-admin node stop >/dev/null
+            else
+                echo "Reschedule is false, leaving the cluster"
+                /vernemq/bin/vmq-admin cluster leave node=$terminating_node_name -k && rm -rf /vernemq/data/*
+            fi
         fi
         kill -s TERM ${pid}
         exit 0
