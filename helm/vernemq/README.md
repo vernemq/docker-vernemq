@@ -105,7 +105,7 @@ Parameter | Description | Default
 `statefulset.terminationGracePeriodSeconds` | configure how much time VerneMQ takes to move offline queues to other nodes | `60`
 `statefulset.updateStrategy` | Statefulset updateStrategy | `RollingUpdate`
 `statefulset.lifecycle | Statefulset lifecycle hooks | `{}`
-`serviceMonitor.enabled` | whether to create a ServiceMonitor for Prometheus Operator | `false`
+`serviceMonitor.create` | whether to create a ServiceMonitor for Prometheus Operator | `false`
 `pdb.enabled` | whether to create a Pod Disruption Budget | `false`
 `pdb.minAvailable` | PDB (min available) for the cluster | `1`
 `pdb.maxUnavailable` | PDB (max unavailable) for the cluster | `nil`
