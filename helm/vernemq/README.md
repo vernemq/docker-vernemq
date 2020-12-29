@@ -106,7 +106,7 @@ Parameter | Description | Default
 `statefulset.updateStrategy` | Statefulset updateStrategy | `RollingUpdate`
 `statefulset.lifecycle` | Statefulset lifecycle hooks | `{}`
 `serviceMonitor.enabled` | whether to create a ServiceMonitor for Prometheus Operator | `false`
-`serviceMonitor.labels` | whether to add omre labels to ServiceMonitor for Prometheus Operator | `{}`
+`serviceMonitor.labels` | whether to add more labels to ServiceMonitor for Prometheus Operator | `{}`
 `pdb.enabled` | whether to create a Pod Disruption Budget | `false`
 `pdb.minAvailable` | PDB (min available) for the cluster | `1`
 `pdb.maxUnavailable` | PDB (max unavailable) for the cluster | `nil`
