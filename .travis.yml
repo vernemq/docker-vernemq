@@ -41,7 +41,7 @@ jobs:
         - chmod +x /tmp/helm
         - export PATH=$PATH:/tmp
       before_script:
-        - helm init --client-only
+        - helm init --stable-repo-url=https://charts.helm.sh/stable --client-only 
       script:
         - helm lint helm/vernemq
         - helm template -f helm/vernemq/values.yaml helm/vernemq
