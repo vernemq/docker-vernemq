@@ -51,6 +51,7 @@ The following table lists the configurable parameters of the VerneMQ chart and t
 Parameter | Description | Default
 --------- | ----------- | -------
 `additionalEnv` | additional environment variables | see [values.yaml](values.yaml)
+`envFrom` | additional envFrom configmaps or secrets | see [values.yaml](values.yaml)
 `image.pullPolicy` | container image pull policy | `IfNotPresent`
 `image.repository` | container image repository | `vernemq/vernemq`
 `image.tag` | container image tag | the current versions (e.g. `1.11.0`)
