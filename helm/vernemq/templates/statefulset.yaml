@@ -85,6 +85,8 @@ spec:
             {{- if .Values.additionalEnv }}
             {{ toYaml .Values.additionalEnv | nindent 12 }}
             {{- end }}
+          envFrom:
+            {{ toYaml .Values.envFrom | nindent 12 }}
           resources:
             {{ toYaml .Values.resources | nindent 12 }}
           livenessProbe:
