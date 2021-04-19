@@ -51,6 +51,7 @@ The following table lists the configurable parameters of the VerneMQ chart and t
 Parameter | Description | Default
 --------- | ----------- | -------
 `additionalEnv` | additional environment variables | see [values.yaml](values.yaml)
+`envFrom` | additional envFrom configmaps or secrets | see [values.yaml](values.yaml)
 `image.pullPolicy` | container image pull policy | `IfNotPresent`
 `image.repository` | container image repository | `vernemq/vernemq`
 `image.tag` | container image tag | the current versions (e.g. `1.11.0`)
@@ -105,8 +106,9 @@ Parameter | Description | Default
 `statefulset.podManagementPolicy` | start and stop pods in Parallel or OrderedReady (one-by-one.)  **Note** - Cannot change after first release. | `OrderedReady`
 `statefulset.terminationGracePeriodSeconds` | configure how much time VerneMQ takes to move offline queues to other nodes | `60`
 `statefulset.updateStrategy` | Statefulset updateStrategy | `RollingUpdate`
-`statefulset.lifecycle | Statefulset lifecycle hooks | `{}`
-`serviceMonitor.enabled` | whether to create a ServiceMonitor for Prometheus Operator | `false`
+`statefulset.lifecycle` | Statefulset lifecycle hooks | `{}`
+`serviceMonitor.create` | whether to create a ServiceMonitor for Prometheus Operator | `false`
+`serviceMonitor.labels` | whether to add more labels to ServiceMonitor for Prometheus Operator | `{}`
 `pdb.enabled` | whether to create a Pod Disruption Budget | `false`
 `pdb.minAvailable` | PDB (min available) for the cluster | `1`
 `pdb.maxUnavailable` | PDB (max unavailable) for the cluster | `nil`
