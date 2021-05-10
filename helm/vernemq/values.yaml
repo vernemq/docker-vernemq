@@ -9,6 +9,9 @@ image:
   tag: 1.11.0-alpine
   pullPolicy: IfNotPresent
 
+imagePullSecrets: {} 
+# - name: regcred
+
 nameOverride: ""
 fullnameOverride: ""
 
