@@ -8,6 +8,9 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
     app.kubernetes.io/name: {{ template "vernemq.name" . }}
     helm.sh/chart: {{ template "vernemq.chart" . }}
+    {{- if .Values.serviceMonitor.labels }}
+      {{ toYaml .Values.serviceMonitor.labels | nindent 4 }}
+    {{- end }}
 spec:
   endpoints:
   - interval: 30s
