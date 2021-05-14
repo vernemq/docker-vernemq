@@ -20,7 +20,7 @@ This chart bootstraps a [VerneMQ](https://vernemq.com/) deployment on a [Kuberne
 
 ## Prerequisites
 
-- Kubernetes 1.9, of 1.5 with Beta features enabled
+- Kubernetes 1.9, or 1.5 with Beta features enabled
 
 ## Installing the Chart
 
