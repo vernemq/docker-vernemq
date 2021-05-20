@@ -1,4 +1,4 @@
-FROM debian:stretch-slim
+FROM debian:buster-slim
 
 RUN apt-get update && \
     apt-get -y install bash procps openssl iproute2 curl jq libsnappy-dev net-tools && \
@@ -12,14 +12,14 @@ WORKDIR /vernemq
 ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
     DOCKER_VERNEMQ_LOG__CONSOLE=console \
     PATH="/vernemq/bin:$PATH" \
-    VERNEMQ_VERSION="1.11.0"
+    VERNEMQ_VERSION="1.12.0"
 
 COPY --chown=10000:10000 bin/vernemq.sh /usr/sbin/start_vernemq
 COPY --chown=10000:10000 files/vm.args /vernemq/etc/vm.args
 
-RUN curl -L https://github.com/vernemq/vernemq/releases/download/$VERNEMQ_VERSION/vernemq-$VERNEMQ_VERSION.stretch.tar.gz -o /tmp/vernemq-$VERNEMQ_VERSION.stretch.tar.gz && \
-    tar -xzvf /tmp/vernemq-$VERNEMQ_VERSION.stretch.tar.gz && \
-    rm /tmp/vernemq-$VERNEMQ_VERSION.stretch.tar.gz && \
+RUN curl -L https://github.com/vernemq/vernemq/releases/download/$VERNEMQ_VERSION/vernemq-$VERNEMQ_VERSION.buster.tar.gz -o /tmp/vernemq-$VERNEMQ_VERSION.buster.tar.gz && \
+    tar -xzvf /tmp/vernemq-$VERNEMQ_VERSION.buster.tar.gz && \
+    rm /tmp/vernemq-$VERNEMQ_VERSION.buster.tar.gz && \
     chown -R 10000:10000 /vernemq && \
     ln -s /vernemq/etc /etc/vernemq && \
     ln -s /vernemq/data /var/lib/vernemq && \
