@@ -1,7 +1,18 @@
 {{- if and .Values.ingress.enabled .Values.service.ws.enabled }}
 {{- $servicePort := .Values.service.ws.port -}}
+{{- if and .Values.ingress.className (not (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion)) }}
+  {{- if not (hasKey .Values.ingress.annotations "kubernetes.io/ingress.class") }}
+  {{- $_ := set .Values.ingress.annotations "kubernetes.io/ingress.class" .Values.ingress.className}}
+  {{- end }}
+{{- end }}
 {{- $paths := .Values.ingress.paths -}}
+{{- if semverCompare ">=1.19-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1
+{{- else if semverCompare ">=1.14-0" .Capabilities.KubeVersion.GitVersion -}}
+apiVersion: networking.k8s.io/v1beta1
+{{- else -}}
 apiVersion: extensions/v1beta1
+{{- end }}
 kind: Ingress
 metadata:
   name: {{ include "vernemq.fullname" . }}
@@ -15,27 +26,43 @@ metadata:
 {{- end }}
 {{- with .Values.ingress.annotations }}
   annotations:
-{{ toYaml . | indent 4 }}
+    {{- toYaml . | nindent 4 }}
 {{- end }}
 spec:
+  {{- if and .Values.ingress.className (semverCompare ">=1.18-0" .Capabilities.KubeVersion.GitVersion) }}
+  ingressClassName: {{ .Values.ingress.className }}
+  {{- end }}
   rules:
   {{- if .Values.ingress.hosts }}
   {{- range $host := .Values.ingress.hosts }}
   - host: {{ tpl $host $ }}
     http:
       paths:
-  {{- range $path := $paths }}
-      - path: {{ tpl $path $ }}
+      {{- range $path := $paths }}
+      - path: {{ $path.path }}
+        {{- if and .pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
+        pathType: {{ .pathType }}
+        {{- end }}
         backend:
+          {{- if semverCompare ">=1.19-0" $.Capabilities.KubeVersion.GitVersion }}
+          service:
+            name: {{ include "vernemq.fullname" $ }}
+            port:
+              number: {{ $servicePort }}
+          {{- else }}
           serviceName: {{ include "vernemq.fullname" $ }}
           servicePort: {{ $servicePort }}
+          {{- end }}
   {{- end -}}
   {{- end -}}
   {{- else }}
   - http:
       paths:
   {{- range $path := $paths }}
-      - path: {{ tpl $path $ }}
+      - path: {{ $path.path }}
+        {{- if and .pathType (semverCompare ">=1.18-0" $.Capabilities.KubeVersion.GitVersion) }}
+        pathType: {{ .pathType }}
+        {{- end }}
         backend:
           serviceName: {{ include "vernemq.fullname" $ }}
           servicePort: {{ $servicePort }}

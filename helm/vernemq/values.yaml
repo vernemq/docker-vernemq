@@ -58,6 +58,7 @@ service:
 ## termination for the websocket traffic. Ingress is only possible for traffic exchanged
 ## over HTTP, so ONLY the websocket service take advantage of ingress.
 ingress:
+  className: ""
   enabled: false
 
   labels: {}
@@ -72,7 +73,9 @@ ingress:
   ## Paths to use for ingress rules.
   ##
   paths:
-    - /
+    - path: /
+      pathType: ImplementationSpecific
+      
 
   ## TLS configuration for ingress
   ## Secret must be manually created in the namespace
@@ -227,7 +230,7 @@ additionalEnv:
 #  - name: DOCKER_VERNEMQ_LISTENER__SSL__KEYFILE
 #    value: "/etc/ssl/vernemq/tls.key"
 
-envFrom: {}
+envFrom: [ ]
 # add additional environment variables e.g. from a configmap or secret
 # can be usefull if you wanna use authentication via files
 #  - secretRef:
