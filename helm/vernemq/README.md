@@ -54,7 +54,7 @@ Parameter | Description | Default
 `envFrom` | additional envFrom configmaps or secrets | see [values.yaml](values.yaml)
 `image.pullPolicy` | container image pull policy | `IfNotPresent`
 `image.repository` | container image repository | `vernemq/vernemq`
-`image.tag` | container image tag | the current versions (e.g. `1.12.1`)
+`image.tag` | container image tag | the current versions (e.g. `1.12.3`)
 `ingress.enabled` | whether to enable an ingress object to route to the WebSocket service. Requires an ingress controller and the WebSocket service to be enabled. | `false`
 `ingress.labels` | additional ingress labels | `{}`
 `ingress.annotations` | additional service annotations | `{}`
