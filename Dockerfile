@@ -1,7 +1,7 @@
 FROM debian:buster-slim
 
 RUN apt-get update && \
-    apt-get -y install bash procps openssl iproute2 curl jq libsnappy-dev net-tools && \
+    apt-get -y install bash procps openssl iproute2 curl jq libsnappy-dev net-tools nano && \
     rm -rf /var/lib/apt/lists/* && \
     addgroup --gid 10000 vernemq && \
     adduser --uid 10000 --system --ingroup vernemq --home /vernemq --disabled-password vernemq
@@ -12,7 +12,7 @@ WORKDIR /vernemq
 ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
     DOCKER_VERNEMQ_LOG__CONSOLE=console \
     PATH="/vernemq/bin:$PATH" \
-    VERNEMQ_VERSION="1.12.1"
+    VERNEMQ_VERSION="1.12.3"
 COPY --chown=10000:10000 bin/vernemq.sh /usr/sbin/start_vernemq
 COPY --chown=10000:10000 files/vm.args /vernemq/etc/vm.args
 
