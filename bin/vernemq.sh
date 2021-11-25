@@ -44,7 +44,7 @@ if env | grep "DOCKER_VERNEMQ_DISCOVERY_NODE" -q; then
     fi
 
     sed -i.bak -r "/-eval.+/d" /vernemq/etc/vm.args
-    echo "-eval \"vmq_server_cmd:node_join('VerneMQ@$discovery_node')\"" >>/vernemq/etc/vm.args
+    echo "-eval \"vmq_server_cmd:node_join('VerneMQ@$discovery_node')\"" >> /vernemq/etc/vm.args
 fi
 
 # If you encounter "SSL certification error (subject name does not match the host name)", you may try to set DOCKER_VERNEMQ_KUBERNETES_INSECURE to "1".
@@ -105,13 +105,13 @@ if [ -f /vernemq/etc/vernemq.conf.local ]; then
 else
     sed -i '/########## Start ##########/,/########## End ##########/d' /vernemq/etc/vernemq.conf
 
-    echo "########## Start ##########" >>/vernemq/etc/vernemq.conf
+    echo "########## Start ##########" >> /vernemq/etc/vernemq.conf
 
-    env | grep DOCKER_VERNEMQ | grep -v 'DISCOVERY_NODE\|KUBERNETES\|SWARM\|COMPOSE\|DOCKER_VERNEMQ_USER' | cut -c 16- | awk '{match($0,/^[A-Z0-9_]*/)}{print tolower(substr($0,RSTART,RLENGTH)) substr($0,RLENGTH+1)}' | sed 's/__/./g' >>/vernemq/etc/vernemq.conf
+    env | grep DOCKER_VERNEMQ | grep -v 'DISCOVERY_NODE\|KUBERNETES\|SWARM\|COMPOSE\|DOCKER_VERNEMQ_USER' | cut -c 16- | awk '{match($0,/^[A-Z0-9_]*/)}{print tolower(substr($0,RSTART,RLENGTH)) substr($0,RLENGTH+1)}' | sed 's/__/./g' >> /vernemq/etc/vernemq.conf
 
     users_are_set=$(env | grep DOCKER_VERNEMQ_USER)
     if [ ! -z "$users_are_set" ]; then
-        echo "vmq_passwd.password_file = /vernemq/etc/vmq.passwd" >>/vernemq/etc/vernemq.conf
+        echo "vmq_passwd.password_file = /vernemq/etc/vmq.passwd" >> /vernemq/etc/vernemq.conf
         touch /vernemq/etc/vmq.passwd
     fi
 
@@ -125,34 +125,34 @@ EOF
     done
 
     if [ -z "$DOCKER_VERNEMQ_ERLANG__DISTRIBUTION__PORT_RANGE__MINIMUM" ]; then
-        echo "erlang.distribution.port_range.minimum = 9100" >>/vernemq/etc/vernemq.conf
+        echo "erlang.distribution.port_range.minimum = 9100" >> /vernemq/etc/vernemq.conf
     fi
 
     if [ -z "$DOCKER_VERNEMQ_ERLANG__DISTRIBUTION__PORT_RANGE__MAXIMUM" ]; then
-        echo "erlang.distribution.port_range.maximum = 9109" >>/vernemq/etc/vernemq.conf
+        echo "erlang.distribution.port_range.maximum = 9109" >> /vernemq/etc/vernemq.conf
     fi
 
     if [ -z "$DOCKER_VERNEMQ_LISTENER__TCP__DEFAULT" ]; then
-        echo "listener.tcp.default = ${IP_ADDRESS}:1883" >>/vernemq/etc/vernemq.conf
+        echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> /vernemq/etc/vernemq.conf
     fi
 
     if [ -z "$DOCKER_VERNEMQ_LISTENER__WS__DEFAULT" ]; then
-        echo "listener.ws.default = ${IP_ADDRESS}:8080" >>/vernemq/etc/vernemq.conf
+        echo "listener.ws.default = ${IP_ADDRESS}:8080" >> /vernemq/etc/vernemq.conf
     fi
 
     if [ -z "$DOCKER_VERNEMQ_LISTENER__VMQ__CLUSTERING" ]; then
-        echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >>/vernemq/etc/vernemq.conf
+        echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> /vernemq/etc/vernemq.conf
     fi
 
     if [ -z "$DOCKER_VERNEMQ_LISTENER__HTTP__METRICS" ]; then
-        echo "listener.http.metrics = ${IP_ADDRESS}:8888" >>/vernemq/etc/vernemq.conf
+        echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> /vernemq/etc/vernemq.conf
     fi
 
-    echo "########## End ##########" >>/vernemq/etc/vernemq.conf
+    echo "########## End ##########" >> /vernemq/etc/vernemq.conf
 fi
 
 # Check configuration file
-/vernemq/bin/vernemq config generate 2>&1 >/dev/null | tee /tmp/config.out | grep error
+/vernemq/bin/vernemq config generate 2>&1 > /dev/null | tee /tmp/config.out | grep error
 
 if [ $? -ne 1 ]; then
     echo "configuration error, exit"
