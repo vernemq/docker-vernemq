@@ -18,6 +18,9 @@ VERNEMQ_CONF_FILE="${VERNEMQ_ETC_DIR}/vernemq.conf"
 VERNEMQ_CONF_LOCAL_FILE="${VERNEMQ_ETC_DIR}/vernemq.conf.local"
 
 SECRETS_KUBERNETES_DIR="/var/run/secrets/kubernetes.io/serviceaccount"
+CA_CRT_FILE="${SECRETS_KUBERNETES_DIR}/ca.crt"
+NAMESPACE_FILE="${SECRETS_KUBERNETES_DIR}/namespace"
+TOKEN_FILE="${SECRETS_KUBERNETES_DIR}/token"
 
 # Ensure the Erlang node name is set correctly
 if env | grep "DOCKER_VERNEMQ_NODENAME" -q; then
@@ -72,9 +75,12 @@ fi
 if env | grep "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES" -q; then
     DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME=${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME:-cluster.local}
     # Let's get the namespace if it isn't set
-    DOCKER_VERNEMQ_KUBERNETES_NAMESPACE=${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE:-$(cat ${SECRETS_KUBERNETES_DIR}/namespace)}
+    DOCKER_VERNEMQ_KUBERNETES_NAMESPACE=${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE:-$(cat ${NAMESPACE_FILE})}
     # Let's set our nodename correctly
-    VERNEMQ_KUBERNETES_SUBDOMAIN=${DOCKER_VERNEMQ_KUBERNETES_SUBDOMAIN:-$(curl -sSX GET $insecure --cacert ${SECRETS_KUBERNETES_DIR}/ca.crt https://kubernetes.default.svc.$DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME/api/v1/namespaces/$DOCKER_VERNEMQ_KUBERNETES_NAMESPACE/pods?labelSelector=$DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR -H "Authorization: Bearer $(cat ${SECRETS_KUBERNETES_DIR}/token)" | jq '.items[0].spec.subdomain' | sed 's/"//g' | tr '\n' '\0')}
+    AUTHORIZATION_HEADER="Authorization: Bearer $(cat ${TOKEN_FILE})"
+    NAMESPACE_URL="https://kubernetes.default.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}/api/v1/namespaces/${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}"
+    VERNEMQ_KUBERNETES_SUBDOMAIN=${DOCKER_VERNEMQ_KUBERNETES_SUBDOMAIN:-$(curl -sSX GET ${insecure} --cacert ${CA_CRT_FILE} ${NAMESPACE_URL}/pods?labelSelector=${DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR} -H ${AUTHORIZATION_HEADER} \
+        | jq '.items[0].spec.subdomain' | sed 's/"//g' | tr '\n' '\0')}
     if [ $VERNEMQ_KUBERNETES_SUBDOMAIN == "null" ]; then
         VERNEMQ_KUBERNETES_HOSTNAME=${MY_POD_NAME}.${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}
     else
@@ -83,7 +89,8 @@ if env | grep "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES" -q; then
 
     sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${VERNEMQ_KUBERNETES_HOSTNAME}/" ${VERNEMQ_VM_ARGS_FILE}
     # Hack into K8S DNS resolution (temporarily)
-    kube_pod_names=$(curl -sSX GET $insecure --cacert ${SECRETS_KUBERNETES_DIR}/ca.crt https://kubernetes.default.svc.$DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME/api/v1/namespaces/$DOCKER_VERNEMQ_KUBERNETES_NAMESPACE/pods?labelSelector=$DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR -H "Authorization: Bearer $(cat ${SECRETS_KUBERNETES_DIR}/token)" | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ')
+    kube_pod_names=$(curl -sSX GET $insecure --cacert ${CA_CRT_FILE} ${NAMESPACE_URL}/pods?labelSelector=${DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR} -H ${AUTHORIZATION_HEADER} \
+        | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ')
 
     for kube_pod_name in $kube_pod_names; do
         if [ $kube_pod_name == "null" ]; then
@@ -183,25 +190,29 @@ sigterm_handler() {
         else
             terminating_node_name=VerneMQ@$IP_ADDRESS
         fi
-        if [ -d "${SECRETS_KUBERNETES_DIR}" ] ; then
-        kube_pod_names=$(curl -sSX GET $insecure --cacert ${SECRETS_KUBERNETES_DIR}/ca.crt https://kubernetes.default.svc.$DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME/api/v1/namespaces/$DOCKER_VERNEMQ_KUBERNETES_NAMESPACE/pods?labelSelector=$DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR -H "Authorization: Bearer $(cat ${SECRETS_KUBERNETES_DIR}/token)" | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ')
+        if [ -d "${SECRETS_KUBERNETES_DIR}" -a -f "${TOKEN_FILE}" ] ; then
+        AUTHORIZATION_HEADER="Authorization: Bearer $(cat ${TOKEN_FILE})"
+        NAMESPACE_URL="https://kubernetes.default.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}/api/v1/namespaces/${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}"
+        kube_pod_names=$(curl -sSX GET ${insecure} --cacert ${CA_CRT_FILE} -H ${AUTHORIZATION_HEADER} ${NAMESPACE_URL}/pods?labelSelector=${DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR} \
+            | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ')
         if [ $kube_pod_names == $MY_POD_NAME ]; then
             echo "I'm the only pod remaining, not performing leave and state purge."
             /vernemq/bin/vmq-admin node stop >/dev/null
         else
-            NAMESPACE=$(cat ${SECRETS_KUBERNETES_DIR}/namespace)
-            statefulset=$(curl -sSX GET --cacert ${SECRETS_KUBERNETES_DIR}/ca.crt -H "Authorization: Bearer $(cat ${SECRETS_KUBERNETES_DIR}/token)" \
-                https://kubernetes.default.svc.$DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME/api/v1/namespaces/${NAMESPACE}/pods/$(hostname) | jq -r '.metadata.ownerReferences[0].name')
+            NAMESPACE=$(cat ${NAMESPACE_FILE})
+            NAMESPACE_URL="https://kubernetes.default.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}/api/v1/namespaces/${NAMESPACE}"
+            statefulset=$(curl -sSX GET --cacert ${CA_CRT_FILE} -H ${AUTHORIZATION_HEADER} \
+                ${NAMESPACE_URL}/pods/$(hostname) | jq -r '.metadata.ownerReferences[0].name')
 
-            reschedule=$(curl -sSX GET --cacert ${SECRETS_KUBERNETES_DIR}/ca.crt -H "Authorization: Bearer $(cat ${SECRETS_KUBERNETES_DIR}/token)" \
-                https://kubernetes.default.svc.$DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME/apis/apps/v1/namespaces/${NAMESPACE}/statefulsets/${statefulset} | jq '.status.replicas == .status.currentReplicas')
+            reschedule=$(curl -sSX GET --cacert ${CA_CRT_FILE} -H ${AUTHORIZATION_HEADER} \
+                ${NAMESPACE_URL}/statefulsets/${statefulset} | jq '.status.replicas == .status.currentReplicas')
 
-            if [[ $reschedule == "true" ]]; then
+            if [[ ${reschedule} == "true" ]]; then
                 echo "Reschedule is true, not leaving the cluster"
                 /vernemq/bin/vmq-admin node stop >/dev/null
             else
                 echo "Reschedule is false, leaving the cluster"
-                /vernemq/bin/vmq-admin cluster leave node=$terminating_node_name -k && rm -rf /vernemq/data/*
+                /vernemq/bin/vmq-admin cluster leave node=${terminating_node_name} -k && rm -rf /vernemq/data/*
             fi
         fi
         fi
