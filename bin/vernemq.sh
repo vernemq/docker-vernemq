@@ -201,8 +201,11 @@ sigterm_handler() {
         fi
         fi
         kill -s TERM ${pid}
-        exit 0
+        WAITFOR_PID=${pid}
+        pid=0
+        wait ${WAITFOR_PID}
     fi
+    exit 143; # 128 + 15 -- SIGTERM
 }
 
 # Setup OS signal handlers
