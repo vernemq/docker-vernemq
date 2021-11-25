@@ -182,39 +182,39 @@ siguser1_handler() {
 # SIGTERM-handler
 sigterm_handler() {
     if [ $pid -ne 0 ]; then
-        # this will stop the VerneMQ process, but first drain the node from all existing client sessions (-k)
-        if [ -n "$VERNEMQ_KUBERNETES_HOSTNAME" ]; then
-            terminating_node_name=VerneMQ@$VERNEMQ_KUBERNETES_HOSTNAME
-        elif [ -n "$DOCKER_VERNEMQ_SWARM" ]; then
-            terminating_node_name=VerneMQ@$(hostname -i)
-        else
-            terminating_node_name=VerneMQ@$IP_ADDRESS
-        fi
         if [ -d "${SECRETS_KUBERNETES_DIR}" -a -f "${TOKEN_FILE}" ] ; then
-        AUTHORIZATION_HEADER="Authorization: Bearer $(cat ${TOKEN_FILE})"
-        NAMESPACE_URL="https://kubernetes.default.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}/api/v1/namespaces/${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}"
-        kube_pod_names=$(curl -sSX GET ${insecure} --cacert ${CA_CRT_FILE} -H ${AUTHORIZATION_HEADER} ${NAMESPACE_URL}/pods?labelSelector=${DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR} \
-            | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ')
-        if [ $kube_pod_names == $MY_POD_NAME ]; then
-            echo "I'm the only pod remaining, not performing leave and state purge."
-            /vernemq/bin/vmq-admin node stop >/dev/null
-        else
-            NAMESPACE=$(cat ${NAMESPACE_FILE})
-            NAMESPACE_URL="https://kubernetes.default.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}/api/v1/namespaces/${NAMESPACE}"
-            statefulset=$(curl -sSX GET --cacert ${CA_CRT_FILE} -H ${AUTHORIZATION_HEADER} \
-                ${NAMESPACE_URL}/pods/$(hostname) | jq -r '.metadata.ownerReferences[0].name')
-
-            reschedule=$(curl -sSX GET --cacert ${CA_CRT_FILE} -H ${AUTHORIZATION_HEADER} \
-                ${NAMESPACE_URL}/statefulsets/${statefulset} | jq '.status.replicas == .status.currentReplicas')
-
-            if [[ ${reschedule} == "true" ]]; then
-                echo "Reschedule is true, not leaving the cluster"
+            # this will stop the VerneMQ process, but first drain the node from all existing client sessions (-k)
+            if [ -n "$VERNEMQ_KUBERNETES_HOSTNAME" ]; then
+                terminating_node_name=VerneMQ@$VERNEMQ_KUBERNETES_HOSTNAME
+            elif [ -n "$DOCKER_VERNEMQ_SWARM" ]; then
+                terminating_node_name=VerneMQ@$(hostname -i)
+            else
+                terminating_node_name=VerneMQ@$IP_ADDRESS
+            fi
+            AUTHORIZATION_HEADER="Authorization: Bearer $(cat ${TOKEN_FILE})"
+            NAMESPACE_URL="https://kubernetes.default.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}/api/v1/namespaces/${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}"
+            kube_pod_names=$(curl -sSX GET ${insecure} --cacert ${CA_CRT_FILE} -H ${AUTHORIZATION_HEADER} ${NAMESPACE_URL}/pods?labelSelector=${DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR} \
+                | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ')
+            if [ $kube_pod_names == $MY_POD_NAME ]; then
+                echo "I'm the only pod remaining, not performing leave and state purge."
                 /vernemq/bin/vmq-admin node stop >/dev/null
             else
-                echo "Reschedule is false, leaving the cluster"
-                /vernemq/bin/vmq-admin cluster leave node=${terminating_node_name} -k && rm -rf /vernemq/data/*
+                NAMESPACE=$(cat ${NAMESPACE_FILE})
+                NAMESPACE_URL="https://kubernetes.default.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}/api/v1/namespaces/${NAMESPACE}"
+                statefulset=$(curl -sSX GET --cacert ${CA_CRT_FILE} -H ${AUTHORIZATION_HEADER} \
+                    ${NAMESPACE_URL}/pods/$(hostname) | jq -r '.metadata.ownerReferences[0].name')
+
+                reschedule=$(curl -sSX GET --cacert ${CA_CRT_FILE} -H ${AUTHORIZATION_HEADER} \
+                    ${NAMESPACE_URL}/statefulsets/${statefulset} | jq '.status.replicas == .status.currentReplicas')
+
+                if [[ ${reschedule} == "true" ]]; then
+                    echo "Reschedule is true, not leaving the cluster"
+                    /vernemq/bin/vmq-admin node stop >/dev/null
+                else
+                    echo "Reschedule is false, leaving the cluster"
+                    /vernemq/bin/vmq-admin cluster leave node=${terminating_node_name} -k && rm -rf /vernemq/data/*
+                fi
             fi
-        fi
         fi
         kill -s TERM ${pid}
         WAITFOR_PID=${pid}
