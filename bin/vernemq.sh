@@ -1,5 +1,12 @@
 #!/usr/bin/env bash
 
+# Check istio readiness
+istio_health() {
+  cmd=$(curl -s http://localhost:15021/healthz/ready > /dev/null)
+  status=$?
+  return $status
+}
+
 NET_INTERFACE=$(route | grep '^default' | grep -o '[^ ]*$')
 NET_INTERFACE=${DOCKER_NET_INTERFACE:-${NET_INTERFACE}}
 IP_ADDRESS=$(ip -4 addr show ${NET_INTERFACE} | grep -oE '[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}' | sed -e "s/^[[:space:]]*//" | head -n 1)
@@ -151,13 +158,6 @@ if [ $? -ne 1 ]; then
 fi
 
 pid=0
-
-# Check istio readiness
-istio_health () {
-  cmd=$(curl -s http://localhost:15021/healtz/ready > /dev/null)
-  status=$?
-  return $status
-}
 
 # SIGUSR1-handler
 siguser1_handler() {
