@@ -199,6 +199,7 @@ sigterm_handler() {
                 echo "I'm the only pod remaining, not performing leave and state purge."
                 /vernemq/bin/vmq-admin node stop >/dev/null
             else
+                # Lookup the NAMESPACE from the file again (maybe this should be changed into the DOCKER_VERNEMQ_KUBERNETES_NAMESPACE variable?)
                 NAMESPACE=$(cat ${NAMESPACE_FILE})
                 NAMESPACE_URL="https://kubernetes.default.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}/api/v1/namespaces/${NAMESPACE}"
                 statefulset=$(curl -sSX GET --cacert ${CA_CRT_FILE} -H ${AUTHORIZATION_HEADER} \
@@ -215,6 +216,9 @@ sigterm_handler() {
                     /vernemq/bin/vmq-admin cluster leave node=${terminating_node_name} -k && rm -rf /vernemq/data/*
                 fi
             fi
+        else
+            # In non-k8s mode: Stop the vernemq node gracefully
+            /vernemq/bin/vmq-admin node stop >/dev/null
         fi
         kill -s TERM ${pid}
         WAITFOR_PID=${pid}
