@@ -22,6 +22,13 @@ CA_CRT_FILE="${SECRETS_KUBERNETES_DIR}/ca.crt"
 NAMESPACE_FILE="${SECRETS_KUBERNETES_DIR}/namespace"
 TOKEN_FILE="${SECRETS_KUBERNETES_DIR}/token"
 
+DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME=${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME:-cluster.local}
+DOCKER_VERNEMQ_KUBERNETES_NAMESPACE=${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE:-$(cat ${NAMESPACE_FILE})}
+AUTHORIZATION_HEADER="Authorization: Bearer $(cat ${TOKEN_FILE})"
+CLUSTER_URL="https://kubernetes.default.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}"
+NAMESPACE_URL_CORE="${CLUSTER_URL}/api/v1/namespaces/${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}"
+NAMESPACE_URL_APPS="${CLUSTER_URL}/apis/apps/v1/namespaces/${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}"
+
 # Ensure the Erlang node name is set correctly
 if env | grep "DOCKER_VERNEMQ_NODENAME" -q; then
     sed -i.bak -r "s/-name VerneMQ@.+/-name VerneMQ@${DOCKER_VERNEMQ_NODENAME}/" ${VERNEMQ_VM_ARGS_FILE}
@@ -73,14 +80,9 @@ if env | grep "DOCKER_VERNEMQ_KUBERNETES_ISTIO_ENABLED" -q; then
 fi
 
 if env | grep "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES" -q; then
-    DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME=${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME:-cluster.local}
-    # Let's get the namespace if it isn't set
-    DOCKER_VERNEMQ_KUBERNETES_NAMESPACE=${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE:-$(cat ${NAMESPACE_FILE})}
     # Let's set our nodename correctly
-    AUTHORIZATION_HEADER="Authorization: Bearer $(cat ${TOKEN_FILE})"
-    NAMESPACE_URL="https://kubernetes.default.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}/api/v1/namespaces/${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}"
-    VERNEMQ_KUBERNETES_SUBDOMAIN=${DOCKER_VERNEMQ_KUBERNETES_SUBDOMAIN:-$(curl -sSX GET ${insecure} --cacert ${CA_CRT_FILE} ${NAMESPACE_URL}/pods?labelSelector=${DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR} -H ${AUTHORIZATION_HEADER} \
-        | jq '.items[0].spec.subdomain' | sed 's/"//g' | tr '\n' '\0')}
+    VERNEMQ_KUBERNETES_SUBDOMAIN=${DOCKER_VERNEMQ_KUBERNETES_SUBDOMAIN:-$(curl -sSX GET ${insecure} --cacert ${CA_CRT_FILE} -H "${AUTHORIZATION_HEADER}" ${NAMESPACE_URL_CORE}/pods?labelSelector=${DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR} \
+        | jq '.items[0].spec.subdomain' | sed 's/"//g' | tr -d '\n')}
     if [ $VERNEMQ_KUBERNETES_SUBDOMAIN == "null" ]; then
         VERNEMQ_KUBERNETES_HOSTNAME=${MY_POD_NAME}.${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}
     else
@@ -89,7 +91,7 @@ if env | grep "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES" -q; then
 
     sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${VERNEMQ_KUBERNETES_HOSTNAME}/" ${VERNEMQ_VM_ARGS_FILE}
     # Hack into K8S DNS resolution (temporarily)
-    kube_pod_names=$(curl -sSX GET $insecure --cacert ${CA_CRT_FILE} ${NAMESPACE_URL}/pods?labelSelector=${DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR} -H ${AUTHORIZATION_HEADER} \
+    kube_pod_names=$(curl -sSX GET $insecure --cacert ${CA_CRT_FILE} -H "${AUTHORIZATION_HEADER}" ${NAMESPACE_URL_CORE}/pods?labelSelector=${DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR} \
         | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ')
 
     for kube_pod_name in $kube_pod_names; do
@@ -164,7 +166,7 @@ EOF
 fi
 
 # Check configuration file
-/vernemq/bin/vernemq config generate 2>&1 > /dev/null | tee /tmp/config.out | grep error
+/vernemq/bin/vernemq config generate 2>&1 -debug > /dev/null | tee /tmp/config.out | grep error
 
 if [ $? -ne 1 ]; then
     echo "configuration error, exit"
@@ -182,7 +184,7 @@ siguser1_handler() {
 # SIGTERM-handler
 sigterm_handler() {
     if [ $pid -ne 0 ]; then
-        if [ -d "${SECRETS_KUBERNETES_DIR}" -a -f "${TOKEN_FILE}" ] ; then
+        if env | grep "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES" -q; then
             # this will stop the VerneMQ process, but first drain the node from all existing client sessions (-k)
             if [ -n "$VERNEMQ_KUBERNETES_HOSTNAME" ]; then
                 terminating_node_name=VerneMQ@$VERNEMQ_KUBERNETES_HOSTNAME
@@ -191,22 +193,17 @@ sigterm_handler() {
             else
                 terminating_node_name=VerneMQ@$IP_ADDRESS
             fi
-            AUTHORIZATION_HEADER="Authorization: Bearer $(cat ${TOKEN_FILE})"
-            NAMESPACE_URL="https://kubernetes.default.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}/api/v1/namespaces/${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}"
-            kube_pod_names=$(curl -sSX GET ${insecure} --cacert ${CA_CRT_FILE} -H ${AUTHORIZATION_HEADER} ${NAMESPACE_URL}/pods?labelSelector=${DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR} \
+            kube_pod_names=$(curl -sSX GET ${insecure} --cacert ${CA_CRT_FILE} -H "${AUTHORIZATION_HEADER}" ${NAMESPACE_URL_CORE}/pods?labelSelector=${DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR} \
                 | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ')
             if [ $kube_pod_names == $MY_POD_NAME ]; then
                 echo "I'm the only pod remaining, not performing leave and state purge."
                 /vernemq/bin/vmq-admin node stop >/dev/null
             else
-                # Lookup the NAMESPACE from the file again (maybe this should be changed into the DOCKER_VERNEMQ_KUBERNETES_NAMESPACE variable?)
-                NAMESPACE=$(cat ${NAMESPACE_FILE})
-                NAMESPACE_URL="https://kubernetes.default.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}/api/v1/namespaces/${NAMESPACE}"
-                statefulset=$(curl -sSX GET --cacert ${CA_CRT_FILE} -H ${AUTHORIZATION_HEADER} \
-                    ${NAMESPACE_URL}/pods/$(hostname) | jq -r '.metadata.ownerReferences[0].name')
+                statefulset=$(curl -sSX GET --cacert ${CA_CRT_FILE} -H "${AUTHORIZATION_HEADER}" \
+                    ${NAMESPACE_URL_CORE}/pods/$(hostname) | jq -r '.metadata.ownerReferences[0].name')
 
-                reschedule=$(curl -sSX GET --cacert ${CA_CRT_FILE} -H ${AUTHORIZATION_HEADER} \
-                    ${NAMESPACE_URL}/statefulsets/${statefulset} | jq '.status.replicas == .status.currentReplicas')
+                reschedule=$(curl -sSX GET --cacert ${CA_CRT_FILE} -H "${AUTHORIZATION_HEADER}" \
+                    ${NAMESPACE_URL_APPS}/statefulsets/${statefulset} | jq '.status.replicas == .status.currentReplicas')
 
                 if [[ ${reschedule} == "true" ]]; then
                     echo "Reschedule is true, not leaving the cluster"
