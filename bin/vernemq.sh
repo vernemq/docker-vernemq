@@ -184,7 +184,7 @@ siguser1_handler() {
 # SIGTERM-handler
 sigterm_handler() {
     if [ $pid -ne 0 ]; then
-        if env | grep "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES" -q; then
+        if [ -d "${SECRETS_KUBERNETES_DIR}" -a -f "${TOKEN_FILE}" ] ; then
             # this will stop the VerneMQ process, but first drain the node from all existing client sessions (-k)
             if [ -n "$VERNEMQ_KUBERNETES_HOSTNAME" ]; then
                 terminating_node_name=VerneMQ@$VERNEMQ_KUBERNETES_HOSTNAME
