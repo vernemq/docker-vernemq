@@ -195,7 +195,7 @@ sigterm_handler() {
             fi
             kube_pod_names=$(curl -sSX GET ${insecure} --cacert ${CA_CRT_FILE} -H "${AUTHORIZATION_HEADER}" ${NAMESPACE_URL_CORE}/pods?labelSelector=${DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR} \
                 | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ')
-            if [ $kube_pod_names == $MY_POD_NAME ]; then
+            if [ "$kube_pod_names" == $MY_POD_NAME ]; then
                 echo "I'm the only pod remaining, not performing leave and state purge."
                 /vernemq/bin/vmq-admin node stop >/dev/null
             else
