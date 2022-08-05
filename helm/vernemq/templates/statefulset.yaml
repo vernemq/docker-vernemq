@@ -29,6 +29,9 @@ spec:
       labels:
         app.kubernetes.io/name: {{ include "vernemq.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+      {{- if .Values.statefulset.podLabels }}
+        {{ toYaml .Values.statefulset.podLabels | nindent 8 }}
+      {{- end }}        
       {{- with .Values.statefulset.podAnnotations }}
       annotations:
         {{ toYaml . | nindent 8 }}
