@@ -53,6 +53,7 @@ service:
     nodePort: 8443
   annotations: {}
   labels: {}
+  
 
 ## Ingress can optionally be applied when enabling the MQTT websocket service
 ## This allows for an ingress controller to route web ports and arbitrary hostnames
@@ -199,6 +200,7 @@ statefulset:
 #    prometheus.io/port: "8888"
   annotations: {}
   labels: {}
+  podLabels: {}
   lifecycle: {}
 
 pdb:
