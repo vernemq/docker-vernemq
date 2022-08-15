@@ -155,6 +155,16 @@ E.g: `allow_anonymous=on` is `-e "DOCKER_VERNEMQ_ALLOW_ANONYMOUS=on"` or
 `-e "DOCKER_VERNEMQ_ALLOW_REGISTER_DURING_NETSPLIT=on"`. All available configuration
 parameters can be found on https://vernemq.com/docs/configuration/.
 
+#### Erlang VM args
+
+Erlang VM args can be updated using following environment variables
+
+Env variable name                     | Description
+--------------------------------------|---------------------------------
+DOCKER_VERNEMQ_ERLANG__MAX_PORTS      | Erlang max ports. Value provided will be set for `-env ERL_MAX_PORTS` in `vm.args` file
+DOCKER_VERNEMQ_ERLANG__PROCESS_LIMIT  | Erlang process limit. Value provided will be set for `+P` in `vm.args` file
+DOCKER_VERNEMQ_ERLANG__MAX_ETS_TABLES | Erlang Max ETS tables. Value provided will be set for `-env ERL_MAX_ETS_TABLES` in `vm.args` file
+
 #### Logging
 
 VerneMQ store crash and error log files in `/var/log/vernemq/`, and, by default, 

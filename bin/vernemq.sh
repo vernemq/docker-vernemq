@@ -226,6 +226,18 @@ EOF
     echo "########## End ##########" >> ${VERNEMQ_CONF_FILE}
 fi
 
+if [ ! -z "$DOCKER_VERNEMQ_ERLANG__MAX_PORTS" ]; then
+    sed -i.bak -r "s/-env ERL_MAX_PORTS.+/-env ERL_MAX_PORTS ${DOCKER_VERNEMQ_ERLANG__MAX_PORTS}/" ${VERNEMQ_VM_ARGS_FILE}
+fi
+
+if [ ! -z "$DOCKER_VERNEMQ_ERLANG__PROCESS_LIMIT" ]; then
+    sed -i.bak -r "s/\+P.+/\+P ${DOCKER_VERNEMQ_ERLANG__PROCESS_LIMIT}/" ${VERNEMQ_VM_ARGS_FILE}
+fi
+
+if [ ! -z "$DOCKER_VERNEMQ_ERLANG__MAX_ETS_TABLES" ]; then
+    sed -i.bak -r "s/-env ERL_MAX_ETS_TABLES.+/-env ERL_MAX_ETS_TABLES ${DOCKER_VERNEMQ_ERLANG__MAX_ETS_TABLES}/" ${VERNEMQ_VM_ARGS_FILE}
+fi
+
 # Check configuration file
 /vernemq/bin/vernemq config generate 2>&1 > /dev/null | tee /tmp/config.out | grep error
 
