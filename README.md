@@ -159,11 +159,12 @@ parameters can be found on https://vernemq.com/docs/configuration/.
 
 Erlang VM args can be updated using following environment variables
 
-Env variable name                     | Description
---------------------------------------|---------------------------------
-DOCKER_VERNEMQ_ERLANG__MAX_PORTS      | Erlang max ports. Value provided will be set for `-env ERL_MAX_PORTS` in `vm.args` file
-DOCKER_VERNEMQ_ERLANG__PROCESS_LIMIT  | Erlang process limit. Value provided will be set for `+P` in `vm.args` file
-DOCKER_VERNEMQ_ERLANG__MAX_ETS_TABLES | Erlang Max ETS tables. Value provided will be set for `-env ERL_MAX_ETS_TABLES` in `vm.args` file
+Env variable name                               | Description
+------------------------------------------------|-------------------------------------------------------------------------------------------
+DOCKER_VERNEMQ_ERLANG__MAX_PORTS                | Erlang max ports. Value provided will be set for `+Q` in `vm.args` file
+DOCKER_VERNEMQ_ERLANG__PROCESS_LIMIT            | Erlang process limit. Value provided will be set for `+P` in `vm.args` file
+DOCKER_VERNEMQ_ERLANG__MAX_ETS_TABLES           | Erlang Max ETS tables. Value provided will be set for `+e` in `vm.args` file
+DOCKER_VERNEMQ_ERLANG__DISTRIBUTION_BUFFER_SIZE | Erlang Distribution buffer size. Value provided will be set for `+zdbbl` in `vm.args` file
 
 #### Logging
 
