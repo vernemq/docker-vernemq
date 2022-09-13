@@ -173,7 +173,7 @@ environment variables. If you are on such a platform you could substitute the
 dots with two underscores `__`. The example above would look like `-e
 "DOCKER_VERNEMQ_LOG__CONSOLE__LEVEL=debug"`.
 
-There some some exceptions on configuration names contains dots. You can see follow examples:
+There some exceptions on configuration names contains dots. You can see follow examples:
 
 format in vernemq.conf | format in environment variable name
 ---------------------- | ------------------------------------
