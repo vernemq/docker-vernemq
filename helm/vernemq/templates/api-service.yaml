@@ -1,0 +1,40 @@
+{{- if .Values.service.api.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "vernemq.fullname" . }}-api
+  labels:
+    app.kubernetes.io/name: {{ include "vernemq.name" . }}
+    helm.sh/chart: {{ include "vernemq.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+  {{- if .Values.service.labels }}
+    {{ toYaml .Values.service.labels | nindent 4 }}
+  {{- end }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{ toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  type: ClusterIP
+  {{- if .Values.service.clusterIP }}
+  clusterIP: {{ .Values.service.clusterIP }}
+  {{- end }}
+{{- if .Values.service.api.sessionAffinity }}
+  sessionAffinity: {{ .Values.service.api.sessionAffinity }}
+  {{- if .Values.service.api.sessionAffinityConfig }}
+  sessionAffinityConfig:
+    {{ toYaml .Values.service.api.sessionAffinityConfig | nindent 4 }}
+  {{- end -}}
+{{- end }}
+  ports:
+    - port: {{ .Values.service.api.port }}
+      targetPort: api
+      name: api
+      {{- if eq .Values.service.type "NodePort" }}
+      nodePort: {{ .Values.service.api.nodePort }}
+      {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ include "vernemq.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}

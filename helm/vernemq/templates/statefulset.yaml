@@ -57,7 +57,7 @@ spec:
             - containerPort: 8443
               name: wss
             - containerPort: 8888
-              name: prometheus
+              name: api
             {{- range tuple 9100 9101 9102 9103 9104 9105 9106 9107 9108 9109 }}
             - containerPort: {{ . }}
             {{- end }}
@@ -95,7 +95,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /health
-              port: prometheus
+              port: api
               scheme: HTTP
             initialDelaySeconds: {{ .Values.statefulset.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.statefulset.livenessProbe.periodSeconds }}
@@ -105,7 +105,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /health
-              port: prometheus
+              port: api
               scheme: HTTP
             initialDelaySeconds: {{ .Values.statefulset.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.statefulset.readinessProbe.periodSeconds }}

@@ -14,7 +14,7 @@ spec:
     port: 4369
   - name: metrics
     port: 8888
-    targetPort: prometheus
+    targetPort: api
   selector:
     app.kubernetes.io/name: {{ include "vernemq.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
