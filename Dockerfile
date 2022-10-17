@@ -30,7 +30,7 @@ RUN curl -L https://github.com/vernemq/vernemq/releases/download/$VERNEMQ_VERSIO
 # 8080  MQTT WebSockets
 # 44053 VerneMQ Message Distribution
 # 4369  EPMD - Erlang Port Mapper Daemon
-# 8888  Prometheus Metrics
+# 8888  Health, API, Prometheus Metrics
 # 9100 9101 9102 9103 9104 9105 9106 9107 9108 9109  Specific Distributed Erlang Port Range
 
 EXPOSE 1883 8883 8080 44053 4369 8888 \

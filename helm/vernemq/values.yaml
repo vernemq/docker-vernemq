@@ -51,6 +51,10 @@ service:
     port: 8443
     # This is the port used by nodes to expose the service
     nodePort: 8443
+  api:
+    enabled: false
+    port: 8888
+    nodePort: 38888
   annotations: {}
   labels: {}
   
