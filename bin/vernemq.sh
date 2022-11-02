@@ -265,8 +265,6 @@ sigterm_handler() {
             # this will stop the VerneMQ process, but first drain the node from all existing client sessions (-k)
             if [ -n "$VERNEMQ_KUBERNETES_HOSTNAME" ]; then
                 terminating_node_name=VerneMQ@$VERNEMQ_KUBERNETES_HOSTNAME
-            elif [ -n "$DOCKER_VERNEMQ_SWARM" ]; then
-                terminating_node_name=VerneMQ@$(hostname -i)
             else
                 terminating_node_name=VerneMQ@$IP_ADDRESS
             fi
@@ -306,8 +304,15 @@ sigterm_handler() {
                 fi
             fi
         else
+            if [ -n "$DOCKER_VERNEMQ_SWARM" ]; then
+                terminating_node_name=VerneMQ@$(hostname -i)
+                # For Swarm we keep the old "cluster leave" approach for now
+                echo "Swarm node is leaving the cluster."
+                /vernemq/bin/vmq-admin cluster leave node=${terminating_node_name} -k && rm -rf /vernemq/data/*
+            else
             # In non-k8s mode: Stop the vernemq node gracefully
             /vernemq/bin/vmq-admin node stop >/dev/null
+            fi
         fi
         kill -s TERM ${pid}
         WAITFOR_PID=${pid}
