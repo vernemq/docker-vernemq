@@ -55,6 +55,7 @@ service:
     enabled: false
     port: 8888
     nodePort: 38888
+    annotations: {}
   annotations: {}
   labels: {}
   
