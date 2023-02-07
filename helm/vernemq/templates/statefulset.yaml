@@ -85,6 +85,14 @@ spec:
             - name: DOCKER_VERNEMQ_LISTENER__WSS__DEFAULT
               value: "$(MY_POD_IP):{{ .Values.service.wss.port }}"
             {{- end }}
+            {{- if .Values.certificates }}
+            - name: DOCKER_VERNEMQ_LISTENER__SSL__CAFILE
+              value: "/etc/ssl/vernemq/ca.crt"
+            - name: DOCKER_VERNEMQ_LISTENER__SSL__CERTFILE
+              value: "/etc/ssl/vernemq/tls.crt"
+            - name: DOCKER_VERNEMQ_LISTENER__SSL__KEYFILE
+              value: "/etc/ssl/vernemq/tls.key"
+            {{- end }}
             {{- if .Values.additionalEnv }}
             {{ toYaml .Values.additionalEnv | nindent 12 }}
             {{- end }}
