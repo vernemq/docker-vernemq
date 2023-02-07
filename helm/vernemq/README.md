@@ -111,6 +111,11 @@ Parameter | Description | Default
 `pdb.enabled` | whether to create a Pod Disruption Budget | `false`
 `pdb.minAvailable` | PDB (min available) for the cluster | `1`
 `pdb.maxUnavailable` | PDB (max unavailable) for the cluster | `nil`
+`certificates.cert` | String (not base64 encoded) containing the listener certificate in PEM format | `nil`
+`certificates.key` | String (not base64 encoded) containing the listener private key in PEM format | `nil`
+`certificates.ca` | String (not base64 encoded) containing the CA certificate for validating client certs | `nil`
+`certificates.secret.labels` | additional labels for the created secret containing certificates and keys | `nil`
+`certificates.secret.annotations` | additional labels for the created secret containing certificates and keys | `nil` 
 
 Specify each parameter using the `--set key=value[,key=value]` argument to helm install. For example,
 
