@@ -55,6 +55,7 @@ service:
     enabled: false
     port: 8888
     nodePort: 38888
+    annotations: {}
   annotations: {}
   labels: {}
   
@@ -243,3 +244,10 @@ envFrom: []
 # can be usefull if you wanna use authentication via files
 #  - secretRef:
 #      name: vernemq-users
+
+acl:
+  enabled: false
+  labels: {}
+  annotations: {}
+  content: |-
+    topic #
