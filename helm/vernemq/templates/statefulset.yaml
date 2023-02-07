@@ -122,6 +122,10 @@ spec:
               mountPath: {{ .path }}
               readOnly: true
             {{- end }}
+            {{- if .Values.certificates }}
+            - name: listener-certificates
+              mountPath: /etc/ssl/vernemq
+            {{- end }}
           {{- if .Values.extraVolumeMounts }}
             {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
           {{- end }}
@@ -171,6 +175,11 @@ spec:
         - name: {{ .name }}
           secret:
             secretName: {{ .secretName }}
+        {{- end }}
+        {{- if .Values.certificates }}
+        - name: listener-certificates
+          secret:
+            secretName: {{ include "vernemq.fullname" . }}-certs
         {{- end }}
       {{- if .Values.extraVolumes }}
         {{- toYaml .Values.extraVolumes | nindent 8 }}
