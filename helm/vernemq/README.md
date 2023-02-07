@@ -111,6 +111,10 @@ Parameter | Description | Default
 `pdb.enabled` | whether to create a Pod Disruption Budget | `false`
 `pdb.minAvailable` | PDB (min available) for the cluster | `1`
 `pdb.maxUnavailable` | PDB (max unavailable) for the cluster | `nil`
+`acl.enabled` | whether acls should be applied | `false`
+`acl.content` | content of the acl file | `topic #`
+`acl.labels` | additional labels on the acl configmap | `{}`
+`acl.annotations` | additional annotations on the acl configmap | `{}`
 
 Specify each parameter using the `--set key=value[,key=value]` argument to helm install. For example,
 

@@ -122,6 +122,12 @@ spec:
               mountPath: {{ .path }}
               readOnly: true
             {{- end }}
+            {{- if .Values.acl.enabled }}
+            - name: vernemq-acl
+              mountPath: /vernemq/etc/vmq.acl
+              subPath: vernemq-acl
+              readOnly: true
+          {{- end }}
           {{- if .Values.extraVolumeMounts }}
             {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
           {{- end }}
@@ -172,6 +178,11 @@ spec:
           secret:
             secretName: {{ .secretName }}
         {{- end }}
+        {{- if .Values.acl.enabled }}
+        - name: vernemq-acl
+          configMap:
+            name: vernemq-acl
+      {{- end }}
       {{- if .Values.extraVolumes }}
         {{- toYaml .Values.extraVolumes | nindent 8 }}
       {{- end }}
