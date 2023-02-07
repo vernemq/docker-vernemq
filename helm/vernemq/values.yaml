@@ -233,12 +233,6 @@ additionalEnv:
 #    value: "10000"
 #  - name: DOCKER_VERNEMQ_MAX_OFFLINE_MESSAGES
 #    value: "-1"
-#  - name: DOCKER_VERNEMQ_LISTENER__SSL__CAFILE
-#    value: "/etc/ssl/vernemq/tls.crt"
-#  - name: DOCKER_VERNEMQ_LISTENER__SSL__CERTFILE
-#    value: "/etc/ssl/vernemq/tls.crt"
-#  - name: DOCKER_VERNEMQ_LISTENER__SSL__KEYFILE
-#    value: "/etc/ssl/vernemq/tls.key"
 
 envFrom: []
 # add additional environment variables e.g. from a configmap or secret
