@@ -1,0 +1,21 @@
+{{- if .Values.acl.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "vernemq.fullname" . }}-acl
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    app.kubernetes.io/name: {{ include "vernemq.name" . }}
+    helm.sh/chart: {{ include "vernemq.chart" . }}
+{{- if .Values.acl.labels }}
+  {{- toYaml .Values.acl.labels | nindent 4 }}
+{{- end }}
+{{- with .Values.acl.annotations }}
+  annotations:
+{{- toYaml . | nindent 4 }}
+{{- end }}
+data:
+  vernemq-acl: |-
+{{ required "ACLs are enabled but ACL content is not specified" .Values.acl.content | indent 4 }}
+{{- end}}

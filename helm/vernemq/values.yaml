@@ -243,3 +243,10 @@ envFrom: []
 # can be usefull if you wanna use authentication via files
 #  - secretRef:
 #      name: vernemq-users
+
+acl:
+  enabled: false
+  labels: {}
+  annotations: {}
+  content: |-
+    topic #
