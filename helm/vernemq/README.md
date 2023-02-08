@@ -116,6 +116,10 @@ Parameter | Description | Default
 `certificates.ca` | String (not base64 encoded) containing the CA certificate for validating client certs | `nil`
 `certificates.secret.labels` | additional labels for the created secret containing certificates and keys | `nil`
 `certificates.secret.annotations` | additional labels for the created secret containing certificates and keys | `nil` 
+`acl.enabled` | whether acls should be applied | `false`
+`acl.content` | content of the acl file | `topic #`
+`acl.labels` | additional labels on the acl configmap | `{}`
+`acl.annotations` | additional annotations on the acl configmap | `{}`
 
 Specify each parameter using the `--set key=value[,key=value]` argument to helm install. For example,
 

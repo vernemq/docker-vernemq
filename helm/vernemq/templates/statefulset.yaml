@@ -134,6 +134,12 @@ spec:
             - name: listener-certificates
               mountPath: /etc/ssl/vernemq
             {{- end }}
+            {{- if .Values.acl.enabled }}
+            - name: vernemq-acl
+              mountPath: /vernemq/etc/vmq.acl
+              subPath: vernemq-acl
+              readOnly: true
+          {{- end }}
           {{- if .Values.extraVolumeMounts }}
             {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
           {{- end }}
@@ -189,12 +195,19 @@ spec:
           secret:
             secretName: {{ include "vernemq.fullname" . }}-certs
         {{- end }}
+        {{- if .Values.acl.enabled }}
+        - name: vernemq-acl
+          configMap:
+            name: vernemq-acl
+      {{- end }}
       {{- if .Values.extraVolumes }}
         {{- toYaml .Values.extraVolumes | nindent 8 }}
       {{- end }}
 {{- if .Values.persistentVolume.enabled }}
   volumeClaimTemplates:
-    - metadata:
+    - apiVersion: v1
+      kind: PersistentVolumeClaim
+      metadata:
         name: data
         annotations:
         {{- range $key, $value := .Values.persistentVolume.annotations }}
