@@ -213,6 +213,8 @@ pdb:
   minAvailable: 1
   # maxUnavailable: 1
 
+certificates: {}
+
 ## VerneMQ settings
 
 additionalEnv:
@@ -232,13 +234,14 @@ additionalEnv:
 #    value: "10000"
 #  - name: DOCKER_VERNEMQ_MAX_OFFLINE_MESSAGES
 #    value: "-1"
+#  Please note that the following environment variables will conflict
+#  with configuration under the `certificates` config key
 #  - name: DOCKER_VERNEMQ_LISTENER__SSL__CAFILE
 #    value: "/etc/ssl/vernemq/tls.crt"
 #  - name: DOCKER_VERNEMQ_LISTENER__SSL__CERTFILE
 #    value: "/etc/ssl/vernemq/tls.crt"
 #  - name: DOCKER_VERNEMQ_LISTENER__SSL__KEYFILE
 #    value: "/etc/ssl/vernemq/tls.key"
-
 envFrom: []
 # add additional environment variables e.g. from a configmap or secret
 # can be usefull if you wanna use authentication via files
