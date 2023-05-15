@@ -1,4 +1,4 @@
-FROM alpine:3.17.1
+FROM alpine:3.18
 
 RUN apk --no-cache --update --available upgrade && \
     apk add --no-cache ncurses-libs openssl1.1-compat libstdc++ jq curl bash snappy-dev nano && \
