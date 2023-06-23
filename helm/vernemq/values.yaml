@@ -6,7 +6,7 @@ replicaCount: 1
 
 image:
   repository: vernemq/vernemq
-  tag: 1.12.6.2-alpine
+  tag: 1.13.0-alpine
 
   pullPolicy: IfNotPresent
 

@@ -8,5 +8,8 @@
 -name VerneMQ@127.0.0.1
 +K true
 +W w
++sbwt none 
++sbwtdcpu none 
++sbwtdio none
 -smp enable
 +zdbbl 32768

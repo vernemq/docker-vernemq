@@ -15,6 +15,18 @@ spec:
   - name: metrics
     port: 8888
     targetPort: api
+  - name: mqtt
+    port: {{ .Values.service.mqtt.port }}
+    targetPort: mqtt
+  - name: mqtts
+    port: {{ .Values.service.mqtts.port }}
+    targetPort: mqtts
+  - name: ws 
+    port: {{ .Values.service.ws.port }}
+    targetPort: ws
+  - name: wss
+    port: {{ .Values.service.wss.port }}
+    targetPort: wss
   selector:
     app.kubernetes.io/name: {{ include "vernemq.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}
