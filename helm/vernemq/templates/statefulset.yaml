@@ -198,7 +198,7 @@ spec:
         {{- if .Values.acl.enabled }}
         - name: vernemq-acl
           configMap:
-            name:: {{ include "vernemq.fullname" . }}-acl
+            name: {{ include "vernemq.fullname" . }}-acl
       {{- end }}
       {{- if .Values.extraVolumes }}
         {{- toYaml .Values.extraVolumes | nindent 8 }}
