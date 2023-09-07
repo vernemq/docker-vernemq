@@ -17,7 +17,8 @@ COPY --chown=10000:10000 bin/vernemq.sh /usr/sbin/start_vernemq
 COPY --chown=10000:10000 files/vm.args /vernemq/etc/vm.args
 
 # Note that the following copies a binary package under EULA (requiring a paid subscription).
-RUN curl -L https://github.com/vernemq/vernemq/releases/download/$VERNEMQ_VERSION/vernemq-$VERNEMQ_VERSION.bullseye.tar.gz -o /tmp/vernemq-$VERNEMQ_VERSION.bullseye.tar.gz && \
+RUN ARCH=$(uname -m | sed -e 's/aarch64/arm64/') && \
+    curl -L https://github.com/vernemq/vernemq/releases/download/$VERNEMQ_VERSION/vernemq-$VERNEMQ_VERSION.bullseye.$ARCH.tar.gz -o /tmp/vernemq-$VERNEMQ_VERSION.bullseye.tar.gz && \
     tar -xzvf /tmp/vernemq-$VERNEMQ_VERSION.bullseye.tar.gz && \
     rm /tmp/vernemq-$VERNEMQ_VERSION.bullseye.tar.gz && \
     chown -R 10000:10000 /vernemq && \
