@@ -339,4 +339,5 @@ trap 'sigterm_handler' SIGTERM
 # Start VerneMQ
 /vernemq/bin/vernemq console -noshell -noinput $@ &
 pid=$!
+/vernemq/bin/join_cluster > /var/log/vernemq/log/join_cluster.log &
 wait $pid
