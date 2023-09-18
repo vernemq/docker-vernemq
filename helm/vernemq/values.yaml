@@ -58,7 +58,7 @@ service:
     annotations: {}
   annotations: {}
   labels: {}
-  
+
 
 ## Ingress can optionally be applied when enabling the MQTT websocket service
 ## This allows for an ingress controller to route web ports and arbitrary hostnames
@@ -83,7 +83,6 @@ ingress:
   paths:
     - path: /
       pathType: ImplementationSpecific
-      
 
   ## TLS configuration for ingress
   ## Secret must be manually created in the namespace
