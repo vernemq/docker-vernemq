@@ -1,8 +1,6 @@
 ---
 name: Lint and release the helm chart
-on:
-  pull_request:
-  push:
+on: push
 
 jobs:
   lint-test:
