@@ -152,7 +152,7 @@ if env | grep "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES" -q; then
 
     sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${VERNEMQ_KUBERNETES_HOSTNAME}/" ${VERNEMQ_VM_ARGS_FILE}
     # Hack into K8S DNS resolution (temporarily)
-    kube_pod_names=$(echo ${podList} | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ')
+    kube_pod_names=$(echo ${podList} | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ' | sed 's/ *$//')
 
     for kube_pod_name in $kube_pod_names; do
         if [[ $kube_pod_name == "null" ]]; then
@@ -269,7 +269,7 @@ sigterm_handler() {
                 terminating_node_name=VerneMQ@$IP_ADDRESS
             fi
             podList=$(k8sCurlGet "api/v1/namespaces/${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}/pods?labelSelector=${DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR}")
-            kube_pod_names=$(echo ${podList} | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ')
+            kube_pod_names=$(echo ${podList} | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ' | sed 's/ *$//')
             if [ "$kube_pod_names" = "$MY_POD_NAME" ]; then
                 echo "I'm the only pod remaining. Not performing leave and/or state purge."
                 /vernemq/bin/vmq-admin node stop >/dev/null
