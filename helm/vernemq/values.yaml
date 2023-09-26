@@ -53,6 +53,7 @@ service:
     nodePort: 8443
   api:
     enabled: false
+    type: ClusterIP
     port: 8888
     nodePort: 38888
     annotations: {}

@@ -16,10 +16,23 @@ metadata:
     {{ toYaml . | nindent 4 }}
   {{- end }}
 spec:
+{{- if (or (eq .Values.service.api.type "ClusterIP") (empty .Values.service.type)) }}
   type: ClusterIP
-  {{- if .Values.service.clusterIP }}
-  clusterIP: {{ .Values.service.clusterIP }}
+  {{- if .Values.service.api.clusterIP }}
+  clusterIP: {{ .Values.service.api.clusterIP }}
   {{- end }}
+{{- else if eq .Values.service.api.type "LoadBalancer" }}
+  type: {{ .Values.service.api.type }}
+  {{- if .Values.service.api.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.service.api.loadBalancerIP }}
+  {{- end }}
+  {{- if .Values.service.api.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{ toYaml .Values.service.api.loadBalancerSourceRanges | nindent 4 }}
+  {{- end -}}
+{{- else }}
+  type: {{ .Values.service.api.type }}
+{{- end }}
 {{- if .Values.service.api.sessionAffinity }}
   sessionAffinity: {{ .Values.service.api.sessionAffinity }}
   {{- if .Values.service.api.sessionAffinityConfig }}
