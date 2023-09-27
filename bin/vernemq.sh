@@ -139,6 +139,7 @@ if [ -d "${SECRETS_KUBERNETES_DIR}" ] ; then
 fi
 
 # Set up kubernetes node discovery
+start_join_cluster=0
 if env | grep "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES" -q; then
     # Let's set our nodename correctly
     # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#list-pod-v1-core
@@ -162,6 +163,7 @@ if env | grep "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES" -q; then
         fi
         if [[ $kube_pod_name != $MY_POD_NAME ]]; then
             discoveryHostname="${kube_pod_name}.${VERNEMQ_KUBERNETES_SUBDOMAIN}.${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}"
+            start_join_cluster=1
             echo "Will join an existing Kubernetes cluster with discovery node at ${discoveryHostname}"
             echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${discoveryHostname}')\"" >> ${VERNEMQ_VM_ARGS_FILE}
             echo "Did I previously leave the cluster? If so, purging old state."
@@ -339,4 +341,8 @@ trap 'sigterm_handler' SIGTERM
 # Start VerneMQ
 /vernemq/bin/vernemq console -noshell -noinput $@ &
 pid=$!
+if [ $start_join_cluster  -eq 1 ]; then
+    mkdir -p /var/log/vernemq/log
+    join_cluster > /var/log/vernemq/log/join_cluster.log &
+fi
 wait $pid
