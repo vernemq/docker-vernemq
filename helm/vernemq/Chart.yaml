@@ -2,6 +2,6 @@ apiVersion: v1
 appVersion: 1.13.0
 description: VerneMQ is a high-performance, distributed MQTT message broker
 name: vernemq
-version: 1.9.0
+version: 1.9.1
 
 icon: http://www.stickpng.com/assets/thumbs/58482b21cef1014c0b5e4a24.png
