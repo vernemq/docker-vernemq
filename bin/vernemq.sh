@@ -345,4 +345,8 @@ if [ $start_join_cluster  -eq 1 ]; then
     mkdir -p /var/log/vernemq/log
     join_cluster > /var/log/vernemq/log/join_cluster.log &
 fi
+if [ -n "$API_KEY" ]; then
+  sleep 10 && echo "Adding API_KEY..." && /vernemq/bin/vmq-admin api-key add key="${API_KEY:-DEFAULT}"
+  vmq-admin api-key show
+fi
 wait $pid
