@@ -57,7 +57,7 @@ if env | grep "DOCKER_VERNEMQ_NODENAME" -q; then
     sed -i.bak -r "s/-name VerneMQ@.+/-name VerneMQ@${DOCKER_VERNEMQ_NODENAME}/" ${VERNEMQ_VM_ARGS_FILE}
 else
     if [ -n "$DOCKER_VERNEMQ_SWARM" ]; then
-        NODENAME=$(hostname -i)
+        NODENAME=$( ip -4 -o addr show eth0 | awk '{print $4}' | cut -d "/" -f 1 )
         sed -i.bak -r "s/VerneMQ@.+/VerneMQ@${NODENAME}/" ${VERNEMQ_VM_ARGS_FILE}
     else
         sed -i.bak -r "s/-name VerneMQ@.+/-name VerneMQ@${IP_ADDRESS}/" ${VERNEMQ_VM_ARGS_FILE}
