@@ -9,6 +9,7 @@ metadata:
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   clusterIP: None
+  publishNotReadyAddresses: true
   ports:
   - name: empd
     port: 4369
