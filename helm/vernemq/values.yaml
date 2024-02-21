@@ -120,10 +120,16 @@ tolerations: []
 ## Ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
 podAntiAffinity: soft
 
+# Security context (for the pods)
 securityContext:
   runAsUser: 10000
   runAsGroup: 10000
   fsGroup: 10000
+
+# Security context (for the containers, uncomment if needed; default is no specific container-level security context)
+# containerSecurityContext:
+  # privileged: ...
+  # ...
 
 ## If RBAC is enabled on the cluster,VerneMQ needs a service account
 ## with permissisions sufficient to list pods
