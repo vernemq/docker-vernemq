@@ -59,7 +59,7 @@ service:
     annotations: {}
   annotations: {}
   labels: {}
-  
+
 
 ## Ingress can optionally be applied when enabling the MQTT websocket service
 ## This allows for an ingress controller to route web ports and arbitrary hostnames
@@ -84,7 +84,7 @@ ingress:
   paths:
     - path: /
       pathType: ImplementationSpecific
-      
+
 
   ## TLS configuration for ingress
   ## Secret must be manually created in the namespace
@@ -142,7 +142,7 @@ persistentVolume:
 
   ## VerneMQ data Persistent Volume access modes
   ## Must match those of existing PV or dynamic provisioner
-  ## Ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+  ## Ref: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#access-modes
   accessModes:
     - ReadWriteOnce
 
