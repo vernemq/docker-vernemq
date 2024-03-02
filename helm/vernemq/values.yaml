@@ -60,6 +60,12 @@ service:
   annotations: {}
   labels: {}
 
+headlessService:
+  customPortMappings: []
+  # Example of how to specify custom ports:
+  # - name: custom-port1
+  #   port: 1234
+  #   targetPort: 1234
 
 ## Ingress can optionally be applied when enabling the MQTT websocket service
 ## This allows for an ingress controller to route web ports and arbitrary hostnames
