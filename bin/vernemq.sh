@@ -225,6 +225,11 @@ EOF
         echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> ${VERNEMQ_CONF_FILE}
     fi
 
+    if [ "$DOCKER_VERNEMQ_LISTENER__TCP__ALTPP" = "on" ]; then
+        echo "listener.tcp.alt = ${IP_ADDRESS}:1884" >> ${VERNEMQ_CONF_FILE}
+        echo "listener.tcp.alt.proxy_protocol = on" >> ${VERNEMQ_CONF_FILE}
+    fi
+
     echo "########## End ##########" >> ${VERNEMQ_CONF_FILE}
 fi
 

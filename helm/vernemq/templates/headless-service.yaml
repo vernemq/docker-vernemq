@@ -19,15 +19,25 @@ spec:
   - name: mqtt
     port: {{ .Values.service.mqtt.port }}
     targetPort: mqtt
+  - name: mqttpp
+    port: {{ .Values.service.mqttpp.port }}
+    targetPort: mqttpp
   - name: mqtts
     port: {{ .Values.service.mqtts.port }}
     targetPort: mqtts
-  - name: ws 
+  - name: ws
     port: {{ .Values.service.ws.port }}
     targetPort: ws
   - name: wss
     port: {{ .Values.service.wss.port }}
     targetPort: wss
+  {{- if .Values.headlessService.customPorts }}
+  {{- range .Values.headlessService.customPorts }}
+  - name: {{ .name }}
+    port: {{ .port }}
+    targetPort: {{ .targetPort }}
+  {{- end }}
+  {{- end }}
   selector:
     app.kubernetes.io/name: {{ include "vernemq.name" . }}
     app.kubernetes.io/instance: {{ .Release.Name }}

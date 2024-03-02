@@ -29,6 +29,7 @@ RUN ARCH=$(uname -m | sed -e 's/aarch64/arm64/') && \
 
 # Ports
 # 1883  MQTT
+# 1884  MQTT Proxy Protocol
 # 8883  MQTT/SSL
 # 8080  MQTT WebSockets
 # 44053 VerneMQ Message Distribution
@@ -36,8 +37,8 @@ RUN ARCH=$(uname -m | sed -e 's/aarch64/arm64/') && \
 # 8888  Health, API, Prometheus Metrics
 # 9100 9101 9102 9103 9104 9105 9106 9107 9108 9109  Specific Distributed Erlang Port Range
 
-EXPOSE 1883 8883 8080 44053 4369 8888 \
-       9100 9101 9102 9103 9104 9105 9106 9107 9108 9109
+EXPOSE 1883 1884 8883 8080 44053 4369 8888 \
+    9100 9101 9102 9103 9104 9105 9106 9107 9108 9109
 
 
 VOLUME ["/vernemq/log", "/vernemq/data", "/vernemq/etc"]
