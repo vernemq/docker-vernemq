@@ -61,7 +61,7 @@ service:
   labels: {}
 
 headlessService:
-  customPortMappings: []
+  customPorts: []
   # Example of how to specify custom ports:
   # - name: custom-port1
   #   port: 1234
