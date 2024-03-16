@@ -46,6 +46,8 @@ spec:
           ports:
             - containerPort: 1883
               name: mqtt
+            - containerPort: 1884
+              name: mqttProxyProtocol
             - containerPort: 8883
               name: mqtts
             - containerPort: 4369

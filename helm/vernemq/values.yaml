@@ -36,6 +36,11 @@ service:
     port: 1883
     # This is the port used by nodes to expose the service
     nodePort: 1883
+  mqttProxyProtocol:
+    enabled: true
+    port: 1884
+    # This is the port used by nodes to expose the service
+    nodePort: 1884
   mqtts:
     enabled: false
     port: 8883
@@ -60,6 +65,12 @@ service:
   annotations: {}
   labels: {}
 
+headlessService:
+  customPortMappings: []
+  # Example of how to specify custom ports:
+  # - name: custom-port1
+  #   port: 1234
+  #   targetPort: 1234
 
 ## Ingress can optionally be applied when enabling the MQTT websocket service
 ## This allows for an ingress controller to route web ports and arbitrary hostnames
@@ -232,6 +243,8 @@ additionalEnv:
   - name: DOCKER_VERNEMQ_ALLOW_SUBSCRIBE_DURING_NETSPLIT
     value: "on"
   - name: DOCKER_VERNEMQ_ALLOW_UNSUBSCRIBE_DURING_NETSPLIT
+    value: "on"
+  - name: DOCKER_VERNEMQ_LISTENER__TCP__ALTPP
     value: "on"
 #  - name: DOCKER_VERNEMQ_ALLOW_ANONYMOUS
 #    value: "on"
