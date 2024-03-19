@@ -1,4 +1,6 @@
-# VerneMQ
+# VerneMQ Kubernetes Helm Charts
+
+This is the official Helm Charts repository for installing VerneMQ on Kubernetes.
 
 [VerneMQ](https://vernemq.com/) is a high-performance, distributed MQTT message broker. It scales
 horizontally and vertically on commodity hardware to support a high number of
@@ -20,7 +22,19 @@ This chart bootstraps a [VerneMQ](https://vernemq.com/) deployment on a [Kuberne
 
 ## Prerequisites
 
-- Kubernetes 1.9, or 1.5 with Beta features enabled
+- Kubernetes 1.9, or 1.5 with Beta features enabled.
+- [Helm](https://helm.sh/) must be installed to use the charts. Please refer to Helm’s [documentation](https://helm.sh/docs/intro/install/) to get started.
+
+## Adding this Helm repo
+
+Once Helm is set up properly, add the VerneMQ repo as follows:
+
+```bash
+$ helm repo add vernemq https://charts.vernemq.com
+$ helm repo update
+```
+
+You can then run `helm search repo vernemq` to see the available charts.
 
 ## Installing the Chart
 
@@ -115,7 +129,7 @@ Parameter | Description | Default
 `certificates.key` | String (not base64 encoded) containing the listener private key in PEM format | `nil`
 `certificates.ca` | String (not base64 encoded) containing the CA certificate for validating client certs | `nil`
 `certificates.secret.labels` | additional labels for the created secret containing certificates and keys | `nil`
-`certificates.secret.annotations` | additional labels for the created secret containing certificates and keys | `nil` 
+`certificates.secret.annotations` | additional labels for the created secret containing certificates and keys | `nil`
 `acl.enabled` | whether acls should be applied | `false`
 `acl.content` | content of the acl file | `topic #`
 `acl.labels` | additional labels on the acl configmap | `{}`
@@ -247,3 +261,8 @@ additionalEnv:
 ```
 
 > **Tip**: Cert-Manager includes both CA and TLS certificate in the `tls.crt` file.
+
+## Seeking help
+
+If you run into an issue, bug or have a question, please open Github
+issues in the [docker-vernemq](https://github.com/vernemq/docker-vernemq) repository.
