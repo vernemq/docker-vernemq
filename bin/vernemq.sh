@@ -244,6 +244,9 @@ if [ ! -z "$DOCKER_VERNEMQ_ERLANG__DISTRIBUTION_BUFFER_SIZE" ]; then
     sed -i.bak -r "s/\+zdbbl.+/\+zdbbl ${DOCKER_VERNEMQ_ERLANG__DISTRIBUTION_BUFFER_SIZE}/" ${VERNEMQ_VM_ARGS_FILE}
 fi
 
+mkdir -p /vernemq/data/home
+chmod g-rwx /vernemq/data/home/.erlang.cookie
+
 # Check configuration file
 /vernemq/bin/vernemq config generate 2>&1 > /dev/null | tee /tmp/config.out | grep error
 
