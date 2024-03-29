@@ -19,6 +19,57 @@ istio_health() {
   return $status
 }
 
+configure_vernemq_listeners() {
+    local base_port=1883
+    declare -A listener_ports
+
+    # Scan environment variables for VerneMQ listeners
+    while read -r line; do
+        if [[ $line == DOCKER_VERNEMQ_LISTENER__* ]]; then
+            # Extract the type, name, and property from the environment variable
+            IFS='=' read -r key value <<< "$line"
+            IFS='__' read -r _ prefix type name property <<< "$key"
+
+            # Normalize type to lowercase for consistent handling
+            type=${type,,}
+
+            # Check if this listener is being added/enabled without specifying a port
+            if [[ -z $property && $value == "true" ]]; then
+                # Assign default or auto-incremented port number
+                if ! [[ ${listener_ports[$type.$name]+_} ]]; then
+                    base_port=$((base_port + 1))
+                    listener_ports[$type.$name]=$base_port
+                fi
+                echo "listener.$type.$name = ${I}:${listener_ports[$type.$name]}" >> ${VERNEMQ_CONF_FILE}
+            elif [[ $property == "PORT" ]]; then
+                # Specific port defined, use it
+                listener_ports[$type.$name]=$value
+                echo "listener.$type.$name = ${IP_ADDRESS}:${value}" >> ${VERNEMQ_CONF_FILE}
+            fi
+        fi
+    done < <(env)
+
+    # Ensure all initialized listeners are configured, even those without a PORT env var explicitly set
+    for listener in "${!listener_ports[@]}"; do
+        IFS='.' read -r type name <<< "$listener"
+        echo "listener.$type.$name = ${IP_ADDRESS}:${listener_ports[$listener]}" >> ${VERNEMQ_CONF_FILE}
+    done
+}
+
+configure_vernemq_listeners_help() {
+    echo "Usage: configure_vernemq_listeners"
+    echo "Scans environment variables to configure VerneMQ listeners."
+    echo "Environment variables should follow the pattern:"
+    echo "DOCKER_VERNEMQ_LISTENER__<type>__<name>[__PORT]=<value>"
+    echo "Examples:"
+    echo "DOCKER_VERNEMQ_LISTENER__TCP__EXTERNAL=true"
+    echo "DOCKER_VERNEMQ_LISTENER__WS__DEFAULT__PORT=8080"
+    echo ""
+    echo "The function assigns an IP address and ports to the VerneMQ listeners based on these variables."
+    echo "Listeners without a specified port will have ports auto-assigned starting from 1884."
+}
+
+
 # Ensure we have all files and needed directory write permissions
 if [ ! -d ${VERNEMQ_ETC_DIR} ]; then
   echo "Configuration directory at ${VERNEMQ_ETC_DIR} does not exist, exiting" >&2
@@ -201,6 +252,7 @@ $password
 EOF
     done
 
+
     if [ -z "$DOCKER_VERNEMQ_ERLANG__DISTRIBUTION__PORT_RANGE__MINIMUM" ]; then
         echo "erlang.distribution.port_range.minimum = 9100" >> ${VERNEMQ_CONF_FILE}
     fi
@@ -209,21 +261,7 @@ EOF
         echo "erlang.distribution.port_range.maximum = 9109" >> ${VERNEMQ_CONF_FILE}
     fi
 
-    if [ -z "$DOCKER_VERNEMQ_LISTENER__TCP__DEFAULT" ]; then
-        echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> ${VERNEMQ_CONF_FILE}
-    fi
-
-    if [ -z "$DOCKER_VERNEMQ_LISTENER__WS__DEFAULT" ]; then
-        echo "listener.ws.default = ${IP_ADDRESS}:8080" >> ${VERNEMQ_CONF_FILE}
-    fi
-
-    if [ -z "$DOCKER_VERNEMQ_LISTENER__VMQ__CLUSTERING" ]; then
-        echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> ${VERNEMQ_CONF_FILE}
-    fi
-
-    if [ -z "$DOCKER_VERNEMQ_LISTENER__HTTP__METRICS" ]; then
-        echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> ${VERNEMQ_CONF_FILE}
-    fi
+    configure_vernemq_listeners
 
     echo "########## End ##########" >> ${VERNEMQ_CONF_FILE}
 fi
