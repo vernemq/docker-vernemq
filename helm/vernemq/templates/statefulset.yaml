@@ -39,6 +39,12 @@ spec:
     spec:
       serviceAccountName: {{ include "vernemq.serviceAccountName" . }}
       terminationGracePeriodSeconds: {{ .Values.statefulset.terminationGracePeriodSeconds }}
+      {{- with .Values.statefulset.imagePullSecrets }}
+      imagePullSecrets:
+        {{- range . }}
+        - name: {{ . }}
+        {{- end }}
+      {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
