@@ -214,6 +214,8 @@ statefulset:
   labels: {}
   podLabels: {}
   lifecycle: {}
+  imagePullSecrets:
+#    - "my-image-pull-secret"
 
 pdb:
   enabled: false
