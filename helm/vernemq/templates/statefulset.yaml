@@ -64,6 +64,12 @@ spec:
               name: wss
             - containerPort: 8888
               name: api
+            {{- if .Values.headlessService.customPorts }}
+            {{- range .Values.headlessService.customPorts }}
+            - containerPort: {{ .port }}
+            name: {{ .name }}
+            {{- end }}
+            {{- end }}
             {{- range tuple 9100 9101 9102 9103 9104 9105 9106 9107 9108 9109 }}
             - containerPort: {{ . }}
             {{- end }}
