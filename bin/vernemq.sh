@@ -261,6 +261,23 @@ EOF
         echo "erlang.distribution.port_range.maximum = 9109" >> ${VERNEMQ_CONF_FILE}
     fi
 
+    if [ -z "$DOCKER_VERNEMQ_LISTENER__TCP__DEFAULT" ]; then
+    configure_vernemq_listeners
+        echo "listener.tcp.default = ${IP_ADDRESS}:1883" >> ${VERNEMQ_CONF_FILE}
+    fi
+
+    if [ -z "$DOCKER_VERNEMQ_LISTENER__WS__DEFAULT" ]; then
+        echo "listener.ws.default = ${IP_ADDRESS}:8080" >> ${VERNEMQ_CONF_FILE}
+    fi
+
+    if [ -z "$DOCKER_VERNEMQ_LISTENER__VMQ__CLUSTERING" ]; then
+        echo "listener.vmq.clustering = ${IP_ADDRESS}:44053" >> ${VERNEMQ_CONF_FILE}
+    fi
+
+    if [ -z "$DOCKER_VERNEMQ_LISTENER__HTTP__METRICS" ]; then
+        echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> ${VERNEMQ_CONF_FILE}
+    fi
+    	
     configure_vernemq_listeners
 
     echo "########## End ##########" >> ${VERNEMQ_CONF_FILE}
