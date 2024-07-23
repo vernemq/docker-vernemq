@@ -9,7 +9,8 @@ RUN apt-get update && \
 WORKDIR /vernemq
 
 # Defaults
-ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
+ENV DOCKER_VERNEMQ_ACCEPT_EULA="yes" \
+    DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
     DOCKER_VERNEMQ_LOG__CONSOLE=console \
     PATH="/vernemq/bin:$PATH" \
     VERNEMQ_VERSION="2.0.1"
