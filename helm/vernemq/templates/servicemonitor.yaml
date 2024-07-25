@@ -13,7 +13,7 @@ metadata:
     {{- end }}
 spec:
   endpoints:
-  - interval: 30s
+  - interval: {{ .Values.serviceMonitor.interval }}
     port: metrics
     path: /metrics
   selector:
