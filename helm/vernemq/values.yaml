@@ -15,6 +15,7 @@ fullnameOverride: ""
 
 serviceMonitor:
   create: false
+  interval: 30s
   labels: {}
 
 service:
