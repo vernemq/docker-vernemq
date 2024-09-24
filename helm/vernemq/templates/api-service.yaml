@@ -44,7 +44,7 @@ spec:
     - port: {{ .Values.service.api.port }}
       targetPort: api
       name: api
-      {{- if eq .Values.service.type "NodePort" }}
+      {{- if eq .Values.service.api.type "NodePort" }}
       nodePort: {{ .Values.service.api.nodePort }}
       {{- end }}
   selector:
