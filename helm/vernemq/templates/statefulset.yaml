@@ -120,6 +120,9 @@ spec:
           lifecycle:
             {{- toYaml . | nindent 12 }}
           {{- end }}
+        {{- if .Values.extraContainers }}
+        {{- toYaml .Values.extraContainers | nindent 8 }}
+        {{- end }}
     {{- with .Values.nodeSelector }}
       nodeSelector:
         {{ toYaml . | nindent 8 }}
