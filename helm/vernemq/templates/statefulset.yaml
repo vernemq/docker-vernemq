@@ -114,7 +114,7 @@ spec:
             {{ toYaml .Values.resources | nindent 12 }}
           livenessProbe:
             httpGet:
-              path: /health
+              path: /health/ping
               port: api
               scheme: HTTP
             initialDelaySeconds: {{ .Values.statefulset.livenessProbe.initialDelaySeconds }}
@@ -124,7 +124,7 @@ spec:
             failureThreshold: {{ .Values.statefulset.livenessProbe.failureThreshold }}
           readinessProbe:
             httpGet:
-              path: /health
+              path: /health/ping
               port: api
               scheme: HTTP
             initialDelaySeconds: {{ .Values.statefulset.readinessProbe.initialDelaySeconds }}
