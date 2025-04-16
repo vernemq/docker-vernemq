@@ -20,6 +20,9 @@ spec:
   podManagementPolicy: {{ .Values.statefulset.podManagementPolicy }}
   updateStrategy:
     type: {{ .Values.statefulset.updateStrategy }}
+    {{- with .Values.statefulset.rollingUpdate }}
+    rollingUpdate: {{- toYaml . | nindent 6 }}
+    {{- end }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "vernemq.name" . }}
