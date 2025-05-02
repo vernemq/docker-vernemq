@@ -405,7 +405,6 @@ if [ -n "$API_KEY" ]; then
   sleep 60
   echo "Adding API_KEY..."
   vmq-admin api-key add key="${API_KEY}"
-  vmq-admin api-key show
 fi
 
 wait $pid
