@@ -217,11 +217,10 @@ if env | grep "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES" -q; then
             start_join_cluster=1
             echo "Will join an existing Kubernetes cluster with discovery node at ${discoveryHostname}"
             echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${discoveryHostname}')\"" >> ${VERNEMQ_VM_ARGS_FILE}
-            echo "Did I previously leave the cluster? If so, purging old state."
             curl -fsSL http://${discoveryHostname}:8888/status.json >/dev/null 2>&1 ||
                 (echo "Can't download status.json, better to exit now" && exit 1)
             curl -fsSL http://${discoveryHostname}:8888/status.json | grep -q ${VERNEMQ_KUBERNETES_HOSTNAME} ||
-                (echo "Cluster doesn't know about me, this means I've left previously. Purging old state..." && rm -rf /vernemq/data/*)
+                (echo "Cluster doesn't know about me, this means I've left previously or I'm a new node.")
             break
         fi
     done
@@ -319,47 +318,15 @@ siguser1_handler() {
 sigterm_handler() {
     if [ $pid -ne 0 ]; then
         if [ -d "${SECRETS_KUBERNETES_DIR}" ] ; then
-            # this will stop the VerneMQ process, but first drain the node from all existing client sessions (-k)
+            # This will stop the VerneMQ process
             if [ -n "$VERNEMQ_KUBERNETES_HOSTNAME" ]; then
                 terminating_node_name=VerneMQ@$VERNEMQ_KUBERNETES_HOSTNAME
             else
                 terminating_node_name=VerneMQ@$IP_ADDRESS
             fi
-            podList=$(k8sCurlGet "api/v1/namespaces/${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}/pods?labelSelector=${DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR}")
-            kube_pod_names=$(echo ${podList} | jq '.items[].spec.hostname' | sed 's/"//g' | tr '\n' ' ' | sed 's/ *$//')
-            if [ "$kube_pod_names" = "$MY_POD_NAME" ]; then
-                echo "I'm the only pod remaining. Not performing leave and/or state purge."
-                /vernemq/bin/vmq-admin node stop >/dev/null
-            else
-                # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#read-pod-v1-core
-                podResponse=$(k8sCurlGet api/v1/namespaces/${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}/pods/$(hostname) )
-                statefulSetName=$(echo ${podResponse} | jq -r '.metadata.ownerReferences[0].name')
-
-                # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#-strong-read-operations-statefulset-v1-apps-strong-
-                statefulSetResponse=$(k8sCurlGet "apis/apps/v1/namespaces/${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}/statefulsets/${statefulSetName}" )
-
-                isCodeForbidden=$(echo ${statefulSetResponse} | jq '.code == 403')
-                if [[ ${isCodeForbidden} == "true" ]]; then
-                    echo "Permission error: Cannot access URL ${statefulSetPath}: $(echo ${statefulSetResponse} | jq '.reason,.code,.message')"
-                fi
-
-                reschedule=$(echo ${statefulSetResponse} | jq '.status.replicas == .status.readyReplicas')
-                scaled_down=$(echo ${statefulSetResponse} | jq '.status.currentReplicas == .status.updatedReplicas')
-
-                if [[ $reschedule == "true" ]]; then
-                    # Perhaps is an scale down?
-                    if [[ $scaled_down == "true" ]]; then
-                      echo "Seems that this is a scale down scenario. Leaving cluster."
-                      /vernemq/bin/vmq-admin cluster leave node=${terminating_node_name} -k && rm -rf /vernemq/data/*
-                    else
-                      echo "Reschedule is true. Not leaving the cluster."
-                      /vernemq/bin/vmq-admin node stop >/dev/null
-                    fi
-                else
-                    echo "Reschedule is false. Leaving the cluster."
-                    /vernemq/bin/vmq-admin cluster leave node=${terminating_node_name} -k && rm -rf /vernemq/data/*
-                fi
-            fi
+            echo "SigTerm received from Kubernetes."
+            echo "Stopping VerneMQ node $terminating_node_name."
+            /vernemq/bin/vmq-admin node stop >/dev/null
         else
             if [ -n "$DOCKER_VERNEMQ_SWARM" ]; then
                 terminating_node_name=VerneMQ@$(hostname -i)
@@ -367,7 +334,7 @@ sigterm_handler() {
                 echo "Swarm node is leaving the cluster."
                 /vernemq/bin/vmq-admin cluster leave node=${terminating_node_name} -k && rm -rf /vernemq/data/*
             else
-            # In non-k8s mode: Stop the vernemq node gracefully
+            # In non-swarm mode: Stop the VerneMQ node gracefully
             /vernemq/bin/vmq-admin node stop >/dev/null
             fi
         fi
