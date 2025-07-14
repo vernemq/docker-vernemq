@@ -89,7 +89,6 @@ spec:
               value: "1"
             - name: DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR
               value: "app.kubernetes.io/name={{ include "vernemq.name" . }},app.kubernetes.io/instance={{ .Release.Name }}"
-            {{- /* Add this localhost listener in order to get the port forwarding working */}}
             - name: DOCKER_VERNEMQ_LISTENER__TCP__LOCALHOST
               value: "127.0.0.1:1883"
             {{- if .Values.service.mqtts.enabled }}
@@ -154,10 +153,10 @@ spec:
               mountPath: /vernemq/etc/vmq.acl
               subPath: vernemq-acl
               readOnly: true
-          {{- end }}
-          {{- if .Values.extraVolumeMounts }}
-            {{- toYaml .Values.extraVolumeMounts | nindent 12 }}
-          {{- end }}
+            {{- end }}
+            {{- if .Values.extraVolumeMounts }}
+            {{ toYaml .Values.extraVolumeMounts | nindent 12 }}
+            {{- end }}
           {{- with .Values.statefulset.lifecycle }}
           lifecycle:
             {{- toYaml . | nindent 12 }}
@@ -166,11 +165,11 @@ spec:
           securityContext:
             {{- toYaml . | nindent 12 }}
           {{- end }}
-    {{- with .Values.nodeSelector }}
+      {{- with .Values.nodeSelector }}
       nodeSelector:
         {{ toYaml . | nindent 8 }}
-    {{- end }}
-    {{- if eq .Values.podAntiAffinity "hard" }}
+      {{- end }}
+      {{- if eq .Values.podAntiAffinity "hard" }}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -181,7 +180,7 @@ spec:
                     operator: In
                     values:
                       - {{ include "vernemq.name" . }}
-    {{- else if eq .Values.podAntiAffinity "soft" }}
+      {{- else if eq .Values.podAntiAffinity "soft" }}
       affinity:
         podAntiAffinity:
           preferredDuringSchedulingIgnoredDuringExecution:
@@ -194,11 +193,11 @@ spec:
                       operator: In
                       values:
                         - {{ include "vernemq.name" . }}
-    {{- end }}
-    {{- with .Values.tolerations }}
+      {{- end }}
+      {{- with .Values.tolerations }}
       tolerations:
         {{ toYaml . | nindent 8 }}
-    {{- end }}
+      {{- end }}
       securityContext:
         {{ toYaml .Values.securityContext | nindent 8 }}
       volumes:
@@ -218,10 +217,14 @@ spec:
         - name: vernemq-acl
           configMap:
             name: {{ include "vernemq.fullname" . }}-acl
-      {{- end }}
-      {{- if .Values.extraVolumes }}
-        {{- toYaml .Values.extraVolumes | nindent 8 }}
-      {{- end }}
+        {{- end }}
+        {{- if not .Values.persistentVolume.enabled }}
+        - name: data
+        {{- end }}
+        {{- if .Values.extraVolumes }}
+        {{ toYaml .Values.extraVolumes | nindent 8 }}
+        {{- end }}
+
 {{- if .Values.persistentVolume.enabled }}
   volumeClaimTemplates:
     - apiVersion: v1
@@ -247,6 +250,4 @@ spec:
         storageClassName: "{{ .Values.persistentVolume.storageClass }}"
       {{- end }}
       {{- end }}
-{{- else }}
-      - name: data
 {{- end }}
