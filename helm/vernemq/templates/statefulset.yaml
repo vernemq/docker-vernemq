@@ -35,9 +35,10 @@ spec:
       {{- if .Values.statefulset.podLabels }}
         {{ toYaml .Values.statefulset.podLabels | nindent 8 }}
       {{- end }}
-      {{- with .Values.statefulset.podAnnotations }}
       annotations:
-        {{ toYaml . | nindent 8 }}
+        checksum/acl: {{ include (print $.Template.BasePath "/configmap-acl.yaml") . | sha256sum }}
+      {{- if .Values.statefulset.podAnnotations }}
+        {{ toYaml .Values.statefulset.podAnnotations | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "vernemq.serviceAccountName" . }}
