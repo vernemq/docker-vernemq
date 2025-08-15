@@ -1,4 +1,4 @@
-FROM alpine:3.20.0
+FROM alpine:3.22.1
 
 RUN apk --no-cache --update --available upgrade && \
     apk add --no-cache ncurses-libs libstdc++ jq curl bash snappy-dev nano && \
