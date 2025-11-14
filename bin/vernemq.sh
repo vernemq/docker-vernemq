@@ -135,7 +135,7 @@ if env | grep "DOCKER_VERNEMQ_DISCOVERY_NODE" -q; then
     fi
 
     sed -i.bak -r "/-eval.+/d" ${VERNEMQ_VM_ARGS_FILE}
-    echo "-eval \"vmq_server_cmd:node_join('VerneMQ@$discovery_node')\"" >> ${VERNEMQ_VM_ARGS_FILE}
+    printf '\n%s\n' "-eval \"vmq_server_cmd:node_join('VerneMQ@$discovery_node')\"" >> ${VERNEMQ_VM_ARGS_FILE}
 fi
 
 # If you encounter "SSL certification error (subject name does not match the host name)", you may try to set DOCKER_VERNEMQ_KUBERNETES_INSECURE to "1".
@@ -216,7 +216,7 @@ if env | grep "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES" -q; then
             discoveryHostname="${kube_pod_name}.${VERNEMQ_KUBERNETES_SUBDOMAIN}.${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}"
             start_join_cluster=1
             echo "Will join an existing Kubernetes cluster with discovery node at ${discoveryHostname}"
-            echo "-eval \"vmq_server_cmd:node_join('VerneMQ@${discoveryHostname}')\"" >> ${VERNEMQ_VM_ARGS_FILE}
+            printf '\n%s\n' "-eval \"vmq_server_cmd:node_join('VerneMQ@${discoveryHostname}')\"" >> ${VERNEMQ_VM_ARGS_FILE}
             curl -fsSL http://${discoveryHostname}:8888/status.json >/dev/null 2>&1 ||
                 (echo "Can't download status.json, better to exit now" && exit 1)
             curl -fsSL http://${discoveryHostname}:8888/status.json | grep -q ${VERNEMQ_KUBERNETES_HOSTNAME} ||

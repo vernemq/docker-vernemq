@@ -212,6 +212,10 @@ statefulset:
     successThreshold: 1
     failureThreshold: 3
   readinessProbe:
+    httpGet:
+      path: /health/ping
+      port: api
+      scheme: HTTP
     initialDelaySeconds: 90
     periodSeconds: 10
     timeoutSeconds: 5

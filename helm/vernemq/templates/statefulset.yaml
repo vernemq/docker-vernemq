@@ -35,9 +35,10 @@ spec:
       {{- if .Values.statefulset.podLabels }}
         {{ toYaml .Values.statefulset.podLabels | nindent 8 }}
       {{- end }}
-      {{- with .Values.statefulset.podAnnotations }}
       annotations:
-        {{ toYaml . | nindent 8 }}
+        checksum/acl: {{ include (print $.Template.BasePath "/configmap-acl.yaml") . | sha256sum }}
+      {{- if .Values.statefulset.podAnnotations }}
+        {{ toYaml .Values.statefulset.podAnnotations | nindent 8 }}
       {{- end }}
     spec:
       serviceAccountName: {{ include "vernemq.serviceAccountName" . }}
@@ -125,10 +126,18 @@ spec:
             successThreshold: {{ .Values.statefulset.livenessProbe.successThreshold }}
             failureThreshold: {{ .Values.statefulset.livenessProbe.failureThreshold }}
           readinessProbe:
+          {{- if .Values.statefulset.readinessProbe.exec }}
+            exec:
+              command: {{ toYaml .Values.statefulset.readinessProbe.exec.command | nindent 14 }}
+          {{- else if .Values.statefulset.readinessProbe.tcpSocket }}
+            tcpSocket:
+              port: {{ .Values.statefulset.readinessProbe.tcpSocket.port }}
+          {{- else }}
             httpGet:
-              path: /health/ping
-              port: api
-              scheme: HTTP
+              path: {{ .Values.statefulset.readinessProbe.httpGet.path }}
+              port: {{ .Values.statefulset.readinessProbe.httpGet.port }}
+              scheme: {{ .Values.statefulset.readinessProbe.httpGet.scheme }}
+          {{- end }}
             initialDelaySeconds: {{ .Values.statefulset.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.statefulset.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.statefulset.readinessProbe.timeoutSeconds }}
