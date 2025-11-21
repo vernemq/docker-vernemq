@@ -371,7 +371,7 @@ fi
 if [ -n "$API_KEY" ]; then
   sleep 60
   echo "Adding API_KEY..."
-  vmq-admin api-key add key="${API_KEY}"
+  vmq-admin api-key add key="${API_KEY}" scope="${API_KEY_SCOPE:-mgmt}"
 fi
 
 wait $pid
