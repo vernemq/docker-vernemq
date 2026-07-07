@@ -11,18 +11,19 @@ ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
     DOCKER_VERNEMQ_LOG__CONSOLE=console \
     PATH="/vernemq/bin:$PATH" \
     VERNEMQ_VERSION="2.1.1"
-WORKDIR /vernemq
 
 COPY --chown=10000:10000 bin/vernemq.sh /usr/sbin/start_vernemq
 COPY --chown=10000:10000 bin/join_cluster.sh /usr/sbin/join_cluster
 COPY --chown=10000:10000 files/vm.args /vernemq/etc/vm.args
 
-# Note that the following copies a binary package under EULA (requiring a paid subscription).
-RUN ARCH=$(uname -m | sed -e 's/aarch64/arm64/') && \
-    echo $ARCH && \
-    curl -L https://github.com/vernemq/vernemq/releases/download/$VERNEMQ_VERSION/vernemq-$VERNEMQ_VERSION.alpine.$ARCH.tar.gz -o /tmp/vernemq-$VERNEMQ_VERSION.alpine.tar.gz && \
-    tar -xzvf /tmp/vernemq-$VERNEMQ_VERSION.alpine.tar.gz && \
-    rm /tmp/vernemq-$VERNEMQ_VERSION.alpine.tar.gz && \
+# The default VERNEMQ_TARBALL_URL points to the official VerneMQ binary
+# package, which is distributed under a EULA: commercial use requires a paid
+# subscription.
+ARG TARGETARCH
+ARG VERNEMQ_TARBALL_URL="https://github.com/vernemq/vernemq/releases/download/${VERNEMQ_VERSION}/vernemq-${VERNEMQ_VERSION}.bookworm.${TARGETARCH/aarch64/arm64}.tar.gz"
+ADD --unpack=false ${VERNEMQ_TARBALL_URL} /tmp/vernemq.tar.gz
+RUN tar -xzvf /tmp/vernemq.tar.gz && \
+    rm /tmp/vernemq.tar.gz && \
     chown -R 10000:10000 /vernemq && \
     ln -s /vernemq/etc /etc/vernemq && \
     ln -s /vernemq/data /var/lib/vernemq && \
