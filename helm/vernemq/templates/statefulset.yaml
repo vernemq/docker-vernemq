@@ -43,6 +43,7 @@ spec:
     spec:
       serviceAccountName: {{ include "vernemq.serviceAccountName" . }}
       terminationGracePeriodSeconds: {{ .Values.statefulset.terminationGracePeriodSeconds }}
+      automountServiceAccountToken: {{ .Values.rbac.serviceAccount.automountServiceAccountToken }}
       {{- with .Values.statefulset.imagePullSecrets }}
       imagePullSecrets:
         {{- range . }}
