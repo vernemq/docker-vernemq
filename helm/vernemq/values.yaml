@@ -143,6 +143,9 @@ securityContext:
 rbac:
   create: true
   serviceAccount:
+    ## Configure to auto mount service account token
+    ## Ref: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#podspec-v1-core
+    automountServiceAccountToken: true
     create: true
     ## Service account name to be used.
     ## If not set and serviceAccount.create is true a name is generated using the fullname template.
@@ -203,9 +206,6 @@ statefulset:
   ## Configure how much time VerneMQ takes to move offline queues to other nodes
   ## Ref: https://vernemq.com/docs/clustering/#detailed-cluster-leave-case-a-make-a-live-node-leave
   terminationGracePeriodSeconds: 60
-  ## Configure to auto mount service account token
-  ## Ref: https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.27/#podspec-v1-core
-  automountServiceAccountToken: true
   ## Liveness and Readiness probe values
   ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes
   livenessProbe:
