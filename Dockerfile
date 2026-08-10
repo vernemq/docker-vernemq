@@ -1,7 +1,8 @@
-FROM debian:bookworm-slim
+FROM debian:trixie-slim
+
 
 RUN apt-get update && \
-    apt-get -y install bash procps openssl iproute2 curl jq libsnappy-dev net-tools nano && \
+    apt-get -y install bash procps openssl iproute2 curl jq libsnappy-dev net-tools nano adduser && \
     rm -rf /var/lib/apt/lists/* && \
     addgroup --gid 10000 vernemq && \
     adduser --uid 10000 --system --ingroup vernemq --home /vernemq --disabled-password vernemq
@@ -12,16 +13,16 @@ WORKDIR /vernemq
 ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
     DOCKER_VERNEMQ_LOG__CONSOLE=console \
     PATH="/vernemq/bin:$PATH" \
-    VERNEMQ_VERSION="2.1.1"
+    VERNEMQ_VERSION="2.2.0"
 COPY --chown=10000:10000 bin/vernemq.sh /usr/sbin/start_vernemq
 COPY --chown=10000:10000 bin/join_cluster.sh /usr/sbin/join_cluster
 COPY --chown=10000:10000 files/vm.args /vernemq/etc/vm.args
 
 # Note that the following copies a binary package under EULA (requiring a paid subscription).
 RUN ARCH=$(uname -m | sed -e 's/aarch64/arm64/') && \
-    curl -L https://github.com/vernemq/vernemq/releases/download/$VERNEMQ_VERSION/vernemq-$VERNEMQ_VERSION.bookworm.$ARCH.tar.gz -o /tmp/vernemq-$VERNEMQ_VERSION.bookworm.tar.gz && \
-    tar -xzvf /tmp/vernemq-$VERNEMQ_VERSION.bookworm.tar.gz && \
-    rm /tmp/vernemq-$VERNEMQ_VERSION.bookworm.tar.gz && \
+    curl -L https://github.com/vernemq/vernemq/releases/download/$VERNEMQ_VERSION/vernemq-$VERNEMQ_VERSION.trixie.$ARCH.tar.gz -o /tmp/vernemq-$VERNEMQ_VERSION.trixie.tar.gz && \
+    tar -xzvf /tmp/vernemq-$VERNEMQ_VERSION.trixie.tar.gz && \
+    rm /tmp/vernemq-$VERNEMQ_VERSION.trixie.tar.gz && \
     chown -R 10000:10000 /vernemq && \
     ln -s /vernemq/etc /etc/vernemq && \
     ln -s /vernemq/data /var/lib/vernemq && \

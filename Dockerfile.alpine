@@ -1,6 +1,8 @@
-FROM alpine:3.22.1
+FROM dhi.io/alpine-base:3.24-dev
 
-RUN apk --no-cache --update --available upgrade && \
+
+# RUN apk --no-cache --update --available upgrade && \
+RUN apk update && \
     apk add --no-cache ncurses-libs libstdc++ jq curl bash snappy-dev nano && \
     addgroup --gid 10000 vernemq && \
     adduser --uid 10000 -H -D -G vernemq -h /vernemq vernemq && \
@@ -10,7 +12,7 @@ RUN apk --no-cache --update --available upgrade && \
 ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
     DOCKER_VERNEMQ_LOG__CONSOLE=console \
     PATH="/vernemq/bin:$PATH" \
-    VERNEMQ_VERSION="2.1.1"
+    VERNEMQ_VERSION="2.2.0"
 WORKDIR /vernemq
 
 COPY --chown=10000:10000 bin/vernemq.sh /usr/sbin/start_vernemq
@@ -18,16 +20,17 @@ COPY --chown=10000:10000 bin/join_cluster.sh /usr/sbin/join_cluster
 COPY --chown=10000:10000 files/vm.args /vernemq/etc/vm.args
 
 # Note that the following copies a binary package under EULA (requiring a paid subscription).
-RUN ARCH=$(uname -m | sed -e 's/aarch64/arm64/') && \
+RUN echo $VERNEMQ_VERSION && \
+    ARCH=$(uname -m | sed -e 's/aarch64/arm64/') && \
     echo $ARCH && \
-    curl -L https://github.com/vernemq/vernemq/releases/download/$VERNEMQ_VERSION/vernemq-$VERNEMQ_VERSION.alpine.$ARCH.tar.gz -o /tmp/vernemq-$VERNEMQ_VERSION.alpine.tar.gz && \
-    tar -xzvf /tmp/vernemq-$VERNEMQ_VERSION.alpine.tar.gz && \
+    curl -fL https://github.com/vernemq/vernemq/releases/download/$VERNEMQ_VERSION/vernemq-$VERNEMQ_VERSION.alpine.$ARCH.tar.gz -o /tmp/vernemq-$VERNEMQ_VERSION.alpine.tar.gz && \
+    tar xf /tmp/vernemq-$VERNEMQ_VERSION.alpine.tar.gz && \
     rm /tmp/vernemq-$VERNEMQ_VERSION.alpine.tar.gz && \
     chown -R 10000:10000 /vernemq && \
+    mkdir -p /var/lib /var/log && \
     ln -s /vernemq/etc /etc/vernemq && \
     ln -s /vernemq/data /var/lib/vernemq && \
     ln -s /vernemq/log /var/log/vernemq
-
 # Ports
 # 1883  MQTT
 # 8883  MQTT/SSL
