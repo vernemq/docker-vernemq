@@ -71,6 +71,7 @@ Parameter | Description | Default
 `extraVolumes` | Additional volumes to the pod | `[]`
 `secretMounts` | mounts a secret as a file inside the statefulset. Useful for mounting certificates and other secrets.| `[]`
 `podAntiAffinity` | pod anti affinity, `soft` for trying not to run pods on the same nodes, `hard` to force kubernetes not to run 2 pods on the same node | `soft`
+`priorityClassName` | priority class name for pod assignment | `""`
 `rbac.create` | if true, create & use RBAC resources | `true`
 `rbac.serviceAccount.create` | if true, create a serviceAccount | `true`
 `rbac.serviceAccount.name` | name of the service account to use or create | `{{ include "vernemq.fullname" . }}`
