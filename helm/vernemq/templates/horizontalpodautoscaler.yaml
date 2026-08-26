@@ -1,0 +1,41 @@
+{{- if .Values.autoscaling.enabled }}
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "vernemq.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "vernemq.name" . }}
+    helm.sh/chart: {{ include "vernemq.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: StatefulSet
+    name: {{ include "vernemq.fullname" . }}
+  minReplicas: {{ .Values.autoscaling.minReplicas }}
+  maxReplicas: {{ .Values.autoscaling.maxReplicas }}
+  metrics:
+    {{- if .Values.autoscaling.metrics }}
+    {{ toYaml .Values.autoscaling.metrics | nindent 4 }}
+    {{- end }}
+    {{- if .Values.autoscaling.cpuAverageUtilization }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.cpuAverageUtilization }}
+    {{- end }}
+    {{- if .Values.autoscaling.memAverageUtilization }}
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: {{ .Values.autoscaling.memAverageUtilization }}
+    {{- end }}
+  {{- if .Values.autoscaling.behavior }}
+  {{ toYaml .Values.autoscaling.metrics | nindent 2 }}
+  {{- end }}
+{{- end }}

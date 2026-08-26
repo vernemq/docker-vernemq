@@ -239,6 +239,14 @@ pdb:
   minAvailable: 1
   # maxUnavailable: 1
 
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 10
+  cpuAverageUtilization: 80
+  # memoryAverageUtilization: 80
+  # metrics:
+
 certificates: {}
 
 ## VerneMQ settings

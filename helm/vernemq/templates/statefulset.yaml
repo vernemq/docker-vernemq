@@ -16,7 +16,10 @@ metadata:
   {{- end }}
 spec:
   serviceName: {{ include "vernemq.fullname" . }}-headless
+  # Disable replicas configuration if autoscaling is enabled, as HPA will manage the number of replicas
+  {{- if not .Values.autoscaling.enabled }}
   replicas: {{ .Values.replicaCount }}
+  {{- end }}
   podManagementPolicy: {{ .Values.statefulset.podManagementPolicy }}
   updateStrategy:
     type: {{ .Values.statefulset.updateStrategy }}
