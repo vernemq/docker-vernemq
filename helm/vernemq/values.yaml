@@ -206,10 +206,17 @@ statefulset:
   ## Configure how much time VerneMQ takes to move offline queues to other nodes
   ## Ref: https://vernemq.com/docs/clustering/#detailed-cluster-leave-case-a-make-a-live-node-leave
   terminationGracePeriodSeconds: 60
-  ## Liveness and Readiness probe values
-  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes
+  ## Startup, Liveness and Readiness probe values
+  ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  ## The startup probe verifies that the node is up and successfully joined the cluster if required
+  startupProbe:
+    initialDelaySeconds: 30
+    periodSeconds: 10
+    timeoutSeconds: 5
+    successThreshold: 1
+    failureThreshold: 5
   livenessProbe:
-    initialDelaySeconds: 90
+    initialDelaySeconds: 60
     periodSeconds: 10
     timeoutSeconds: 5
     successThreshold: 1
@@ -219,7 +226,7 @@ statefulset:
       path: /health/ping
       port: api
       scheme: HTTP
-    initialDelaySeconds: 90
+    initialDelaySeconds: 60
     periodSeconds: 10
     timeoutSeconds: 5
     successThreshold: 1

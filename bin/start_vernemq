@@ -9,6 +9,8 @@ VERNEMQ_ETC_DIR="/vernemq/etc"
 VERNEMQ_VM_ARGS_FILE="${VERNEMQ_ETC_DIR}/vm.args"
 VERNEMQ_CONF_FILE="${VERNEMQ_ETC_DIR}/vernemq.conf"
 VERNEMQ_CONF_LOCAL_FILE="${VERNEMQ_ETC_DIR}/vernemq.conf.local"
+VERNEMQ_STATE_FILE="/tmp/vernemq_state"
+rm -f ${VERNEMQ_STATE_FILE}
 
 SECRETS_KUBERNETES_DIR="/var/run/secrets/kubernetes.io/serviceaccount"
 
@@ -176,6 +178,7 @@ if [ -d "${SECRETS_KUBERNETES_DIR}" ] ; then
 
     # Check the API access that will be needed in the TERM signal handler
     podResponse=$(k8sCurlGet api/v1/namespaces/${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}/pods/$(hostname) )
+    podIndex=$(echo ${podResponse} | jq -r '.metadata.labels["apps.kubernetes.io/pod-index"]')
     statefulSetName=$(echo ${podResponse} | jq -r '.metadata.ownerReferences[0].name')
     statefulSetPath="apis/apps/v1/namespaces/${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}/statefulsets/${statefulSetName}"
     statefulSetResponse=$(k8sCurlGet ${statefulSetPath} )
@@ -191,6 +194,7 @@ fi
 
 # Set up kubernetes node discovery
 start_join_cluster=0
+discoveryHostname=""
 if env | grep "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES" -q; then
     # Let's set our nodename correctly
     # https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.19/#list-pod-v1-core
@@ -216,15 +220,14 @@ if env | grep "DOCKER_VERNEMQ_DISCOVERY_KUBERNETES" -q; then
             discoveryHostname="${kube_pod_name}.${VERNEMQ_KUBERNETES_SUBDOMAIN}.${DOCKER_VERNEMQ_KUBERNETES_NAMESPACE}.svc.${DOCKER_VERNEMQ_KUBERNETES_CLUSTER_NAME}"
             start_join_cluster=1
             echo "Will join an existing Kubernetes cluster with discovery node at ${discoveryHostname}"
-            printf '\n%s\n' "-eval \"vmq_server_cmd:node_join('VerneMQ@${discoveryHostname}')\"" >> ${VERNEMQ_VM_ARGS_FILE}
-            curl -fsSL http://${discoveryHostname}:8888/status.json >/dev/null 2>&1 ||
-                (echo "Can't download status.json, better to exit now" && exit 1)
-            curl -fsSL http://${discoveryHostname}:8888/status.json | grep -q ${VERNEMQ_KUBERNETES_HOSTNAME} ||
-                (echo "Cluster doesn't know about me, this means I've left previously or I'm a new node.")
             break
         fi
     done
 fi
+
+# Persist discovery result
+echo "export VERNEMQ_JOINING_CLUSTER=${start_join_cluster}" >> ${VERNEMQ_STATE_FILE}
+echo "export VERNEMQ_DISCOVERY_NODE=\"${discoveryHostname}\"" >> ${VERNEMQ_STATE_FILE}
 
 if [ -f "${VERNEMQ_CONF_LOCAL_FILE}" ]; then
     cp "${VERNEMQ_CONF_LOCAL_FILE}" ${VERNEMQ_CONF_FILE}
@@ -276,7 +279,7 @@ EOF
     if [ -z "$DOCKER_VERNEMQ_LISTENER__HTTP__METRICS" ]; then
         echo "listener.http.metrics = ${IP_ADDRESS}:8888" >> ${VERNEMQ_CONF_FILE}
     fi
-    	
+
     configure_vernemq_listeners
 
     echo "########## End ##########" >> ${VERNEMQ_CONF_FILE}
@@ -325,6 +328,12 @@ sigterm_handler() {
                 terminating_node_name=VerneMQ@$IP_ADDRESS
             fi
             echo "SigTerm received from Kubernetes."
+            # Core poole size or default of 1 (last node) to determine if we should leave the cluster or not
+            corePoolSize="${DOCKER_VERNEMQ_KUBERNETES_CORE_CLUSTER_SIZE:-1}"
+            if [$podIndex >= $corePoolSize ]; then
+               echo "Leaving VerneMQ node $terminating_node_name from the cluster."
+               /vernemq/bin/vmq-admin cluster leave node=${terminating_node_name} -k && rm -rf /vernemq/data/*
+            fi
             echo "Stopping VerneMQ node $terminating_node_name."
             /vernemq/bin/vmq-admin node stop >/dev/null
         else

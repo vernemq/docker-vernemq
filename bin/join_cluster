@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+# Joins the cluster start_vernemq picked, retrying until the join shows up in
+# our membership
+
+VERNEMQ_STATE_FILE="/tmp/vernemq_state"
+
+if [ ! -s "${VERNEMQ_STATE_FILE}" ]; then
+    echo "Waiting for the startup script to write ${VERNEMQ_STATE_FILE}..."
+    while [ ! -s "${VERNEMQ_STATE_FILE}" ]; do
+        sleep 1
+    done
+fi
+
+. ${VERNEMQ_STATE_FILE}
+
+if [ "${VERNEMQ_JOINING_CLUSTER}" -ne 1 ]; then
+    echo "We were not told to join a cluster. Maybe we're the first?"
+    echo "Anyway, we won't attempt to join any cluster."
+    exit 0
+fi
+
+try_join() {
+  local exit_code=0
+
+  vmq-admin cluster show | grep "VerneMQ@${VERNEMQ_DISCOVERY_NODE}" > /dev/null || exit_code=$?
+  if [ $exit_code -eq 0 ]; then
+      echo "We have already joined the cluster - no extra work required."
+      exit 0
+  else
+      echo "We have yet to join the cluster - attempting manual join..."
+      vmq-admin cluster join discovery-node="VerneMQ@${VERNEMQ_DISCOVERY_NODE}"
+      sleep 2
+  fi
+}
+
+while true
+do
+    try_join
+done;

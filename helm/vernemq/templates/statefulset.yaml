@@ -116,6 +116,15 @@ spec:
             {{ toYaml .Values.envFrom | nindent 12 }}
           resources:
             {{ toYaml .Values.resources | nindent 12 }}
+          startupProbe:
+            exec:
+              command:
+                - /usr/sbin/check_cluster
+            initialDelaySeconds: {{ .Values.statefulset.startupProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.statefulset.startupProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.statefulset.startupProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.statefulset.startupProbe.successThreshold }}
+            failureThreshold: {{ .Values.statefulset.startupProbe.failureThreshold }}
           livenessProbe:
             httpGet:
               path: /health/ping

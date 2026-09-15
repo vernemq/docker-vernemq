@@ -14,8 +14,9 @@ ENV DOCKER_VERNEMQ_KUBERNETES_LABEL_SELECTOR="app=vernemq" \
     DOCKER_VERNEMQ_LOG__CONSOLE=console \
     PATH="/vernemq/bin:$PATH" \
     VERNEMQ_VERSION="2.2.0"
-COPY --chown=10000:10000 bin/vernemq.sh /usr/sbin/start_vernemq
-COPY --chown=10000:10000 bin/join_cluster.sh /usr/sbin/join_cluster
+COPY --chown=10000:10000 bin/start_vernemq /usr/sbin/start_vernemq
+COPY --chown=10000:10000 bin/join_cluster /usr/sbin/join_cluster
+COPY --chown=10000:10000 bin/check_cluster /usr/sbin/check_cluster
 COPY --chown=10000:10000 files/vm.args /vernemq/etc/vm.args
 
 # Note that the following copies a binary package under EULA (requiring a paid subscription).

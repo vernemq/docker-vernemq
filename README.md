@@ -96,6 +96,10 @@ If using an vernemq.conf.local file, you can insert a placeholder (`###IPADDRESS
 
 If istio is enabled you, set `DOCKER_VERNEMQ_KUBERNETES_ISTIO_ENABLED=1` so the init script will check if istio is ready.
 
+#### Checking the cluster join with a startup probe
+
+The image ships a `/usr/sbin/check_cluster` script meant to be used as a [startup probe](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/). It exits 0 once the node is up clustering is done, if required.
+
 ### 5. Using [Docker Swarm](https://docs.docker.com/engine/swarm/)
 
 Please follow the official Docker guide to properly setup Swarm cluster with one or more nodes.
