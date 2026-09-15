@@ -109,10 +109,6 @@ spec:
             - name: DOCKER_VERNEMQ_LISTENER__SSL__KEYFILE
               value: "/etc/ssl/vernemq/tls.key"
             {{- end }}
-            {{- if .Values.autoscaling.enabled }}
-            - name: DOCKER_VERNEMQ_KUBERNETES_CORE_CLUSTER_SIZE
-              value: "{{ .Values.autoscaling.minReplicas }}"
-            {{- end }}
             {{- if .Values.additionalEnv }}
             {{ toYaml .Values.additionalEnv | nindent 12 }}
             {{- end }}
@@ -121,10 +117,9 @@ spec:
           resources:
             {{ toYaml .Values.resources | nindent 12 }}
           startupProbe:
-            httpGet:
-              port: api
-              path: /health/listeners_full_cluster
-              scheme: HTTP
+            exec:
+              command:
+                - /usr/sbin/check_cluster
             initialDelaySeconds: {{ .Values.statefulset.startupProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.statefulset.startupProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.statefulset.startupProbe.timeoutSeconds }}

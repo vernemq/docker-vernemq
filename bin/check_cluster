@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+
+# Script checks for pending cluster join activities based on the discovery information
+# collected in `start_vernemq`. Should be called periodicly until exit 0 is returned,
+# before traffic is routed to this node to prevent exclusion from cluster because of
+# non empty node.
+#
+# When we should join a cluster (VERNEMQ_JOINING_CLUSTER=1) this script returns exit 0
+# as soon as the discovery node (VERNEMQ_DISCOVERY_NODE) is visible in our cluster
+# status.
+
+VERNEMQ_STATE_FILE="/tmp/vernemq_state"
+
+if [ ! -s "${VERNEMQ_STATE_FILE}" ]; then
+    echo "VerneMQ startup script has not finished the discovery process"
+    exit 1
+fi
+
+. ${VERNEMQ_STATE_FILE}
+
+if [ "${VERNEMQ_JOINING_CLUSTER}" -ne 1 ]; then
+    # No cluster to join
+    exit 0
+fi
+
+if ! cluster_show=$(vmq-admin cluster show 2>&1); then
+    echo "VerneMQ is not up yet."
+    exit 1
+fi
+
+if echo "${cluster_show}" | grep -q "VerneMQ@${VERNEMQ_DISCOVERY_NODE}"; then
+    echo "Joined the cluster with discovery node at ${VERNEMQ_DISCOVERY_NODE}"
+    exit 0
+fi
+
+echo "We have yet to join the cluster with discovery node at ${VERNEMQ_DISCOVERY_NODE}"
+exit 1

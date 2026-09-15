@@ -208,6 +208,7 @@ statefulset:
   terminationGracePeriodSeconds: 60
   ## Startup, Liveness and Readiness probe values
   ## Ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/
+  ## The startup probe verifies that the node is up and successfully joined the cluster if required
   startupProbe:
     initialDelaySeconds: 30
     periodSeconds: 10
