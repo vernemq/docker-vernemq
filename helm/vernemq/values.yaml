@@ -17,6 +17,7 @@ serviceMonitor:
   create: false
   interval: 30s
   labels: {}
+  # jobLabel:
 
 service:
   # Can be disabled if more advanced use cases require more complex setups, e.g., combining LoadBalancer and ClusterIP for internal and external access. See also issue #274.
