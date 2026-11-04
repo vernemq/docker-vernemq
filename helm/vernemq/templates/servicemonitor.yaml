@@ -12,6 +12,7 @@ metadata:
       {{ toYaml .Values.serviceMonitor.labels | nindent 4 }}
     {{- end }}
 spec:
+  jobLabel: {{ .Values.serviceMonitor.jobLabel }}
   endpoints:
   - interval: {{ .Values.serviceMonitor.interval }}
     port: metrics
